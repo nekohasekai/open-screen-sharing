@@ -51,7 +51,9 @@ struct ComputerEditor: View {
     }
 
     private var isComplete: Bool {
-        !authenticates || (!trimmedUsername.isEmpty && !password.isEmpty)
+        // An account can be configured without a password, as on a Mac; only the
+        // user name is required when authentication is enabled.
+        !authenticates || !trimmedUsername.isEmpty
     }
 
     var body: some View {
@@ -140,7 +142,7 @@ struct ComputerEditor: View {
                                     .onSubmit { focusedField = .password }
                             }
                             LabeledContentCompat("Password") {
-                                TextField("Password", text: $password.masked { focusedField == .password }, prompt: Text("Required"))
+                                TextField("Password", text: $password.masked { focusedField == .password }, prompt: Text("Optional"))
                                     .textContentType(.oneTimeCode)
                                     #if os(iOS)
                                     .textInputAutocapitalization(.never)
@@ -195,7 +197,7 @@ struct ComputerEditor: View {
         }
         let address = ComputerAddress(host: endpoint.host, port: endpoint.port ?? choice.remoteProtocol.defaultPort)
         guard isComplete else {
-            focusedField = trimmedUsername.isEmpty ? .username : .password
+            focusedField = .username
             return
         }
         let computer: Computer
@@ -219,7 +221,9 @@ struct ComputerEditor: View {
         }
         if let setup {
             var route = SessionRoute(computer: computer)
-            route.password = password.isEmpty ? nil : password
+            // An empty password is a valid credential for accounts without one, so
+            // it is passed along instead of dropped.
+            route.password = password
             route.server = setup.server
             setup.connect(route)
         }

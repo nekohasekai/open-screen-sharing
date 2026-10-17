@@ -321,9 +321,12 @@ final class SessionController: ObservableObject, Identifiable {
         let savedPassword = stored.flatMap { $0.username == username ? $0.password : nil } ?? ""
         passwordUpdate = .keep
         usedSavedPassword = false
-        if let password = route.password, !password.isEmpty {
+        if let password = route.password {
+            // An explicitly provided password may be empty for accounts configured
+            // without one.
             connect(with: SessionCredentials(loginType: .account, username: username, password: password))
-        } else if !savedPassword.isEmpty {
+        } else if stored?.authenticates == true && stored?.username == username {
+            // A saved account may likewise have an empty password.
             usedSavedPassword = true
             connect(with: SessionCredentials(loginType: .account, username: username, password: savedPassword))
         } else {

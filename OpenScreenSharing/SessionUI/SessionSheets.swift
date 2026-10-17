@@ -43,7 +43,14 @@ struct CredentialsView: View {
     }
 
     private var isValid: Bool {
-        !password.isEmpty && (!asksForUsername || !trimmedUsername.isEmpty)
+        if asksForUsername {
+            // A Mac (or RDP) account can be configured without a password, so only
+            // the user name is required; the server rejects an empty password when
+            // the account actually has one.
+            return !trimmedUsername.isEmpty
+        } else {
+            return !password.isEmpty
+        }
     }
 
     var body: some View {
