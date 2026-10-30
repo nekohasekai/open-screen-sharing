@@ -323,7 +323,7 @@ jobs:
         run: ditto -c -k --keepParent build/OpenScreenSharing-macOS.xcarchive/dSYMs build/OpenScreenSharing-macOS.dSYMs.zip
       - name: Write metadata
         run: |-
-          INFO_PLIST="build/OpenScreenSharing-macOS/Screen Sharing.app/Contents/Info.plist"
+          INFO_PLIST="build/OpenScreenSharing-macOS/Open Screen Sharing.app/Contents/Info.plist"
           VERSION=$(plutil -extract CFBundleShortVersionString raw "$INFO_PLIST")
           BUILD=$(plutil -extract CFBundleVersion raw "$INFO_PLIST")
           printf '{"version":"%s","build":%s}\n' "$VERSION" "$BUILD" > build/metadata.json

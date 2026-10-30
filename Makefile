@@ -65,9 +65,10 @@ export_macos:
 build_macos_pkg:
 	rm -rf build/pkgroot build/component.pkg build/OpenScreenSharing.pkg
 	mkdir -p build/pkgroot
-	ditto "build/OpenScreenSharing-macOS/Screen Sharing.app" "build/pkgroot/Screen Sharing.app"
+	ditto "build/OpenScreenSharing-macOS/Open Screen Sharing.app" "build/pkgroot/Open Screen Sharing.app"
 	pkgbuild --root build/pkgroot \
 		--component-plist OpenScreenSharing/component.plist \
+		--scripts OpenScreenSharing/PackageScripts \
 		--identifier io.nekohasekai.screensharing \
 		--install-location /Applications \
 		--min-os-version 14.0 \

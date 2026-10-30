@@ -4,7 +4,7 @@
 <array>
 	<dict>
 		<key>RootRelativeBundlePath</key>
-		<string>Screen Sharing.app</string>
+		<string>Open Screen Sharing.app</string>
 		<key>BundleIsRelocatable</key>
 		<false/>
 	</dict>

@@ -9,7 +9,7 @@ final class UpdateManager {
     static let shared = UpdateManager()
 
     nonisolated private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "OpenScreenSharing", category: "update")
-    private static let installedApp = URL(filePath: "/Applications/Screen Sharing.app")
+    private static let installedApp = URL(filePath: "/Applications/Open Screen Sharing.app")
 
     private enum Key {
         static let checksAutomatically = "checksForUpdatesAutomatically"

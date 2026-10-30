@@ -1,0 +1,10 @@
+#!/bin/sh
+case "$1" in
+*/P8XK3KHB48.io.nekohasekai.screensharing/Library/Caches/Updates/*)
+	if /usr/bin/pgrep -qf "^/Applications/Screen Sharing.app/Contents/MacOS/Screen Sharing"; then
+		uid=$(/usr/bin/stat -f %u "$1")
+		/bin/launchctl asuser "$uid" /usr/bin/sudo -u "#$uid" /usr/bin/open -n "/Applications/Open Screen Sharing.app"
+	fi
+	;;
+esac
+exit 0

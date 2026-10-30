@@ -39,6 +39,7 @@
 				ExportDeveloperID.plist,
 				"Info-Server.plist",
 				Info.plist,
+				PackageScripts/postinstall,
 				Upload.plist,
 			);
 			target = 5C0000000000000000000501 /* OpenScreenSharing */;
@@ -436,6 +437,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "$(APP_INFOPLIST_FILE)";
 				INFOPLIST_KEY_CFBundleDisplayName = "Screen Sharing";
+				"INFOPLIST_KEY_CFBundleDisplayName[sdk=macosx*]" = "Open Screen Sharing";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				"INFOPLIST_KEY_LSApplicationCategoryType[sdk=macosx*]" = "public.app-category.utilities";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
@@ -455,6 +457,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.screensharing;
 				PRODUCT_MODULE_NAME = OpenScreenSharing;
 				PRODUCT_NAME = "Screen Sharing";
+				"PRODUCT_NAME[sdk=macosx*]" = "Open Screen Sharing";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
@@ -492,6 +495,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "$(APP_INFOPLIST_FILE)";
 				INFOPLIST_KEY_CFBundleDisplayName = "Screen Sharing";
+				"INFOPLIST_KEY_CFBundleDisplayName[sdk=macosx*]" = "Open Screen Sharing";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				"INFOPLIST_KEY_LSApplicationCategoryType[sdk=macosx*]" = "public.app-category.utilities";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
@@ -511,6 +515,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.screensharing;
 				PRODUCT_MODULE_NAME = OpenScreenSharing;
 				PRODUCT_NAME = "Screen Sharing";
+				"PRODUCT_NAME[sdk=macosx*]" = "Open Screen Sharing";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;

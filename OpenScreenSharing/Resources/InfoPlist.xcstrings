@@ -55,7 +55,7 @@
         },
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Screen Sharing"
           }
         },
@@ -367,7 +367,7 @@
         },
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Screen Sharing"
           }
         },
