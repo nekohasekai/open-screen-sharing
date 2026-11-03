@@ -140,6 +140,16 @@ final class SessionController: Identifiable {
     @PerceptionIgnored private var keyboardSources: [MacInputSource] = []
     @PerceptionIgnored private var keyboardSourceID: String?
     @PerceptionIgnored private var secureInput = false
+    #if os(iOS)
+    @PerceptionIgnored private var cursorKind: StandardCursor?
+    @PerceptionIgnored private var pointerInputCount = 0
+    @PerceptionIgnored private var textInputClick:
+        (time: CFTimeInterval, input: Int, point: CGPoint, readsCursor: Bool, opensKeyboard: Bool)?
+    @PerceptionIgnored private var tappedTextField: (point: CGPoint, time: CFTimeInterval)?
+    @PerceptionIgnored private var textFieldFocused = false
+    @PerceptionIgnored private var pointerNudged = false
+    @PerceptionIgnored private var textInputCheck: Task<Void, Never>?
+    #endif
     private(set) var imageSize: CGSize = .zero
     private(set) var picture = ScreenPicture.none
     private(set) var isVideo = false
@@ -623,6 +633,12 @@ final class SessionController: Identifiable {
         pointerButtons = []
         pointerModifiers = []
         nativeTouchIDs = []
+        secureInput = false
+        #if os(iOS)
+        cursorKind = nil
+        forgetTextInput()
+        textFieldFocused = false
+        #endif
         dragID = nil
         dropTarget = nil
         remoteDragOffer = nil
@@ -637,6 +653,9 @@ final class SessionController: Identifiable {
         activeWhenBackgrounded = phase.isActive
         captureThumbnail()
         releaseAllKeys()
+        #if os(iOS)
+        forgetTextInput()
+        #endif
         stopScrollMomentum()
         updateMicrophone()
         sink?.setSceneInBackground(true)
@@ -889,6 +908,9 @@ final class SessionController: Identifiable {
             pointerPosition = CGPoint(x: size.width / 2, y: size.height / 2)
             pipeline.setCursorPosition(pointerPosition, visible: remotePointerVisible)
         }
+        #if os(iOS)
+        forgetTextInput()
+        #endif
         screen?.imageSizeDidChange()
     }
 
@@ -973,12 +995,28 @@ final class SessionController: Identifiable {
         pipeline.setCursorPosition(pointerPosition, visible: remotePointerVisible)
     }
 
+    #if os(iOS)
+    fileprivate func handle(cursorKind kind: StandardCursor?) {
+        cursorKind = kind
+        if kind == .iBeam, let click = textInputClick, click.readsCursor, click.input == pointerInputCount {
+            foundTextInput()
+        }
+    }
+    #endif
+
     fileprivate func handle(keyboardSource source: String?, secureInput: Bool) {
         let current = keyboardSourceID
         if let current, let source, source != current {
             previousKeyboardSource = current
         }
         keyboardSourceID = source
+        #if os(iOS)
+        if secureInput, !self.secureInput, let click = textInputClick, click.input == pointerInputCount,
+            CACurrentMediaTime() - click.time < Self.textInputClickWindow
+        {
+            foundTextInput()
+        }
+        #endif
         self.secureInput = secureInput
         rememberKeyboardSource(source)
         guard let source, let request = keyboardSourceRequest else { return }
@@ -1682,6 +1720,130 @@ final class SessionController: Identifiable {
         #endif
     }
 
+    #if os(iOS)
+    // A tap on a text field shows the keyboard once a text field has focus. While none has, the first tap on a field
+    // only focuses it, so a stray tap doesn't bring the keyboard up; a second tap there shows the keyboard right away.
+    // Focus is taken to stay on a field until a tap lands somewhere that isn't one, through the keyboard being shown
+    // and hidden. Taps go to the computer as they are. Screen Sharing doesn't say where keyboard focus is, so a field is
+    // inferred: either the remote turns on secure input, which only a password field does, or the pointer shows the
+    // I-beam over the tapped point, which also happens over selectable text that takes no typing. On macOS 27.0.1 the
+    // Mac reports a cursor change only with the next pointer motion, and WebKit sets its cursor only after the motion
+    // that brings the pointer there, so the cursor of the tapped point arrives after a one-point nudge and back. A
+    // cursor that is already the I-beam doesn't change, so it's read once the change would have arrived. Only a Mac
+    // is checked: the cursor shapes known are a Mac's, and only a Mac reports secure input.
+    private static let textInputClickWindow: CFTimeInterval = 1.5
+    private static let textInputNudgeDelay: TimeInterval = 0.12
+    private static let textInputNudgeReturn: TimeInterval = 0.05
+    private static let textInputCursorWait: TimeInterval = 0.4
+    /// How long a second tap where a field was found shows the keyboard without checking again.
+    private static let textFieldTapWindow: CFTimeInterval = 10
+
+    private var offersKeyboardForTextInput: Bool {
+        AppSettings.shared.showsKeyboardForTextFields && isControlling && platform == .mac && !usesHardwareKeyboard
+            && !isKeyboardVisible
+    }
+
+    /// Counts pointer input other than the nudge, so a check is dropped once the pointer moves, a button is pressed
+    /// or the picture scrolls after the tap. Scrolling moves the field found by an earlier tap away too.
+    private func notePointerInput(scrolls: Bool = false) {
+        pointerInputCount &+= 1
+        if scrolls { tappedTextField = nil }
+    }
+
+    private func textInputTapped() {
+        let point = pointerPosition
+        let field = tappedTextField
+        forgetTextInputClick()
+        // A double click selects a word rather than asking for the keyboard.
+        guard clickCount == 1 else { return }
+        // A tap moves the pointer only when it's pointed elsewhere first, so a second tap on the field lands where the
+        // first did, and the field needn't be found again.
+        if let field, CACurrentMediaTime() - field.time < Self.textFieldTapWindow,
+            hypot(point.x - field.point.x, point.y - field.point.y) <= Self.multiClickDistance
+        {
+            showKeyboardForTextInput()
+        } else {
+            tappedTextField = nil
+            checkForTextInput(at: point, opensKeyboard: textFieldFocused || secureInput)
+        }
+    }
+
+    private func checkForTextInput(at point: CGPoint, opensKeyboard: Bool) {
+        guard offersKeyboardForTextInput else { return }
+        let input = pointerInputCount
+        let time = CACurrentMediaTime()
+        textInputClick = (time, input, point, false, opensKeyboard)
+        textInputCheck = Task { [weak self] in
+            try? await Task.sleep(seconds: Self.textInputNudgeDelay)
+            guard !Task.isCancelled, let self, self.pointerInputCount == input else { return }
+            self.textInputClick?.readsCursor = true
+            // The nudge is skipped at the edges, where moving away and back could set off a hot corner.
+            if self.nudgePointer(back: false) {
+                self.pointerNudged = true
+                // Consecutive motions are coalesced before they're sent, so the way back waits. It's taken even when
+                // a field has been found meanwhile; a cancelled check takes it in forgetTextInputClick().
+                try? await Task.sleep(seconds: Self.textInputNudgeReturn)
+                guard !Task.isCancelled else { return }
+                self.pointerNudged = false
+                // A later press or motion sends its own position.
+                guard self.pointerInputCount == input else { return }
+                _ = self.nudgePointer(back: true)
+            }
+            try? await Task.sleep(seconds: Self.textInputCursorWait)
+            guard !Task.isCancelled, self.textInputClick?.time == time, self.pointerInputCount == input else { return }
+            // Later cursor changes come from something else, such as scrolling; only secure input still counts.
+            self.textInputClick?.readsCursor = false
+            if self.cursorKind == .iBeam {
+                self.foundTextInput()
+            } else {
+                // The tap focused something else; secure input turning on after all still finds a field.
+                self.textFieldFocused = false
+            }
+        }
+    }
+
+    /// Moves the remote pointer two framebuffer pixels to the right, at least one point on the Mac, or back.
+    private func nudgePointer(back: Bool) -> Bool {
+        guard isControlling, !holdsPointer, pointerButtons.isEmpty, let session else { return false }
+        let point = serverPoint(pointerPosition)
+        let x = Int(point.x.rounded(.down)), y = Int(point.y.rounded(.down))
+        guard x >= 2, y >= 2, x + 2 < Int(pictureSize.width), y + 2 < Int(pictureSize.height) else { return false }
+        // The Mac may report the nudged position; it's the pointer's own position meanwhile.
+        lastPointerMoveTime = CACurrentMediaTime()
+        session.sendPointer(x: back ? x : x + 2, y: y, buttons: [], clickCount: clickCount)
+        return true
+    }
+
+    private func foundTextInput() {
+        guard let click = textInputClick else { return }
+        textInputClick = nil
+        tappedTextField = (click.point, CACurrentMediaTime())
+        textFieldFocused = true
+        if click.opensKeyboard { showKeyboardForTextInput() }
+    }
+
+    private func showKeyboardForTextInput() {
+        guard offersKeyboardForTextInput else { return }
+        setKeyboardVisible(true)
+    }
+
+    private func forgetTextInputClick() {
+        textInputClick = nil
+        textInputCheck?.cancel()
+        textInputCheck = nil
+        if pointerNudged {
+            pointerNudged = false
+            _ = nudgePointer(back: true)
+        }
+    }
+
+    /// Forgets the tap being checked and where a field was found, but not that a field has focus.
+    private func forgetTextInput() {
+        forgetTextInputClick()
+        tappedTextField = nil
+    }
+    #endif
+
     func toggleKeyboard() {
         setKeyboardVisible(!isKeyboardVisible)
     }
@@ -1742,6 +1904,9 @@ final class SessionController: Identifiable {
 
 
     func movePointer(to point: CGPoint) {
+        #if os(iOS)
+        notePointerInput()
+        #endif
         pointerMovedSinceTouch = true
         let clamped = clampToImage(point)
         pointerPosition = clamped
@@ -1785,6 +1950,9 @@ final class SessionController: Identifiable {
     }
 
     func moveTouch(to point: CGPoint) {
+        #if os(iOS)
+        notePointerInput()
+        #endif
         pointerMovedSinceTouch = false
         let clamped = clampToImage(point)
         pointerPosition = clamped
@@ -1831,6 +1999,9 @@ final class SessionController: Identifiable {
     private static let multiClickDistance: CGFloat = 4
 
     func press(_ button: PointerButtons, clickCount count: Int? = nil) {
+        #if os(iOS)
+        notePointerInput()
+        #endif
         let now = CACurrentMediaTime()
         if let count {
             clickCount = count
@@ -1885,6 +2056,9 @@ final class SessionController: Identifiable {
             press(button)
             release(button)
         }
+        #if os(iOS)
+        if button == .primary { textInputTapped() }
+        #endif
     }
 
     var sendsGesturesToMac: Bool {
@@ -1905,6 +2079,9 @@ final class SessionController: Identifiable {
 
     func scroll(byPixels delta: CGPoint, phase: GesturePhase) {
         guard sendsGesturesToMac else { return }
+        #if os(iOS)
+        notePointerInput(scrolls: true)
+        #endif
         isScrollGliding = false
         let point = serverPoint(pointerPosition)
         let delta = pictureTurns.pictureVector(delta)
@@ -1913,6 +2090,9 @@ final class SessionController: Identifiable {
 
     func startScrollMomentum(pixelsPerSecond velocity: CGPoint) {
         guard sendsGesturesToMac, hypot(velocity.x, velocity.y) > 50 else { return }
+        #if os(iOS)
+        notePointerInput(scrolls: true)
+        #endif
         isScrollGliding = true
         let point = serverPoint(pointerPosition)
         let velocity = pictureTurns.pictureVector(velocity)
@@ -1941,6 +2121,9 @@ final class SessionController: Identifiable {
 
     func scroll(byPixels delta: CGPoint) {
         guard isControlling else { return }
+        #if os(iOS)
+        notePointerInput(scrolls: true)
+        #endif
         let point = serverPoint(pointerPosition)
         let delta = pictureTurns.pictureVector(delta)
         session?.sendScroll(x: Int(point.x), y: Int(point.y), deltaX: Double(delta.x), deltaY: Double(delta.y))
@@ -2834,6 +3017,10 @@ nonisolated final class SessionEventSink: @unchecked Sendable {
 
     func sessionCursorChanged(_ cursor: CursorShape?) {
         pipeline.setCursor(cursor)
+        #if os(iOS)
+        let kind = cursor?.kind
+        onMain { $0.handle(cursorKind: kind) }
+        #endif
     }
 
     func sessionModeChanged(_ mode: SessionMode) {

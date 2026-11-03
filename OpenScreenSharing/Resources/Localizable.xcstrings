@@ -92688,6 +92688,310 @@
         }
       }
     },
+    "Show Keyboard for Text Fields" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إظهار لوحة المفاتيح لحقول النص"
+          }
+        },
+        "bg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показване на клавиатурата за текстови полета"
+          }
+        },
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "টেক্সট ফিল্ডের জন্য কীবোর্ড দেখান"
+          }
+        },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar el teclat als camps de text"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zobrazovat klávesnici u textových polí"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vis tastatur til tekstfelter"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tastatur für Textfelder einblenden"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Εμφάνιση πληκτρολογίου για πεδία κειμένου"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar teclado en campos de texto"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar teclado en campos de texto"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Näytä näppäimistö tekstikentissä"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher le clavier pour les champs de texte"
+          }
+        },
+        "fr-CA" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher le clavier pour les champs de texte"
+          }
+        },
+        "gu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ટેક્સ્ટ ફીલ્ડ માટે કીબોર્ડ બતાવો"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "הצגת המקלדת בשדות טקסט"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "टेक्स्ट फ़ील्ड के लिए कीबोर्ड दिखाएँ"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prikaži tipkovnicu za tekstna polja"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Billentyűzet megjelenítése szövegmezőknél"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tampilkan Papan Ketik untuk Bidang Teks"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra tastiera per i campi di testo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "テキストフィールドでキーボードを表示"
+          }
+        },
+        "kk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мәтін өрістері үшін пернетақтаны көрсету"
+          }
+        },
+        "kn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ಪಠ್ಯ ಫೀಲ್ಡ್‌ಗಳಿಗೆ ಕೀಬೋರ್ಡ್ ತೋರಿಸಿ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "텍스트 필드에서 키보드 보기"
+          }
+        },
+        "lt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rodyti klaviatūrą teksto laukams"
+          }
+        },
+        "ml" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ടെക്സ്റ്റ് ഫീൽഡുകൾക്ക് കീബോർഡ് കാണിക്കൂ"
+          }
+        },
+        "mr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "टेक्स्ट फील्डसाठी कीबोर्ड दाखवा"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tunjukkan Papan Kekunci untuk Medan Teks"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vis tastatur for tekstfelt"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toon toetsenbord bij tekstvelden"
+          }
+        },
+        "or" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ଟେକ୍ସଟ୍ ଫିଲ୍ଡ ପାଇଁ କୀ’ବୋର୍ଡ୍ ଦେଖାନ୍ତୁ"
+          }
+        },
+        "pa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ਟੈਕਸਟ ਖੇਤਰਾਂ ਲਈ ਕੀਬੋਰਡ ਦਿਖਾਓ"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokazuj klawiaturę dla pól tekstowych"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar Teclado em Campos de Texto"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar teclado nos campos de texto"
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afișați tastatura pentru câmpurile de text"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывать клавиатуру для текстовых полей"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zobrazovať klávesnicu pri textových poliach"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prikaži tipkovnico za besedilna polja"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visa tangentbordet för textfält"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "உரைப் புலங்களுக்குக் கீபோர்டைக் காட்டு"
+          }
+        },
+        "te" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "టెక్స్ట్ ఫీల్డ్‌ల కోసం కీబోర్డ్‌ను చూపించండి"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "แสดงแป้นพิมพ์สำหรับช่องข้อความ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metin Alanları İçin Klavyeyi Göster"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показувати клавіатуру для текстових полів"
+          }
+        },
+        "ur" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ٹیکسٹ فیلڈز کے لیے کی بورڈ دکھائیں"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiển thị bàn phím cho trường văn bản"
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "為文字欄位顯示鍵盤"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "为文本栏显示键盘"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "為文字欄位顯示鍵盤"
+          }
+        }
+      }
+    },
     "Show Tips" : {
       "localizations" : {
         "ar" : {
@@ -94204,6 +94508,310 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "顯示/隱藏工具列"
+          }
+        }
+      }
+    },
+    "Shows the keyboard when you tap a text field on the computer. While no text field has focus, the first tap only focuses one. Tapping text that can be selected may also show it." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يُظهر لوحة المفاتيح عند الضغط على حقل نص في الكمبيوتر. إذا لم يكن أي حقل نص محددًا، فإن الضغطة الأولى تحدده فقط. قد يظهرها أيضًا الضغط على نص قابل للتحديد."
+          }
+        },
+        "bg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показва клавиатурата, когато докоснете текстово поле на компютъра. Докато нито едно текстово поле не е на фокус, първото докосване само поставя фокуса в него. Докосването на текст, който може да се избира, също може да я покаже."
+          }
+        },
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "কম্পিউটারের কোনো টেক্সট ফিল্ডে ট্যাপ করলে কীবোর্ড দেখায়। কোনো টেক্সট ফিল্ডে ফোকাস না থাকলে প্রথম ট্যাপ শুধু ফিল্ডটিতে ফোকাস দেয়। নির্বাচনযোগ্য টেক্সটে ট্যাপ করলেও এটি দেখাতে পারে।"
+          }
+        },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra el teclat quan toques un camp de text a l’ordinador. Si cap camp de text no té el focus, el primer toc només hi posa el focus. També es pot mostrar si toques text que es pot seleccionar."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zobrazí klávesnici, když klepnete na textové pole na počítači. Pokud žádné textové pole nemá fokus, první klepnutí na něj pouze přesune fokus. Může se zobrazit i po klepnutí na text, který lze vybrat."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Viser tastaturet, når du trykker på et tekstfelt på computeren. Når intet tekstfelt har fokus, giver det første tryk kun feltet fokus. Det kan også vises, når du trykker på tekst, der kan markeres."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blendet die Tastatur ein, wenn du auf ein Textfeld auf dem Computer tippst. Solange kein Textfeld den Fokus hat, setzt das erste Tippen nur den Fokus. Auch das Tippen auf auswählbaren Text kann sie einblenden."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Εμφανίζει το πληκτρολόγιο όταν αγγίζετε ένα πεδίο κειμένου στον υπολογιστή. Όταν κανένα πεδίο κειμένου δεν είναι εστιασμένο, το πρώτο άγγιγμα απλώς το εστιάζει. Μπορεί να εμφανιστεί και όταν αγγίζετε κείμενο που επιλέγεται."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muestra el teclado al tocar un campo de texto en el ordenador. Si ningún campo de texto tiene el foco, el primer toque solo lo enfoca. También puede mostrarse al tocar texto que se puede seleccionar."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muestra el teclado al tocar un campo de texto en la computadora. Si ningún campo de texto tiene el foco, el primer toque solo lo enfoca. También puede mostrarse al tocar texto que se puede seleccionar."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Näyttää näppäimistön, kun napautat tietokoneen tekstikenttää. Kun mikään tekstikenttä ei ole aktiivinen, ensimmäinen napautus vain aktivoi kentän. Se voi näkyä myös, kun napautat valittavissa olevaa tekstiä."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affiche le clavier lorsque vous touchez un champ de texte sur l’ordinateur. Si aucun champ de texte n’est actif, le premier toucher ne fait que l’activer. Il peut aussi s’afficher lorsque vous touchez du texte sélectionnable."
+          }
+        },
+        "fr-CA" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affiche le clavier lorsque vous touchez un champ de texte sur l’ordinateur. Si aucun champ de texte n’est actif, le premier toucher ne fait que l’activer. Il peut aussi s’afficher lorsque vous touchez du texte sélectionnable."
+          }
+        },
+        "gu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "કમ્પ્યુટર પરના ટેક્સ્ટ ફીલ્ડ પર ટૅપ કરો ત્યારે કીબોર્ડ બતાવે છે. કોઈ ટેક્સ્ટ ફીલ્ડ પર ફોકસ ન હોય ત્યારે પહેલું ટૅપ ફક્ત ફીલ્ડ પર ફોકસ કરે છે. પસંદ કરી શકાય તેવા ટેક્સ્ટ પર ટૅપ કરવાથી પણ તે દેખાઈ શકે છે."
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "מציג את המקלדת כשמקישים על שדה טקסט במחשב. כששום שדה טקסט אינו בפוקוס, ההקשה הראשונה רק מעבירה אליו את הפוקוס. ייתכן שהיא תוצג גם בהקשה על טקסט שניתן לבחור."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कंप्यूटर पर किसी टेक्स्ट फ़ील्ड पर टैप करने पर कीबोर्ड दिखाता है। जब किसी टेक्स्ट फ़ील्ड पर फ़ोकस न हो, तो पहला टैप सिर्फ़ फ़ील्ड पर फ़ोकस करता है। चुने जा सकने वाले टेक्स्ट पर टैप करने से भी यह दिख सकता है।"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prikazuje tipkovnicu kad dodirnete tekstno polje na računalu. Dok nijedno tekstno polje nije u fokusu, prvi dodir samo postavlja fokus na polje. Može se prikazati i kad dodirnete tekst koji se može odabrati."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Megjeleníti a billentyűzetet, ha a számítógépen egy szövegmezőre koppint. Ha egyik szövegmező sincs fókuszban, az első koppintás csak fókuszba helyezi a mezőt. Kijelölhető szövegre koppintva is megjelenhet."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menampilkan papan ketik saat Anda mengetuk bidang teks di komputer. Jika tidak ada bidang teks yang aktif, ketukan pertama hanya mengaktifkannya. Mengetuk teks yang dapat dipilih juga dapat menampilkannya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra la tastiera quando tocchi un campo di testo sul computer. Se nessun campo di testo è attivo, il primo tocco si limita ad attivarlo. Può comparire anche toccando testo selezionabile."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コンピュータのテキストフィールドをタップするとキーボードを表示します。どのテキストフィールドにもフォーカスがないときは、最初のタップではフォーカスを移すだけです。選択できるテキストをタップしたときにも表示されることがあります。"
+          }
+        },
+        "kk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Компьютердегі мәтін өрісін түрткенде пернетақтаны көрсетеді. Ешбір мәтін өрісі белсенді болмаса, алғашқы түрту өрісті тек белсендіреді. Таңдауға болатын мәтінді түрткенде де көрсетілуі мүмкін."
+          }
+        },
+        "kn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ಕಂಪ್ಯೂಟರ್‌ನಲ್ಲಿ ಪಠ್ಯ ಫೀಲ್ಡ್ ಟ್ಯಾಪ್ ಮಾಡಿದಾಗ ಕೀಬೋರ್ಡ್ ತೋರಿಸುತ್ತದೆ. ಯಾವುದೇ ಪಠ್ಯ ಫೀಲ್ಡ್‌ನಲ್ಲಿ ಫೋಕಸ್ ಇಲ್ಲದಿದ್ದಾಗ, ಮೊದಲ ಟ್ಯಾಪ್ ಫೀಲ್ಡ್‌ಗೆ ಫೋಕಸ್ ಮಾತ್ರ ನೀಡುತ್ತದೆ. ಆಯ್ಕೆ ಮಾಡಬಹುದಾದ ಪಠ್ಯವನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿದಾಗಲೂ ಅದು ಕಾಣಿಸಬಹುದು."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "컴퓨터의 텍스트 필드를 탭하면 키보드를 보여줍니다. 포커스된 텍스트 필드가 없을 때는 첫 번째 탭이 필드에 포커스만 줍니다. 선택할 수 있는 텍스트를 탭해도 키보드가 나타날 수 있습니다."
+          }
+        },
+        "lt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parodo klaviatūrą, kai bakstelite kompiuterio teksto lauką. Kai joks teksto laukas nėra aktyvus, pirmas bakstelėjimas jį tik suaktyvina. Ji gali būti parodyta ir bakstelėjus tekstą, kurį galima pažymėti."
+          }
+        },
+        "ml" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "കമ്പ്യൂട്ടറിലെ ഒരു ടെക്സ്റ്റ് ഫീൽഡിൽ ടാപ്പ് ചെയ്യുമ്പോൾ കീബോർഡ് കാണിക്കുന്നു. ഒരു ടെക്സ്റ്റ് ഫീൽഡിലും ഫോക്കസ് ഇല്ലാത്തപ്പോൾ, ആദ്യ ടാപ്പ് ഫീൽഡിലേക്ക് ഫോക്കസ് മാത്രം നൽകുന്നു. തിരഞ്ഞെടുക്കാവുന്ന ടെക്സ്റ്റിൽ ടാപ്പ് ചെയ്യുമ്പോഴും ഇത് കാണിച്ചേക്കാം."
+          }
+        },
+        "mr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कॉम्प्युटरवरील टेक्स्ट फील्डवर टॅप केल्यावर कीबोर्ड दाखवते. कोणत्याही टेक्स्ट फील्डवर फोकस नसताना पहिला टॅप फक्त फील्डवर फोकस करतो. निवडता येणाऱ्या मजकुरावर टॅप केल्यावरही तो दिसू शकतो."
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menunjukkan papan kekunci apabila anda mengetik medan teks pada komputer. Jika tiada medan teks yang aktif, ketikan pertama hanya mengaktifkannya. Mengetik teks yang boleh dipilih juga mungkin menunjukkannya."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Viser tastaturet når du trykker på et tekstfelt på datamaskinen. Når ingen tekstfelt har fokus, gir det første trykket bare feltet fokus. Det kan også vises når du trykker på tekst som kan markeres."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toont het toetsenbord als je op een tekstveld op de computer tikt. Als geen tekstveld de focus heeft, geeft de eerste tik het veld alleen de focus. Tikken op tekst die je kunt selecteren, kan het ook tonen."
+          }
+        },
+        "or" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "କମ୍ପ୍ୟୁଟରରେ ଏକ ଟେକ୍ସଟ୍ ଫିଲ୍ଡରେ ଟାପ୍ କଲେ କୀ’ବୋର୍ଡ୍ ଦେଖାଏ। କୌଣସି ଟେକ୍ସଟ୍ ଫିଲ୍ଡରେ ଫୋକସ୍ ନଥିଲେ, ପ୍ରଥମ ଟାପ୍ କେବଳ ଫିଲ୍ଡକୁ ଫୋକସ୍ କରେ। ଚୟନ କରାଯାଇପାରୁଥିବା ଟେକ୍ସଟରେ ଟାପ୍ କଲେ ମଧ୍ୟ ଏହା ଦେଖାଯାଇପାରେ।"
+          }
+        },
+        "pa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ਕੰਪਿਊਟਰ ਉੱਤੇ ਕਿਸੇ ਟੈਕਸਟ ਖੇਤਰ ਉੱਤੇ ਟੈਪ ਕਰਨ ਨਾਲ ਕੀਬੋਰਡ ਦਿਖਾਉਂਦਾ ਹੈ। ਜਦੋਂ ਕਿਸੇ ਟੈਕਸਟ ਖੇਤਰ ਉੱਤੇ ਫੋਕਸ ਨਾ ਹੋਵੇ, ਤਾਂ ਪਹਿਲਾ ਟੈਪ ਸਿਰਫ਼ ਖੇਤਰ ਉੱਤੇ ਫੋਕਸ ਕਰਦਾ ਹੈ। ਚੁਣੇ ਜਾ ਸਕਣ ਵਾਲੇ ਟੈਕਸਟ ਉੱਤੇ ਟੈਪ ਕਰਨ ਨਾਲ ਵੀ ਇਹ ਦਿਖ ਸਕਦਾ ਹੈ।"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokazuje klawiaturę po stuknięciu pola tekstowego na komputerze. Gdy żadne pole tekstowe nie jest aktywne, pierwsze stuknięcie tylko je aktywuje. Może się też pojawić po stuknięciu tekstu, który można zaznaczyć."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra o teclado quando você toca em um campo de texto no computador. Se nenhum campo de texto estiver em foco, o primeiro toque apenas coloca o campo em foco. Tocar em um texto que pode ser selecionado também pode mostrá-lo."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra o teclado quando toca num campo de texto no computador. Se nenhum campo de texto estiver em foco, o primeiro toque apenas coloca o campo em foco. Tocar em texto que pode ser selecionado também o pode mostrar."
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afișează tastatura când atingeți un câmp de text pe computer. Când niciun câmp de text nu este activ, prima atingere doar îl activează. Poate apărea și când atingeți text care poate fi selectat."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывает клавиатуру при нажатии на текстовое поле на компьютере. Если ни одно текстовое поле не в фокусе, первое нажатие только переводит фокус в поле. Она может появиться и при нажатии на текст, который можно выделить."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zobrazí klávesnicu, keď klepnete na textové pole na počítači. Keď žiadne textové pole nemá fokus, prvé klepnutie naň iba presunie fokus. Môže sa zobraziť aj po klepnutí na text, ktorý sa dá vybrať."
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prikaže tipkovnico, ko tapnete besedilno polje v računalniku. Ko nobeno besedilno polje ni v fokusu, prvi tap polje le postavi v fokus. Prikaže se lahko tudi, ko tapnete besedilo, ki ga je mogoče izbrati."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visar tangentbordet när du trycker på ett textfält på datorn. När inget textfält har fokus ger det första trycket bara fältet fokus. Det kan också visas när du trycker på text som går att markera."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "கணினியில் உரைப் புலத்தைத் தட்டும்போது கீபோர்டைக் காட்டும். எந்த உரைப் புலத்திலும் ஃபோகஸ் இல்லாதபோது, முதல் தட்டல் புலத்துக்கு ஃபோகஸ் மட்டுமே தரும். தேர்ந்தெடுக்கக்கூடிய உரையைத் தட்டும்போதும் அது தோன்றலாம்."
+          }
+        },
+        "te" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "కంప్యూటర్‌లో టెక్స్ట్ ఫీల్డ్‌ను ట్యాప్ చేసినప్పుడు కీబోర్డ్‌ను చూపిస్తుంది. ఏ టెక్స్ట్ ఫీల్డ్‌పైనా ఫోకస్ లేనప్పుడు, మొదటి ట్యాప్ ఫీల్డ్‌కు ఫోకస్ మాత్రమే ఇస్తుంది. ఎంచుకోగల టెక్స్ట్‌ను ట్యాప్ చేసినప్పుడు కూడా అది కనిపించవచ్చు."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "แสดงแป้นพิมพ์เมื่อคุณแตะช่องข้อความบนคอมพิวเตอร์ หากยังไม่มีช่องข้อความใดถูกโฟกัส การแตะครั้งแรกจะเป็นเพียงการโฟกัสช่องนั้น การแตะข้อความที่เลือกได้ก็อาจทำให้แป้นพิมพ์แสดงเช่นกัน"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bilgisayardaki bir metin alanına dokunduğunuzda klavyeyi gösterir. Hiçbir metin alanı odakta değilken ilk dokunuş yalnızca alanı odaklar. Seçilebilen bir metne dokunmak da klavyeyi gösterebilir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показує клавіатуру, коли ви торкаєтеся текстового поля на компʼютері. Якщо жодне текстове поле не у фокусі, перший дотик лише переводить фокус у поле. Вона може зʼявитися й після дотику до тексту, який можна виділити."
+          }
+        },
+        "ur" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "کمپیوٹر پر کسی ٹیکسٹ فیلڈ کو تھپتھپانے پر کی بورڈ دکھاتا ہے۔ جب کسی ٹیکسٹ فیلڈ پر فوکس نہ ہو تو پہلی بار تھپتھپانے سے صرف فیلڈ پر فوکس ہوتا ہے۔ منتخب کیے جا سکنے والے ٹیکسٹ کو تھپتھپانے پر بھی یہ دکھائی دے سکتا ہے۔"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiển thị bàn phím khi bạn chạm vào trường văn bản trên máy tính. Khi chưa có trường văn bản nào được chọn, lần chạm đầu tiên chỉ chọn trường đó. Bàn phím cũng có thể hiển thị khi bạn chạm vào văn bản có thể chọn."
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "點一下電腦上的文字欄位時顯示鍵盤。沒有文字欄位處於焦點時，第一下只會讓欄位成為焦點。點一下可選取的文字時也可能會顯示。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "轻点电脑上的文本栏时显示键盘。没有文本栏处于焦点时，第一下只会让文本栏获得焦点。轻点可选择的文本时也可能显示。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "點一下電腦上的文字欄位時顯示鍵盤。沒有文字欄位處於焦點時，第一下只會讓欄位成為焦點。點一下可選取的文字時也可能會顯示。"
           }
         }
       }
