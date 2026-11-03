@@ -240,15 +240,20 @@ private struct ControlCommandItems: View {
                     deviceButton(.appSwitcher, shortcut: .appSwitcher) { $0.perform(.missionControl) }
                     deviceButton(.lock, shortcut: .lock) { $0.sendChord(.sideButton) }
                 }
-            } else if session?.platform != .pc {
-                Section {
-                    ForEach(SystemCommand.allCases) { command in
-                        WithPerceptionTracking {
-                            Button(String(localized: command.title)) { session?.perform(command) }
-                                .modifier(ActionShortcut(action: ShortcutAction.system(command)))
-                                .disabled(!controlling || !(session?.canPerform(command) ?? false))
+            } else {
+                if session?.platform != .pc {
+                    Section {
+                        ForEach(SystemCommand.allCases) { command in
+                            WithPerceptionTracking {
+                                Button(String(localized: command.title)) { session?.perform(command) }
+                                    .modifier(ActionShortcut(action: ShortcutAction.system(command)))
+                                    .disabled(!controlling || !(session?.canPerform(command) ?? false))
+                            }
                         }
                     }
+                }
+                Section {
+                    deviceButton(.typeUserPassword, shortcut: .typeUserPassword) { $0.typeUserPassword() }
                 }
             }
         }

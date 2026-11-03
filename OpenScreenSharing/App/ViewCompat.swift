@@ -319,9 +319,10 @@ extension View {
     }
 
     @ViewBuilder
-    func glassEffectCompat(tint: Color? = nil, in shape: some Shape) -> some View {
+    func glassEffectCompat(tint: Color? = nil, interactive: Bool = false, in shape: some Shape) -> some View {
         if #available(iOS 26, macOS 26, *) {
-            glassEffect(tint.map { Glass.regular.tint($0) } ?? .regular, in: shape)
+            let glass = tint.map { Glass.regular.tint($0) } ?? .regular
+            glassEffect(interactive ? glass.interactive() : glass, in: shape)
         } else {
             background(.regularMaterial, in: shape)
         }

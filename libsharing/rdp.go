@@ -71,6 +71,7 @@ func newRDPServerInfo(info rdp.Info) *ServerInfo {
 		Height:                   int32(info.Height),
 		Dialect:                  DialectRDP,
 		Platform:                 PlatformPC,
+		VerifiesServer:           true, // a pinned certificate or CredSSP
 		CursorPixelsPerPoint:     float64(info.Scale) / 100,
 		SupportsVirtualDisplay:   info.Resize,
 		SupportsClipboard:        info.Clipboard,

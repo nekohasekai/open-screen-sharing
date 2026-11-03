@@ -170,6 +170,10 @@ type ServerInfo struct {
 	Dialect  int32
 	Platform int32
 
+	// VerifiesServer is whether logging in proved the server's identity, so a
+	// secret typed into it can't reach a server only pretending to be it.
+	VerifiesServer bool
+
 	CursorPixelsPerPoint float64
 
 	ObserveOnly bool
@@ -216,6 +220,7 @@ func newServerInfo(info rfb.ServerInfo, platform int32) *ServerInfo {
 		Height:                   int32(info.Height),
 		Dialect:                  dialect,
 		Platform:                 platform,
+		VerifiesServer:           verifiesServer(info.SecurityType),
 		CursorPixelsPerPoint:     1,
 		ObserveOnly:              info.Flags&rfb.ServerFlagObserveOnly != 0,
 		SupportsDisplaySelection: info.Accepts(0x0d),
@@ -383,4 +388,17 @@ type Prompt struct {
 	ConsoleUser        string
 	AllowsShareConsole bool
 	AllowsOwnSession   bool
+}
+
+// verifiesServer reports whether the security type proves the server's
+// identity: SRP and Kerberos check a proof that only the real server can
+// make, and type 33 without SRP pins the server's RSA key by its fingerprint.
+// Diffie-Hellman and asking for permission verify nothing.
+func verifiesServer(securityType rfb.SecurityType) bool {
+	switch securityType {
+	case rfb.SecurityAppleRSA, rfb.SecurityAppleSRP, rfb.SecurityKerberos:
+		return true
+	default:
+		return false
+	}
 }

@@ -23,6 +23,7 @@ enum AppDatabase {
                 for path in [url.path, url.path + "-journal", url.path + "-wal", url.path + "-shm"] where FileManager.default.fileExists(atPath: path) {
                     try FileManager.default.removeItem(atPath: path)
                 }
+                UserPasswordStore.removeAll()
                 return try load()
             }
         } catch {
@@ -43,6 +44,7 @@ enum AppDatabase {
         if try database.read(schema) != expected.read(schema) {
             StorageNotice.logger.error("erase \(url.lastPathComponent, privacy: .public) saved with a different schema")
             try database.erase()
+            UserPasswordStore.removeAll()
             try migrator.migrate(database)
         }
         try database.write { db in
@@ -53,6 +55,9 @@ enum AppDatabase {
                     let name: String = row["name"] ?? ""
                     StorageNotice.logger.error("remove unreadable computer \(name, privacy: .public): \(error, privacy: .public)")
                     try db.execute(sql: "DELETE FROM computers WHERE id = ?", arguments: [row["id"] as DatabaseValue])
+                    if let id = row["id"] as UUID? {
+                        try? UserPasswordStore.removePassword(for: id)
+                    }
                 }
             }
         }

@@ -103,7 +103,13 @@ struct FloatingToolbar: View {
                     }
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
+            if controller.showsUnlockBanner {
+                UnlockBanner(controller: controller)
+                    .padding(.top, 10)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
         }
+        .animation(UnlockBanner.animation, value: controller.showsUnlockBanner)
         .onDisappear { controller.toolbarHandleFrame = nil }
     }
     #endif

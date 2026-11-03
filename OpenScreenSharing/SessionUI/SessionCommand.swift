@@ -9,6 +9,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
     case pointerLock, keyboard
     case missionControl, appWindows, showDesktop, launchpad
     case home, appSwitcher, lock
+    case typeUserPassword
     case clipboard
     case debugInfo
 
@@ -32,6 +33,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
         case .home: "Home Screen"
         case .appSwitcher: "App Switcher"
         case .lock: "Lock"
+        case .typeUserPassword: "Type User Password"
         case .clipboard: "Clipboard"
         case .debugInfo: "Debug Panel"
         }
@@ -55,6 +57,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
         case .home: "house"
         case .appSwitcher: if #available(iOS 18, *) { "iphone.app.switcher" } else { "square.stack" }
         case .lock: "lock"
+        case .typeUserPassword: "ellipsis.rectangle"
         case .clipboard: if #available(iOS 16, *) { "list.clipboard" } else { "doc.on.clipboard" }
         case .debugInfo: if #available(iOS 17, *) { "gauge.with.dots.needle.67percent" } else { "gauge" }
         }
@@ -65,7 +68,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
         case .zoomMode, .scale, .displays, .quality, .resolution, .hdr: .view
         case .audio, .sendAudio: .sound
         case .observe, .pointerLock, .nativeTouch, .keyboard, .missionControl, .appWindows, .showDesktop,
-            .launchpad, .home, .appSwitcher, .lock:
+            .launchpad, .home, .appSwitcher, .lock, .typeUserPassword:
             .control
         case .clipboard: .clipboard
         case .debugInfo: .debug
@@ -85,6 +88,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
     func applies(to platform: RemotePlatform) -> Bool {
         switch self {
         case .home, .appSwitcher, .lock: platform == .iOS
+        case .typeUserPassword: platform != .iOS
         case .displays, .quality, .resolution, .hdr: platform != .iOS
         case .missionControl, .appWindows, .showDesktop, .launchpad: platform == .mac
         case .zoomMode, .scale, .audio, .sendAudio, .observe, .pointerLock, .clipboard, .debugInfo: true
@@ -115,6 +119,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
                 && controller.networkSupportsHDR
         case .observe: return offers(.control) && offers(.observe)
         case .keyboard, .lock: return offers(.control)
+        case .typeUserPassword: return offers(.control) && controller.offersUserPassword
         case .nativeTouch: return capabilities.contains(.touch)
         #if os(iOS)
         case .pointerLock: return offers(.control) && PointerLock.hasMouse
@@ -139,7 +144,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
         case .observe: return controller.capabilities.contains(.control)
         case .pointerLock: return controller.canLockPointer
         case .nativeTouch, .keyboard, .missionControl, .appWindows, .showDesktop, .launchpad, .home,
-            .appSwitcher, .lock:
+            .appSwitcher, .lock, .typeUserPassword:
             return controller.isControlling
         }
     }
@@ -267,6 +272,8 @@ struct SessionCommandView: View {
             Button { controller.perform(.missionControl) } label: { label }
         case .lock:
             Button { controller.sendChord(.sideButton) } label: { label }
+        case .typeUserPassword:
+            Button { controller.typeUserPassword() } label: { label }
         case .clipboard:
             items(isOn: controller.clipboardSharing) { ClipboardMenuItems(controller: controller) }
         case .debugInfo:

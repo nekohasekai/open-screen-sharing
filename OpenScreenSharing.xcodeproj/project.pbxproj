@@ -443,6 +443,7 @@
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Screen Sharing finds and connects to Macs on your local network.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Screen Sharing gets your approximate location only to keep sharing this device’s screen while you use other apps or the device is locked. It doesn’t keep your location or send it anywhere.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Screen Sharing uses Face ID before typing a saved password into a computer’s lock screen.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Screen Sharing sends your voice to the computer you’re connected to.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -501,6 +502,7 @@
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Screen Sharing finds and connects to Macs on your local network.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Screen Sharing gets your approximate location only to keep sharing this device’s screen while you use other apps or the device is locked. It doesn’t keep your location or send it anywhere.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Screen Sharing uses Face ID before typing a saved password into a computer’s lock screen.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Screen Sharing sends your voice to the computer you’re connected to.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

@@ -180,6 +180,85 @@ struct CredentialsView: View {
     }
 }
 
+struct UserPasswordView: View {
+    let prompt: UserPasswordPrompt
+    let computerName: String
+    let onSubmit: (String, Bool) -> Void
+    let onCancel: () -> Void
+
+    @State private var password = ""
+    @State private var remember: Bool
+    @FocusState private var isFocused: Bool
+    @Environment(\.dismiss) private var dismiss
+
+    init(prompt: UserPasswordPrompt, computerName: String, onSubmit: @escaping (String, Bool) -> Void, onCancel: @escaping () -> Void) {
+        self.prompt = prompt
+        self.computerName = computerName
+        self.onSubmit = onSubmit
+        self.onCancel = onCancel
+        _remember = State(initialValue: prompt.canRemember)
+    }
+
+    private var isTypable: Bool {
+        !prompt.asciiOnly || password.allSatisfy(\.isASCII)
+    }
+
+    var body: some View {
+        NavigationStackCompat {
+            SheetForm(Text("Type User Password")) {
+                Section {
+                    SecureField("Password", text: $password)
+                        .textContentType(.oneTimeCode)
+                        .focused($isFocused)
+                        .submitLabel(.go)
+                        .onSubmit(type)
+                } footer: {
+                    if !isTypable {
+                        Text("Password Fields Take Only English Characters")
+                            .foregroundStyle(.red)
+                    } else if prompt.serverChanged {
+                        Text("“\(computerName)” has changed its identity since its password was saved. Enter the password again to type it.")
+                    } else {
+                        Text("Enter the password to type into the lock screen or login window of “\(computerName)”.")
+                    }
+                }
+                if prompt.canRemember {
+                    Section {
+                        Toggle("Remember Password", isOn: $remember)
+                    } footer: {
+                        Text("The password is kept in the Keychain on this device.")
+                    }
+                }
+            }
+            #if os(macOS)
+            .frame(width: 420)
+            .fixedSize(horizontal: false, vertical: true)
+            #endif
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", role: .cancel) {
+                        onCancel()
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Type", role: .confirmCompat, action: type)
+                        .disabled(password.isEmpty || !isTypable)
+                }
+            }
+            .onAppear {
+                Task { isFocused = true }
+            }
+        }
+    }
+
+    private func type() {
+        guard !password.isEmpty, isTypable else { return }
+        onSubmit(password, remember)
+        dismiss()
+    }
+}
+
 struct OtherConnectionSection: View {
     let computerID: UUID?
     let signIn: (SessionCredentials) -> Void

@@ -16,6 +16,11 @@ struct ComputerEditor: View {
     @State private var authenticates: Bool
     @State private var username: String
     @State private var password: String
+    @State private var userPassword = ""
+    /// Whether a user password is saved, read once on appear; the password itself needs authentication to read.
+    @State private var hasSavedUserPassword: Bool?
+    @State private var removesUserPassword = false
+    @State private var canSaveUserPassword = UserPasswordStore.canSave
     @State private var choice: ServerChoice
     @State private var networkConfiguration: NetworkConfiguration
     @State private var keepsAlive: Bool
@@ -29,6 +34,7 @@ struct ComputerEditor: View {
         case address
         case username
         case password
+        case userPassword
     }
 
     enum Problem {
@@ -52,6 +58,10 @@ struct ComputerEditor: View {
 
     private var trimmedUsername: String {
         username.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var offersUserPassword: Bool {
+        setup == nil && (choice == .rdp || !computer.deviceType.isIOS) && canSaveUserPassword
     }
 
     private var isComplete: Bool {
@@ -160,6 +170,28 @@ struct ComputerEditor: View {
                         Text("Authentication")
                     }
                 }
+                if offersUserPassword {
+                    Section {
+                        LabeledContentCompat("User Password") {
+                            SecureField(
+                                "User Password", text: $userPassword,
+                                prompt: Text(hasSavedUserPassword == true && !removesUserPassword ? "Saved" : "Optional"))
+                                .textContentType(.oneTimeCode)
+                                .focused($focusedField, equals: .userPassword)
+                                .multilineTextAlignment(.trailing)
+                                .submitLabel(.done)
+                                .onSubmit(save)
+                        }
+                        if hasSavedUserPassword == true, !removesUserPassword, userPassword.isEmpty {
+                            Button("Remove Saved Password", role: .destructive) {
+                                removesUserPassword = true
+                            }
+                            .formRowButtonStyleCompat()
+                        }
+                    } footer: {
+                        Text("Type User Password types this into the lock screen or login window. It’s kept in the Keychain on this device.")
+                    }
+                }
                 if choice == .rdp || choice == .appleVNC {
                     Section {
                         if choice == .rdp {
@@ -186,6 +218,11 @@ struct ComputerEditor: View {
                 }
             }
             .alert($alert)
+            .onAppear {
+                // Read once: init runs again whenever the presenting view updates.
+                guard setup == nil, hasSavedUserPassword == nil else { return }
+                hasSavedUserPassword = UserPasswordStore.hasPassword(for: computer.id)
+            }
         }
     }
 
@@ -207,11 +244,13 @@ struct ComputerEditor: View {
             return
         }
         let computer: Computer
+        var serverChanged = false
         do {
             computer = try ComputerStore.shared.save(self.computer) { computer in
                 computer.name = name
                 if computer.remoteProtocol != choice.remoteProtocol || !computer.address.matches(address) {
                     computer.trustedFingerprint = ""
+                    serverChanged = true
                 }
                 computer.address = address
                 computer.authenticates = authenticates
@@ -226,6 +265,17 @@ struct ComputerEditor: View {
         } catch {
             alert = AlertState(String(localized: "Couldn’t Save “\(name)”"), error: error)
             return
+        }
+        // A password saved for another address isn't typed into whatever answers at this one.
+        if setup == nil, offersUserPassword && !userPassword.isEmpty || removesUserPassword || serverChanged {
+            do {
+                // Empty after Remove Saved Password or a changed address, which removes it.
+                try UserPasswordStore.setPassword(
+                    offersUserPassword ? userPassword : "", server: computer.trustedFingerprint, for: computer.id)
+            } catch {
+                alert = AlertState(String(localized: "Couldn’t Save “\(name)”"), error: error)
+                return
+            }
         }
         if let setup {
             var route = SessionRoute(computer: computer)
