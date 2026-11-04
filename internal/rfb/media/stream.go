@@ -99,6 +99,7 @@ type Stream struct {
 	lastKeyframeRequest time.Time
 	refusedAt           time.Time
 	restartExpected     bool
+	displaysAsleep      bool
 	stats               StreamStats
 	receiveRTCP         []byte
 	feedbackRTCP        []byte
@@ -249,7 +250,7 @@ func (s *Stream) refused(target *leg, err error) bool {
 		return false
 	}
 	s.access.Lock()
-	if target.heard && !s.restartExpected && s.refusedAt.IsZero() {
+	if target.heard && !s.restartExpected && !s.displaysAsleep && s.refusedAt.IsZero() {
 		s.refusedAt = time.Now()
 	}
 	s.access.Unlock()
@@ -270,6 +271,19 @@ func (s *Stream) ExpectRestart() {
 	defer s.access.Unlock()
 	s.restartExpected = true
 	s.refusedAt = time.Time{}
+}
+
+// screensharingd sends the DisplaysSleep and DisplaysWake statuses from its display power
+// handler, while its SendFrameBuffer thread, which announces the media ports again after a
+// display reconfiguration, blocks until the displays wake (screensharingd 756.36.5.2,
+// macOS 27.0.1 26A434, UUID 44908B06-F788-3822-ABC4-2285001F6A8D,
+// DisplayNotification_HandlePowerChange 0x1000483d4..0x1000485b8,
+// SendFrameBuffer 0x100021720..0x1000217e0, 0x100021aa4..0x100021ad4).
+func (s *Stream) SetDisplaysAsleep(asleep bool) {
+	s.access.Lock()
+	defer s.access.Unlock()
+	s.displaysAsleep = asleep
+	s.awaitPacketsLocked()
 }
 
 func (s *Stream) RequestKeyframe() {

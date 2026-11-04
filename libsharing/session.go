@@ -110,6 +110,7 @@ type remote interface {
 	statistics(statistics *Statistics)
 	apply(setup sessionSetup)
 	setVisible(visible bool) error
+	setKeepsAwake(enabled bool) error
 
 	SetFramebuffer(framebuffer *bgra.Image) error
 	SetVirtualDisplay(width, height int, density float64, maximumWidth, maximumHeight int) error
@@ -168,9 +169,17 @@ func (r rfbRemote) apply(setup sessionSetup) {
 			r.Logger().Warn("apply the update rate set before connecting", "error", err)
 		}
 	}
+	if setup.keepsAwake != nil {
+		r.SetKeepsAwake(*setup.keepsAwake)
+	}
 }
 
 func (r rfbRemote) setVisible(bool) error {
+	return nil
+}
+
+func (r rfbRemote) setKeepsAwake(enabled bool) error {
+	r.SetKeepsAwake(enabled)
 	return nil
 }
 
@@ -344,6 +353,7 @@ type sessionSetup struct {
 	highPerformance *media.OfferOptions
 	updateRate      *int32
 	visible         *bool
+	keepsAwake      *bool
 }
 
 type virtualDisplay struct {
@@ -732,6 +742,19 @@ func (s *Session) SetVisible(visible bool) error {
 		return E.New("not connected")
 	}
 	return connected.setVisible(visible)
+}
+
+func (s *Session) SetKeepsAwake(enabled bool) error {
+	connected, kept := s.pending(func(setup *sessionSetup) {
+		setup.keepsAwake = &enabled
+	})
+	if kept {
+		return nil
+	}
+	if connected == nil {
+		return E.New("not connected")
+	}
+	return connected.setKeepsAwake(enabled)
 }
 
 func (s *Session) SelectKeyboardSource(sourceID string) error {

@@ -74,7 +74,17 @@ const (
 	eventGestureLookup       = 7
 	eventGestureScroll       = 8
 	eventScrollWheel         = 11
+	// screensharingd declares user activity for every V2 event from a controlling viewer
+	// before dispatching its subtype and forwards subtype 10 to ScreensharingAgent, whose
+	// gesture handler frees it without posting an event (screensharingd 756.36.5.2,
+	// macOS 27.0.1 26A434, UUID 44908B06-F788-3822-ABC4-2285001F6A8D, sub_100036680
+	// 0x10003c104..0x10003c174 and 0x10003fce0; ScreensharingAgent 756.36.5.2,
+	// UUID DA1CD9BA-97A1-3758-B425-00FA34B428A3, agent_SSAgent_PostGestureEvent_rpc
+	// 0x1000146ac..0x1000146b8, jump table 0x100015d40 entry 9 to 0x100015d0c).
+	eventKeepAwake = 10
 )
+
+const keepAwakeInterval = 30 * time.Second
 
 const maskMagnify uint64 = 4
 
@@ -175,6 +185,22 @@ func (c *Client) sendSeriesGesture(kind uint8, subtype uint16, amount float64, x
 	}
 	c.access.Unlock()
 	return c.sendInput(messages, false)
+}
+
+func (c *Client) SetKeepsAwake(enabled bool) {
+	c.access.Lock()
+	c.keepsAwake = enabled
+	c.access.Unlock()
+}
+
+func (c *Client) keepAwake() {
+	c.access.Lock()
+	send := c.keepsAwake && c.inputReady && c.mode != ModeObserve
+	c.access.Unlock()
+	if !send || !c.info.Accepts(0x17) || time.Since(time.Unix(0, c.lastInput.Load())) < keepAwakeInterval {
+		return
+	}
+	_ = c.sendInput(eventMessage(1, eventKeepAwake, nil), false)
 }
 
 func (c *Client) SendMagnify(x, y int, magnification float64, phase GesturePhase) error {

@@ -414,6 +414,10 @@ nonisolated final class LibsharingRemoteSession: @unchecked Sendable {
         try? session?.setVisible(visible)
     }
 
+    func setKeepsAwake(_ enabled: Bool) {
+        try? session?.setKeepsAwake(enabled)
+    }
+
     func setHDR(_ enabled: Bool) {
         try? session?.setHDR(enabled)
     }

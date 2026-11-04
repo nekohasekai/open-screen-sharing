@@ -160,9 +160,11 @@ struct ComputerEditor: View {
                         Text("Authentication")
                     }
                 }
-                if choice == .rdp {
+                if choice == .rdp || choice == .appleVNC {
                     Section {
-                        Toggle("Disable UDP", isOn: $disablesUDP)
+                        if choice == .rdp {
+                            Toggle("Disable UDP", isOn: $disablesUDP)
+                        }
                         Toggle("Keep Alive", isOn: $keepsAlive)
                     } header: {
                         Text("Connection")

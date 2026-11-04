@@ -3,6 +3,7 @@ package rfb
 import (
 	"encoding/binary"
 	"math"
+	"time"
 
 	E "github.com/sagernet/sing/common/exceptions"
 )
@@ -32,6 +33,7 @@ const (
 )
 
 func (c *Client) sendInput(message []byte, motion bool) error {
+	c.lastInput.Store(time.Now().UnixNano())
 	c.access.Lock()
 	if !c.inputReady {
 		if motion && c.heldMotion {

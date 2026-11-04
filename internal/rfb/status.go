@@ -91,6 +91,13 @@ func (c *Client) receiveStatus() error {
 		c.access.Lock()
 		c.mode = ModeObserve
 		c.access.Unlock()
+	case StatusDisplaysSleep, StatusDisplaysWake:
+		c.access.Lock()
+		session := c.media
+		c.access.Unlock()
+		if session != nil {
+			session.stream.SetDisplaysAsleep(status == StatusDisplaysSleep)
+		}
 	}
 	c.handler.StatusReceived(status)
 	return nil

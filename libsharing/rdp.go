@@ -133,6 +133,10 @@ func (r *rdpRemote) setVisible(visible bool) error {
 	return r.SuppressOutput(!visible)
 }
 
+func (r *rdpRemote) setKeepsAwake(bool) error {
+	return nil
+}
+
 func (r *rdpRemote) SetVirtualDisplay(width, height int, density float64, _, _ int) error {
 	return r.SetDisplay(rdpLayout(width, height, density))
 }

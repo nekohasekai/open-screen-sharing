@@ -195,6 +195,7 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
             return self.controller.handleKeyEvent(event) ? nil : event
         }
         isOccluded = !window.occlusionState.contains(.visible)
+        controller.setScreenVisible(!isOccluded)
         updateDrawableSize()
         geometryDidChange()
         DispatchQueue.main.async { [weak self] in
@@ -373,6 +374,7 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
     @objc private func windowOcclusionDidChange() {
         guard let window else { return }
         isOccluded = !window.occlusionState.contains(.visible)
+        controller.setScreenVisible(!isOccluded)
         if isOccluded {
             presenter.pause()
         } else {
