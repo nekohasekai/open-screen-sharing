@@ -1,3 +1,4 @@
+import Perception
 import SwiftUI
 
 struct CredentialsView: View {
@@ -9,6 +10,8 @@ struct CredentialsView: View {
     @State private var username: String
     @State private var password = ""
     @State private var remember: Bool
+    @State private var task: Task<Void, Never>?
+    @State private var alert: AlertState?
     @FocusState private var focusedField: Field?
     @Environment(\.dismiss) private var dismiss
 
@@ -69,12 +72,19 @@ struct CredentialsView: View {
                             .onSubmit(signIn)
                             .id(Field.password)
                     } footer: {
-                        message
+                        if task != nil {
+                            InlineProgress("Signing In…")
+                        } else {
+                            message
+                        }
                     }
                     if asksForUsername {
                         Section {
                             Toggle("Remember Password", isOn: $remember)
                         }
+                    }
+                    if prompt.server.authentication.account {
+                        OtherConnectionSection(computerID: prompt.computerID, signIn: signIn(with:))
                     }
                     if allowsRequest {
                         Section {
@@ -84,6 +94,7 @@ struct CredentialsView: View {
                         }
                     }
                 }
+                .disabled(task != nil)
                 #if os(macOS)
                 .frame(width: 420)
                 .fixedSize(horizontal: false, vertical: true)
@@ -97,15 +108,20 @@ struct CredentialsView: View {
                     }
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Sign In", role: .confirmCompat, action: signIn)
-                            .disabled(!isValid)
+                            .disabled(task != nil || !isValid)
                     }
                 }
+                .alert($alert)
                 .onAppear {
                     let field: Field = asksForUsername && username.isEmpty ? .username : .password
                     if field == .password {
                         scroller.scrollTo(Field.password)
                     }
                     Task { focusedField = field }
+                }
+                .onDisappear {
+                    task?.cancel()
+                    task = nil
                 }
             }
         }
@@ -130,13 +146,79 @@ struct CredentialsView: View {
     }
 
     private func signIn() {
-        guard isValid else { return }
+        guard task == nil, isValid else { return }
         onSubmit(asksForUsername ? .account(username: trimmedUsername, password: password) : .vncPassword(password), remember)
         dismiss()
+    }
+
+    private func signIn(with account: SessionCredentials) {
+        guard task == nil else { return }
+        task = Task {
+            let result = await ServerProber.checkLogin(
+                prompt.server, credentials: account, allowsUnverifiedLogin: prompt.allowsUnverifiedLogin)
+            guard !Task.isCancelled else { return }
+            task = nil
+            if case .failure(let failure) = result {
+                switch failure.kind {
+                case .unverifiedServer, .certificateChanged:
+                    break
+                default:
+                    alert = AlertState(
+                        failure.title(computerName: computerName, remoteProtocol: prompt.server.remoteProtocol),
+                        errorMessage: failure.message)
+                    return
+                }
+            }
+            onSubmit(account, remember)
+            dismiss()
+        }
     }
 
     private func askForPermission() {
         onSubmit(.askForPermission(username: trimmedUsername), remember)
         dismiss()
+    }
+}
+
+struct OtherConnectionSection: View {
+    let computerID: UUID?
+    let signIn: (SessionCredentials) -> Void
+
+    private let store = ComputerStore.shared
+
+    private var computers: [Computer] {
+        let saved = store.computers.filter { $0.authenticates && !$0.username.isEmpty && !$0.password.isEmpty }
+        var seen = Set(saved.filter { $0.id == computerID }.map(\.savedAccount))
+        return saved.filter { seen.insert($0.savedAccount).inserted }
+    }
+
+    var body: some View {
+        WithPerceptionTracking {
+            let computers = computers
+            if !computers.isEmpty {
+                Section {
+                    ForEach(computers) { computer in
+                        Button {
+                            signIn(computer.savedAccount)
+                        } label: {
+                            ComputerRow(name: computer.displayName, detail: computer.username, device: computer.device)
+                        }
+                        #if os(macOS)
+                        .buttonStyle(.plain)
+                        #endif
+                        .foregroundStyle(.primary)
+                    }
+                } header: {
+                    Text("Use User Name and Password from Another Connection")
+                        .textCase(nil)
+                }
+            }
+        }
+    }
+}
+
+extension Computer {
+    fileprivate var savedAccount: SessionCredentials {
+        .account(username: username, password: password)
     }
 }

@@ -100,6 +100,7 @@ struct SetupSignInView: View {
     @State private var password: String
     @State private var task: Task<Void, Never>?
     @State private var problem: SetupProblem?
+    @State private var alert: AlertState?
     @FocusState private var focusedField: Field?
     @Environment(\.dismiss) private var dismiss
 
@@ -162,6 +163,10 @@ struct SetupSignInView: View {
                 }
             }
             .disabled(task != nil)
+            if asksForUsername {
+                OtherConnectionSection(computerID: nil, signIn: signIn(with:))
+                    .disabled(task != nil)
+            }
         }
         .toolbar {
             #if os(macOS)
@@ -174,6 +179,7 @@ struct SetupSignInView: View {
                     .disabled(task != nil || !isValid)
             }
         }
+        .alert($alert)
         .onAppear {
             focusedField = asksForUsername && trimmedUsername.isEmpty ? .username : .password
         }
@@ -186,21 +192,35 @@ struct SetupSignInView: View {
     }
 
     private func signIn() {
-        guard task == nil, isValid else { return }
+        guard isValid else { return }
+        attempt(credentials) { failure in
+            problem = SetupProblem(failure, host: computer.server.address.host, asksForUsername: asksForUsername)
+            focusedField = failure.kind == .authenticationFailed ? .password : nil
+        }
+    }
+
+    private func signIn(with account: SessionCredentials) {
+        attempt(account) { failure in
+            alert = AlertState(
+                failure.title(computerName: computer.name, remoteProtocol: computer.server.remoteProtocol),
+                errorMessage: failure.message)
+        }
+    }
+
+    private func attempt(_ attempted: SessionCredentials, onFailure: @escaping (SessionFailure) -> Void) {
+        guard task == nil else { return }
         problem = nil
-        let attempt = credentials
         task = Task {
-            let result = await ServerProber.checkLogin(computer.server, credentials: attempt)
+            let result = await ServerProber.checkLogin(computer.server, credentials: attempted)
             guard !Task.isCancelled else { return }
             task = nil
             switch result {
             case .success(let check):
-                next(computer.signedIn(attempt, check: check))
+                next(computer.signedIn(attempted, check: check))
             case .failure(let failure) where failure.kind == .unverifiedServer:
-                next(computer.signedIn(attempt, check: LoginCheck(supportsHighPerformance: false, fingerprint: "")))
+                next(computer.signedIn(attempted, check: LoginCheck(supportsHighPerformance: false, fingerprint: "")))
             case .failure(let failure):
-                problem = SetupProblem(failure, host: computer.server.address.host, asksForUsername: asksForUsername)
-                focusedField = failure.kind == .authenticationFailed ? .password : nil
+                onFailure(failure)
             }
         }
     }

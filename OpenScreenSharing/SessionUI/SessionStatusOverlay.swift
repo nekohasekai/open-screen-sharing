@@ -132,6 +132,7 @@ struct SessionStatusOverlay: View {
     }
 
     private func failureAlert(_ failure: SessionFailure) -> AlertState {
+        let title = failure.title(computerName: controller.title, remoteProtocol: controller.route.remoteProtocol)
         let message: String
         let connectAnyway: () -> Void
         switch failure.kind {
@@ -151,20 +152,21 @@ struct SessionStatusOverlay: View {
             )
             connectAnyway = { controller.allowUnverifiedLogin() }
         default:
-            return AlertState(describe(failure), errorMessage: failure.message, closeLabel: String(localized: "Close"), onClose: onClose)
+            return AlertState(title, errorMessage: failure.message, closeLabel: String(localized: "Close"), onClose: onClose)
         }
         return AlertState(
-            title: describe(failure),
+            title: title,
             message: message,
             actions: [
                 AlertState.Action(label: String(localized: "Connect Anyway"), role: nil, perform: connectAnyway),
                 AlertState.Action(label: String(localized: "Close"), role: .cancel, isDefault: true, perform: onClose),
             ])
     }
+}
 
-    private func describe(_ failure: SessionFailure) -> String {
-        let name = controller.title
-        return switch failure.kind {
+extension SessionFailure {
+    func title(computerName name: String, remoteProtocol: RemoteProtocol) -> String {
+        switch kind {
         case .authenticationFailed: String(localized: "Couldn’t Sign In to “\(name)”")
         case .permissionDenied: String(localized: "“\(name)” Declined the Request")
         case .hostNotFound: String(localized: "Couldn’t Find “\(name)”")
@@ -173,11 +175,11 @@ struct SessionStatusOverlay: View {
         case .connectionLost: String(localized: "Lost the Connection to “\(name)”")
         case .ended, .drawingFailed: String(localized: "Disconnected from “\(name)”")
         case .closedByServer:
-            controller.route.remoteProtocol == .rdp
+            remoteProtocol == .rdp
                 ? String(localized: "“\(name)” Ended the Session") : String(localized: "“\(name)” Ended Screen Sharing")
         case .unsupported: String(localized: "“\(name)” Isn’t Supported")
         case .certificateChanged:
-            controller.route.remoteProtocol == .rdp
+            remoteProtocol == .rdp
                 ? String(localized: "“\(name)” Has a New Certificate") : String(localized: "Couldn’t Verify “\(name)”")
         case .unverifiedServer: String(localized: "Couldn’t Verify “\(name)”")
         case .highPerformance(.busy): String(localized: "Another Device Is Using High Performance on “\(name)”")

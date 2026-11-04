@@ -35,6 +35,9 @@ struct CredentialPrompt: Identifiable {
     var remembers: Bool
     var failed: Bool
     var errorMessage = ""
+    var server: ProbedServer
+    var computerID: UUID?
+    var allowsUnverifiedLogin: Bool
 }
 
 struct FileTransfer {
@@ -379,7 +382,10 @@ final class SessionController: Identifiable {
             return
         }
         credentialPrompt = CredentialPrompt(
-            form: form, username: username, remembers: usedSavedPassword, failed: failure != nil, errorMessage: failure?.message ?? "")
+            form: form, username: username, remembers: usedSavedPassword, failed: failure != nil, errorMessage: failure?.message ?? "",
+            server: ProbedServer(
+                address: route.address, remoteProtocol: route.remoteProtocol, authentication: server, fingerprint: trustedFingerprint),
+            computerID: computerID, allowsUnverifiedLogin: allowsUnverifiedLogin)
     }
 
     func submitCredentials(_ credentials: SessionCredentials, remember: Bool) {
