@@ -600,6 +600,7 @@ nonisolated private final class LibsharingHandler: NSObject, LibsharingSessionHa
                 default: .standard
                 }
             info.platform = serverInfo.platform == LibsharingPlatformMac ? .mac : .pc
+            info.verifiesServer = serverInfo.verifiesServer
             info.cursorPixelsPerPoint = max(serverInfo.cursorPixelsPerPoint, 1)
             info.framebufferWidth = Int(serverInfo.width)
             info.framebufferHeight = Int(serverInfo.height)

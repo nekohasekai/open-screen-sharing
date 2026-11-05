@@ -52,7 +52,8 @@ struct SessionView: View {
             || controller.picture == .none
             || controller.isShowingResolution
             || controller.isCustomizingToolbar
-            || controller.credentialPrompt != nil || controller.alert != nil
+            || controller.credentialPrompt != nil || controller.userPasswordPrompt != nil || controller.alert != nil
+            || controller.showsUnlockBanner
     }
 
     private var colorScheme: ColorScheme? {
@@ -100,6 +101,12 @@ struct SessionView: View {
                 .overlay(alignment: .top) {
                     FloatingToolbar(controller: controller, plan: plan, dock: dock, closes: controller.isFullScreen || !hasOwnWindow, onClose: controller.close)
                 }
+                .overlay(alignment: .top) {
+                    // The floating toolbar shows the banner under itself; a docked one leaves the picture's top free.
+                    if let dock {
+                        unlockBanner(below: dock)
+                    }
+                }
                 .onGeometryChangeCompat(for: CGFloat.self) { proxy in
                     proxy.size.width - proxy.safeAreaInsets.leading - proxy.safeAreaInsets.trailing
                 } action: { width in
@@ -137,6 +144,15 @@ struct SessionView: View {
                             controller.submitCredentials(credentials, remember: remember)
                         } onCancel: {
                             controller.cancelCredentials()
+                        }
+                    }
+                }
+                .sheet(item: $controller.userPasswordPrompt) { prompt in
+                    WithPerceptionTracking {
+                        UserPasswordView(prompt: prompt, computerName: controller.title) { password, remember in
+                            controller.submitUserPassword(password, remember: remember, for: prompt)
+                        } onCancel: {
+                            controller.userPasswordPrompt = nil
                         }
                     }
                 }
@@ -184,6 +200,9 @@ struct SessionView: View {
             }
             .overlay {
                 FloatingToolbar(controller: controller, plan: plan, dock: dock, closes: false, onClose: controller.close)
+            }
+            .overlay(alignment: .top) {
+                unlockBanner(below: dock)
             }
             .overlay(alignment: .top) {
                 if showsPointerLockHint {
@@ -241,6 +260,13 @@ struct SessionView: View {
                     controller.cancelCredentials()
                 }
             }
+            .sheet(item: $controller.userPasswordPrompt) { prompt in
+                UserPasswordView(prompt: prompt, computerName: controller.title) { password, remember in
+                    controller.submitUserPassword(password, remember: remember, for: prompt)
+                } onCancel: {
+                    controller.userPasswordPrompt = nil
+                }
+            }
             .onAppear {
                 controller.onClose = onClose
                 controller.start()
@@ -253,6 +279,25 @@ struct SessionView: View {
             }
     }
     #endif
+
+    /// Shows the banner at the top of the picture, or under a toolbar docked there.
+    private func unlockBanner(below dock: ToolbarDock?) -> some View {
+        let top = dock?.edge == .top ? dock.map(\.area.maxY) : nil
+        return WithPerceptionTracking {
+            VStack {
+                if controller.showsUnlockBanner {
+                    UnlockBanner(controller: controller)
+                        .padding(.top, (top ?? 0) + 12)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            }
+            .animation(UnlockBanner.animation, value: controller.showsUnlockBanner)
+            #if os(iOS)
+            // The dock's area is measured without the safe area.
+            .ignoresSafeArea(edges: top == nil ? [] : .top)
+            #endif
+        }
+    }
 
     private var screen: some View {
         ZStack {

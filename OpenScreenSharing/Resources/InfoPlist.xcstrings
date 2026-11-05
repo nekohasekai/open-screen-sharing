@@ -625,6 +625,318 @@
         }
       }
     },
+    "NSFaceIDUsageDescription" : {
+      "comment" : "Privacy - Face ID Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يستخدم Screen Sharing بصمة الوجه قبل كتابة كلمة سر محفوظة في شاشة قفل الكمبيوتر."
+          }
+        },
+        "bg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing използва Face ID, преди да въведе запазена парола на заключения екран на компютър."
+          }
+        },
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "কম্পিউটারের লক স্ক্রিনে সেভ করা পাসওয়ার্ড টাইপ করার আগে Screen Sharing Face ID ব্যবহার করে।"
+          }
+        },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing utilitza el Face ID abans d’escriure una contrasenya desada a la pantalla de bloqueig d’un ordinador."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing používá Face ID, než napíše uložené heslo na zamčenou obrazovku počítače."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing bruger Face ID, før en gemt adgangskode skrives på en computers låseskærm."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing verwendet Face ID, bevor ein gesichertes Passwort auf dem Sperrbildschirm eines Computers eingegeben wird."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το Screen Sharing χρησιμοποιεί το Face ID πριν πληκτρολογήσει ένα αποθηκευμένο συνθηματικό στην οθόνη κλειδώματος ενός υπολογιστή."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Screen Sharing uses Face ID before typing a saved password into a computer’s lock screen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing usa Face ID antes de escribir una contraseña guardada en la pantalla bloqueada de un ordenador."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing usa Face ID antes de escribir una contraseña guardada en la pantalla bloqueada de una computadora."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing käyttää Face ID:tä ennen kuin se kirjoittaa tallennetun salasanan tietokoneen lukitusnäyttöön."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing utilise Face ID avant de saisir un mot de passe enregistré sur l’écran verrouillé d’un ordinateur."
+          }
+        },
+        "fr-CA" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing utilise Face ID avant de saisir un mot de passe enregistré sur l’écran verrouillé d’un ordinateur."
+          }
+        },
+        "gu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "કમ્પ્યુટરની લૉક સ્ક્રીનમાં સેવ કરેલો પાસવર્ડ ટાઇપ કરતા પહેલાં Screen Sharing Face IDનો ઉપયોગ કરે છે."
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing משתמש ב-Face ID לפני הקלדת סיסמה שמורה במסך הנעילה של מחשב."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कंप्यूटर की लॉक स्क्रीन में सहेजा गया पासवर्ड टाइप करने से पहले Screen Sharing Face ID का उपयोग करता है।"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing upotrebljava Face ID prije upisivanja spremljene lozinke na zaključanom zaslonu računala."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Screen Sharing a Face ID-t használja, mielőtt beír egy mentett jelszót egy számítógép zárolási képernyőjén."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing menggunakan Face ID sebelum mengetik kata sandi tersimpan di layar terkunci komputer."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing usa Face ID prima di digitare una password salvata nella schermata di blocco di un computer."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharingは、保存済みのパスワードをコンピュータのロック画面に入力する前にFace IDを使用します。"
+          }
+        },
+        "kk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing сақталған құпиясөзді компьютердің құлып экранына терер алдында Face ID пайдаланады."
+          }
+        },
+        "kn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ಕಂಪ್ಯೂಟರ್‌ನ ಲಾಕ್ ಸ್ಕ್ರೀನ್‌ನಲ್ಲಿ ಸೇವ್ ಮಾಡಿದ ಪಾಸ್‌ವರ್ಡ್ ಟೈಪ್ ಮಾಡುವ ಮೊದಲು Screen Sharing Face ID ಬಳಸುತ್ತದೆ."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing은 저장된 암호를 컴퓨터의 잠금 화면에 입력하기 전에 Face ID를 사용합니다."
+          }
+        },
+        "lt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prieš įvesdama įrašytą slaptažodį kompiuterio užrakinimo ekrane, „Screen Sharing“ naudoja „Face ID“."
+          }
+        },
+        "ml" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "കമ്പ്യൂട്ടറിന്റെ ലോക്ക് സ്ക്രീനിൽ സേവ് ചെയ്‌ത പാസ്‌വേഡ് ടൈപ്പ് ചെയ്യുന്നതിന് മുമ്പ് Screen Sharing Face ID ഉപയോഗിക്കുന്നു."
+          }
+        },
+        "mr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "संगणकाच्या लॉक स्क्रीनमध्ये सेव्ह केलेला पासवर्ड टाइप करण्यापूर्वी Screen Sharing Face ID वापरते."
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing menggunakan Face ID sebelum menaip kata laluan yang disimpan pada skrin kunci komputer."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing bruker Face ID før et lagret passord skrives inn på låseskjermen til en datamaskin."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing gebruikt Face ID voordat een bewaard wachtwoord op het toegangsscherm van een computer wordt getypt."
+          }
+        },
+        "or" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "କମ୍ପ୍ୟୁଟରର ଲକ୍ ସ୍କ୍ରିନରେ ସେଭ୍ କରାଯାଇଥିବା ପାସୱାର୍ଡ ଟାଇପ୍ କରିବା ପୂର୍ବରୁ Screen Sharing Face ID ବ୍ୟବହାର କରେ।"
+          }
+        },
+        "pa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ਕੰਪਿਊਟਰ ਦੀ ਲੌਕ ਸਕ੍ਰੀਨ ਵਿੱਚ ਰੱਖਿਅਤ ਕੀਤਾ ਪਾਸਵਰਡ ਟਾਈਪ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ Screen Sharing Face ID ਵਰਤਦਾ ਹੈ।"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing używa Face ID przed wpisaniem zachowanego hasła na ekranie blokady komputera."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Screen Sharing usa o Face ID antes de digitar uma senha salva na tela bloqueada de um computador."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Screen Sharing usa o Face ID antes de digitar uma palavra‑passe guardada no ecrã bloqueado de um computador."
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing utilizează Face ID înainte de a tasta o parolă salvată pe ecranul de blocare al unui computer."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing использует Face ID, прежде чем ввести сохраненный пароль на экране блокировки компьютера."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing používa Face ID pred zadaním uloženého hesla na zamknutej obrazovke počítača."
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing uporabi Face ID, preden vnese shranjeno geslo na zaklenjeni zaslon računalnika."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing använder Face ID innan ett sparat lösenord skrivs in på en dators låsskärm."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "கம்ப்யூட்டரின் பூட்டுத் திரையில் சேமித்த கடவுச்சொல்லை டைப் செய்வதற்கு முன் Screen Sharing Face IDயைப் பயன்படுத்துகிறது."
+          }
+        },
+        "te" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "కంప్యూటర్ లాక్ స్క్రీన్‌లో సేవ్ చేసిన పాస్‌వర్డ్‌ను టైప్ చేసే ముందు Screen Sharing Face IDని ఉపయోగిస్తుంది."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing ใช้ Face ID ก่อนป้อนรหัสผ่านที่บันทึกไว้ในหน้าจอล็อคของคอมพิวเตอร์"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing, kaydedilen bir parolayı bir bilgisayarın kilitli ekranına yazmadan önce Face ID’yi kullanır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing використовує Face ID, перш ніж ввести збережений пароль на замкненому екрані комп’ютера."
+          }
+        },
+        "ur" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "کمپیوٹر کی لاک اسکرین میں محفوظ شدہ پاس ورڈ ٹائپ کرنے سے پہلے Screen Sharing، Face ID استعمال کرتا ہے۔"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing sử dụng Face ID trước khi nhập mật khẩu đã lưu vào màn hình khóa của máy tính."
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing 會先使用 Face ID，才將已儲存的密碼輸入至電腦的鎖定畫面。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing 会先使用面容 ID，然后才将存储的密码键入电脑的锁定屏幕。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Screen Sharing 會先使用 Face ID，才將已儲存的密碼輸入至電腦的鎖定畫面。"
+          }
+        }
+      }
+    },
     "NSLocalNetworkUsageDescription" : {
       "comment" : "Privacy - Local Network Usage Description",
       "extractionState" : "extracted_with_value",

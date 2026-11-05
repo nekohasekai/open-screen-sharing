@@ -1,6 +1,7 @@
 import Foundation
 import GRDB
 import Perception
+import os
 
 struct StoredComputer {
     var username: String
@@ -109,6 +110,11 @@ final class ComputerStore {
 
     func delete(_ id: UUID) throws {
         _ = try database.write { try Computer.deleteOne($0, key: id) }
+        do {
+            try UserPasswordStore.removePassword(for: id)
+        } catch {
+            StorageNotice.logger.error("remove user password: \(error, privacy: .public)")
+        }
     }
 
     func record(_ connection: ConnectionRecord) throws -> UUID {

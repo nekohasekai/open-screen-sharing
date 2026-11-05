@@ -8,6 +8,7 @@ struct AlertState {
         var perform: () -> Void
     }
 
+    let id = UUID()
     var title: String
     var message: String
     var actions: [Action]

@@ -46,6 +46,7 @@ enum ShortcutAction: String, CaseIterable, Identifiable {
     case keyboard
     #endif
     case home, appSwitcher, lock
+    case typeUserPassword
     case missionControl, appWindows, showDesktop, launchpad
     case debugPanel
 
@@ -78,7 +79,8 @@ enum ShortcutAction: String, CaseIterable, Identifiable {
         case .newConnection, .disconnect: .file
         case .syncClipboard, .receiveClipboard, .sendClipboard: .edit
         case .receiveAudio, .sendAudio: .sound
-        case .observe, .pointerLock, .home, .appSwitcher, .lock, .missionControl, .appWindows, .showDesktop, .launchpad:
+        case .observe, .pointerLock, .home, .appSwitcher, .lock, .typeUserPassword, .missionControl, .appWindows, .showDesktop,
+            .launchpad:
             .control
         #if os(iOS)
         case .keyboard: .control
@@ -121,6 +123,7 @@ enum ShortcutAction: String, CaseIterable, Identifiable {
         case .home: return String(localized: SessionCommand.home.title)
         case .appSwitcher: return String(localized: SessionCommand.appSwitcher.title)
         case .lock: return String(localized: SessionCommand.lock.title)
+        case .typeUserPassword: return String(localized: SessionCommand.typeUserPassword.title)
         case .missionControl: return String(localized: SystemCommand.missionControl.title)
         case .appWindows: return String(localized: SystemCommand.appWindows.title)
         case .showDesktop: return String(localized: SystemCommand.showDesktop.title)

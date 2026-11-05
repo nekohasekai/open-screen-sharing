@@ -245,6 +245,8 @@ nonisolated struct SessionInfo: Equatable, Sendable {
     var dialect: ServerDialect
     var platform: RemotePlatform
     var fingerprint: String = ""
+    /// Whether logging in proved the server's identity, as SRP, Kerberos or a pinned key does.
+    var verifiesServer = false
 
     init(remoteProtocol: RemoteProtocol, platform: RemotePlatform?) {
         dialect = remoteProtocol == .rdp ? .rdp : .apple
