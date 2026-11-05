@@ -58596,306 +58596,306 @@
         }
       }
     },
-    "Make sure “%@” shows its lock screen. It’s typed into the focused field, then Return." : {
+    "Make sure the lock screen is showing." : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "تأكد من أن \"%@\" يعرض شاشة القفل. ستُكتب في الحقل المحدد ثم يُضغط على مفتاح الرجوع."
+            "value" : "تأكد من أن شاشة القفل معروضة."
           }
         },
         "bg" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Уверете се, че „%@“ показва заключения екран. Тя се въвежда в полето на фокус, последвана от Return."
+            "value" : "Уверете се, че е показан заключеният екран."
           }
         },
         "bn" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“%@”-এ লক স্ক্রিন দেখাচ্ছে কি না নিশ্চিত করুন। এটি ফোকাসে থাকা ফিল্ডে টাইপ হবে, তারপর Return চাপা হবে।"
+            "value" : "লক স্ক্রিন দেখাচ্ছে কি না নিশ্চিত করুন।"
           }
         },
         "ca" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Comprova que “%@” mostri la pantalla de bloqueig. S’escriu al camp que té el focus i després es prem Retorn."
+            "value" : "Comprova que es mostri la pantalla de bloqueig."
           }
         },
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ověřte, že „%@“ zobrazuje zamčenou obrazovku. Napíše se do pole s fokusem a pak se stiskne Return."
+            "value" : "Ověřte, že je zobrazená zamčená obrazovka."
           }
         },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kontrollér, at “%@” viser låseskærmen. Den skrives i feltet med fokus efterfulgt af Retur."
+            "value" : "Kontrollér, at låseskærmen vises."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Prüfe, ob „%@“ den Sperrbildschirm zeigt. Es wird in das Feld mit dem Fokus eingegeben, gefolgt vom Zeilenschalter."
+            "value" : "Prüfe, ob der Sperrbildschirm angezeigt wird."
           }
         },
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Βεβαιωθείτε ότι το «%@» δείχνει την οθόνη κλειδώματος. Πληκτρολογείται στο εστιασμένο πεδίο και ακολουθεί Return."
+            "value" : "Βεβαιωθείτε ότι εμφανίζεται η οθόνη κλειδώματος."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Comprueba que “%@” muestra la pantalla bloqueada. Se escribe en el campo con el foco y después se pulsa Retorno."
+            "value" : "Comprueba que se muestra la pantalla bloqueada."
           }
         },
         "es-419" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Comprueba que “%@” muestre la pantalla bloqueada. Se escribe en el campo con el foco y después se presiona Retorno."
+            "value" : "Comprueba que se muestre la pantalla bloqueada."
           }
         },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Varmista, että “%@” näyttää lukitusnäytön. Se kirjoitetaan aktiiviseen kenttään, minkä jälkeen painetaan rivinvaihtoa."
+            "value" : "Varmista, että lukitusnäyttö on näkyvissä."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vérifiez que « %@ » affiche l’écran verrouillé. Il est saisi dans le champ actif, suivi de Retour."
+            "value" : "Vérifiez que l’écran verrouillé est affiché."
           }
         },
         "fr-CA" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vérifiez que « %@ » affiche l’écran verrouillé. Il est saisi dans le champ actif, suivi de Retour."
+            "value" : "Vérifiez que l’écran verrouillé est affiché."
           }
         },
         "gu" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“%@” લૉક સ્ક્રીન બતાવે છે તેની ખાતરી કરો. તે ફોકસવાળા ફીલ્ડમાં ટાઇપ થશે, પછી Return દબાશે."
+            "value" : "લૉક સ્ક્રીન દેખાય છે તેની ખાતરી કરો."
           }
         },
         "he" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "יש לוודא ש״%@״ מציג את מסך הנעילה. הסיסמה תוקלד בשדה שבפוקוס ולאחר מכן תישלח הקשה על Return."
+            "value" : "יש לוודא שמסך הנעילה מוצג."
           }
         },
         "hi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "पक्का करें कि “%@” लॉक स्क्रीन दिखा रहा है। यह फ़ोकस वाले फ़ील्ड में टाइप होगा, फिर Return दबेगा।"
+            "value" : "पक्का करें कि लॉक स्क्रीन दिख रही है।"
           }
         },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Provjerite prikazuje li „%@“ zaključani zaslon. Upisuje se u polje u fokusu, nakon čega slijedi Return."
+            "value" : "Provjerite prikazuje li se zaključani zaslon."
           }
         },
         "hu" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ellenőrizze, hogy „%@” a zárolási képernyőt mutatja-e. A fókuszban lévő mezőbe kerül, utána Return következik."
+            "value" : "Ellenőrizze, hogy a zárolási képernyő látható-e."
           }
         },
         "id" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pastikan “%@” menampilkan layar terkunci. Kata sandi diketik di bidang yang aktif, lalu Return ditekan."
+            "value" : "Pastikan layar terkunci sedang ditampilkan."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Controlla che “%@” mostri la schermata di blocco. Viene digitata nel campo attivo, seguita da A capo."
+            "value" : "Controlla che sia visualizzata la schermata di blocco."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“%@”にロック画面が表示されていることを確認してください。フォーカスのあるフィールドに入力され、続けてReturnが押されます。"
+            "value" : "ロック画面が表示されていることを確認してください。"
           }
         },
         "kk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "«%@» құлып экранын көрсетіп тұрғанын тексеріңіз. Ол белсенді өріске теріледі, содан кейін Return басылады."
+            "value" : "Құлып экраны көрсетіліп тұрғанын тексеріңіз."
           }
         },
         "kn" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“%@” ಲಾಕ್ ಸ್ಕ್ರೀನ್ ತೋರಿಸುತ್ತಿದೆಯೇ ಎಂದು ಪರಿಶೀಲಿಸಿ. ಇದನ್ನು ಫೋಕಸ್‌ನಲ್ಲಿರುವ ಫೀಲ್ಡ್‌ನಲ್ಲಿ ಟೈಪ್ ಮಾಡಿ, ನಂತರ Return ಒತ್ತಲಾಗುತ್ತದೆ."
+            "value" : "ಲಾಕ್ ಸ್ಕ್ರೀನ್ ತೋರಿಸುತ್ತಿದೆಯೇ ಎಂದು ಪರಿಶೀಲಿಸಿ."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "‘%@’에 잠금 화면이 표시되어 있는지 확인하십시오. 포커스된 필드에 입력된 후 Return 키가 눌립니다."
+            "value" : "잠금 화면이 표시되어 있는지 확인하십시오."
           }
         },
         "lt" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Patikrinkite, ar „%@” rodo užrakinimo ekraną. Jis įvedamas į aktyvų lauką, po to paspaudžiamas Return."
+            "value" : "Patikrinkite, ar rodomas užrakinimo ekranas."
           }
         },
         "ml" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "‘%@’ ലോക്ക് സ്ക്രീൻ കാണിക്കുന്നുണ്ടെന്ന് ഉറപ്പാക്കൂ. ഫോക്കസുള്ള ഫീൽഡിൽ ഇത് ടൈപ്പ് ചെയ്‌ത ശേഷം Return അമർത്തും."
+            "value" : "ലോക്ക് സ്ക്രീൻ കാണിക്കുന്നുണ്ടെന്ന് ഉറപ്പാക്കൂ."
           }
         },
         "mr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "‘%@’ वर लॉक स्क्रीन दिसत आहे याची खात्री करा. तो फोकस असलेल्या फील्डमध्ये टाइप होईल, त्यानंतर Return दाबले जाईल."
+            "value" : "लॉक स्क्रीन दिसत आहे याची खात्री करा."
           }
         },
         "ms" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pastikan “%@” menunjukkan skrin kunci. Ia ditaip ke dalam medan yang aktif, diikuti Return."
+            "value" : "Pastikan skrin kunci sedang ditunjukkan."
           }
         },
         "nb" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kontroller at «%@» viser låseskjermen. Det skrives i feltet som har fokus, etterfulgt av Retur."
+            "value" : "Kontroller at låseskjermen vises."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Controleer of '%@' het toegangsscherm toont. Het wordt getypt in het veld met de focus, gevolgd door Return."
+            "value" : "Controleer of het toegangsscherm wordt getoond."
           }
         },
         "or" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“%@” ଲକ୍ ସ୍କ୍ରିନ୍ ଦେଖାଉଛି କି ନାହିଁ ନିଶ୍ଚିତ କରନ୍ତୁ। ଏହା ଫୋକସ୍ ଥିବା ଫିଲ୍ଡରେ ଟାଇପ୍ ହେବ, ତାପରେ Return ଦବାଯିବ।"
+            "value" : "ଲକ୍ ସ୍କ୍ରିନ୍ ଦେଖାଯାଉଛି କି ନାହିଁ ନିଶ୍ଚିତ କରନ୍ତୁ।"
           }
         },
         "pa" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ਪੱਕਾ ਕਰੋ ਕਿ “%@” ਲੌਕ ਸਕ੍ਰੀਨ ਦਿਖਾ ਰਿਹਾ ਹੈ। ਇਹ ਫੋਕਸ ਵਾਲੇ ਖੇਤਰ ਵਿੱਚ ਟਾਈਪ ਹੋਵੇਗਾ, ਫਿਰ Return ਦਬਾਇਆ ਜਾਵੇਗਾ।"
+            "value" : "ਪੱਕਾ ਕਰੋ ਕਿ ਲੌਕ ਸਕ੍ਰੀਨ ਦਿਖ ਰਹੀ ਹੈ।"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sprawdź, czy „%@” pokazuje ekran blokady. Hasło zostanie wpisane w aktywne pole, a potem zostanie naciśnięty Return."
+            "value" : "Sprawdź, czy wyświetla się ekran blokady."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verifique se “%@” mostra a tela bloqueada. Ela é digitada no campo em foco, seguida de Return."
+            "value" : "Verifique se a tela bloqueada está sendo mostrada."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verifique se “%@” mostra o ecrã bloqueado. É escrita no campo em foco, seguida de Return."
+            "value" : "Verifique se o ecrã bloqueado está a ser mostrado."
           }
         },
         "ro" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verificați dacă „%@” afișează ecranul de blocare. Este tastată în câmpul activ, urmată de Return."
+            "value" : "Verificați dacă se afișează ecranul de blocare."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Убедитесь, что на «%@» показан экран блокировки. Пароль будет введен в активное поле, после чего будет нажата клавиша Return."
+            "value" : "Убедитесь, что показан экран блокировки."
           }
         },
         "sk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Skontrolujte, či „%@“ zobrazuje zamknutú obrazovku. Napíše sa do poľa s fokusom a potom sa stlačí Return."
+            "value" : "Skontrolujte, či sa zobrazuje zamknutá obrazovka."
           }
         },
         "sl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Preverite, ali »%@« prikazuje zaklenjeni zaslon. Vnese se v polje, ki ima fokus, nato se pritisne Return."
+            "value" : "Preverite, ali je prikazan zaklenjeni zaslon."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kontrollera att “%@” visar låsskärmen. Det skrivs i fältet som har fokus, följt av Retur."
+            "value" : "Kontrollera att låsskärmen visas."
           }
         },
         "ta" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“%@” பூட்டுத் திரையைக் காட்டுகிறதா எனச் சரிபார்க்கவும். இது ஃபோகஸில் உள்ள புலத்தில் டைப் செய்யப்பட்டு, பின்னர் Return அழுத்தப்படும்."
+            "value" : "பூட்டுத் திரை காட்டப்படுகிறதா எனச் சரிபார்க்கவும்."
           }
         },
         "te" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“%@” లాక్ స్క్రీన్ చూపుతోందో లేదో తనిఖీ చేయండి. ఇది ఫోకస్‌లో ఉన్న ఫీల్డ్‌లో టైప్ చేయబడి, ఆ తర్వాత Return నొక్కబడుతుంది."
+            "value" : "లాక్ స్క్రీన్ చూపుతోందో లేదో తనిఖీ చేయండి."
           }
         },
         "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ตรวจสอบให้แน่ใจว่า “%@” แสดงหน้าจอล็อค รหัสผ่านจะถูกป้อนในช่องที่โฟกัสอยู่ แล้วกด Return"
+            "value" : "ตรวจสอบให้แน่ใจว่ากำลังแสดงหน้าจอล็อค"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“%@” üzerinde kilitli ekranın göründüğünden emin olun. Parola odaktaki alana yazılır, ardından Return tuşuna basılır."
+            "value" : "Kilitli ekranın göründüğünden emin olun."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Переконайтеся, що «%@» показує замкнений екран. Пароль буде введено в активне поле, після чого буде натиснуто Return."
+            "value" : "Переконайтеся, що показано замкнений екран."
           }
         },
         "ur" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "تسلی کر لیں کہ “⁨%@⁩” لاک اسکرین دکھا رہا ہے۔ یہ فوکس والی فیلڈ میں ٹائپ ہوگا، پھر Return دبایا جائے گا۔"
+            "value" : "تسلی کر لیں کہ لاک اسکرین دکھائی دے رہی ہے۔"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hãy kiểm tra “%@” đang hiển thị màn hình khóa. Mật khẩu sẽ được nhập vào trường đang được chọn, sau đó nhấn Return."
+            "value" : "Hãy kiểm tra màn hình khóa đang được hiển thị."
           }
         },
         "zh-HK" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "請確認「%@」正在顯示鎖定畫面。密碼會輸入到焦點所在的欄位並按下 Return。"
+            "value" : "請確認正在顯示鎖定畫面。"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "请确认“%@”正显示锁定屏幕。密码会键入到焦点所在的输入框并按下 Return。"
+            "value" : "请确认正在显示锁定屏幕。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "請確認「%@」正在顯示鎖定畫面。密碼會輸入到焦點所在的欄位並按下 Return。"
+            "value" : "請確認正在顯示鎖定畫面。"
           }
         }
       }

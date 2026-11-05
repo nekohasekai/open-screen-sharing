@@ -46,6 +46,9 @@ struct UserPasswordPrompt: Identifiable {
     var asciiOnly: Bool
     /// Whether the saved password was saved for another server key than this computer's.
     var serverChanged = false
+    /// What the session counted of locking and unlocking when the owner confirmed the password field, nil when the
+    /// lock was told for sure.
+    var confirmedAt: Int?
 }
 
 struct FileTransfer {
@@ -183,7 +186,7 @@ final class SessionController: Identifiable {
     var userPasswordPrompt: UserPasswordPrompt?
     @PerceptionIgnored private var userPasswordTypedAt: TimeInterval = 0
     private(set) var isAuthenticatingUserPassword = false
-    /// Whether the Mac seems to show its lock screen or login window; see `guessLockScreen(secureInputRose:)`.
+    /// Whether the Mac seems to show its lock screen or login window; see `guessLockScreen(secureInputRose:layoutResent:)`.
     private(set) var remoteSeemsLocked = false
     @PerceptionIgnored private var displaysArrivedAt: TimeInterval = -.infinity
     /// Whether the lock screen was told only by `probeLockScreen()`, which a password field focused on a web page
@@ -196,6 +199,9 @@ final class SessionController: Identifiable {
     @PerceptionIgnored private var userPasswordSession = 0
     @PerceptionIgnored private var userPasswordConfirmation: UUID?
     @PerceptionIgnored private var secureInputRoseAt: TimeInterval = -.infinity
+    /// Counts what locking, unlocking or waking the Mac reports: secure input turning on or off, and an unchanged
+    /// layout sent again. Confirming the password field holds only while it stays the same.
+    @PerceptionIgnored private var lockScreenChanges = 0
     @PerceptionIgnored private var hasDisplays = false
     @PerceptionIgnored private(set) var computerID: UUID?
     var alert: AlertState?
@@ -659,6 +665,7 @@ final class SessionController: Identifiable {
         userPasswordTask?.cancel()
         userPasswordTask = nil
         userPasswordSession += 1
+        lockScreenChanges += 1
         if let confirmation = userPasswordConfirmation, alert?.id == confirmation { alert = nil }
         userPasswordConfirmation = nil
         // A reconnected session reports secure input afresh, which has to count as a change.
@@ -988,7 +995,8 @@ final class SessionController: Identifiable {
         if !hasDisplays { probeLockScreen() }
         if hasDisplays, displays == self.displays, selection == displaySelection {
             displaysArrivedAt = ProcessInfo.processInfo.systemUptime
-            guessLockScreen(secureInputRose: false)
+            lockScreenChanges += 1
+            guessLockScreen(secureInputRose: false, layoutResent: true)
         }
         hasDisplays = true
         self.displays = displays
@@ -1070,6 +1078,7 @@ final class SessionController: Identifiable {
         }
         keyboardSourceID = source
         let secureInputRose = secureInput && !self.secureInput
+        if secureInput != self.secureInput { lockScreenChanges += 1 }
         self.secureInput = secureInput
         guessLockScreen(secureInputRose: secureInputRose)
         rememberKeyboardSource(source)
@@ -1767,7 +1776,7 @@ final class SessionController: Identifiable {
     /// Types the user password saved for this computer into its lock screen or login window, then presses Return,
     /// once the owner passes Face ID, Touch ID or the device passcode. Without a saved password, asks for one.
     ///
-    /// Only a lock that `guessLockScreen(secureInputRose:)` tells for sure types it right away. Anywhere else the
+    /// Only a lock that `guessLockScreen(secureInputRose:layoutResent:)` tells for sure types it right away. Anywhere else the
     /// focused password field may belong to a web page, an app or a terminal asking for another password, so the owner
     /// confirms that the screen shows a lock screen first.
     func typeUserPassword() {
@@ -1778,10 +1787,10 @@ final class SessionController: Identifiable {
             return
         }
         guard locksForSure else {
-            confirmTypingUserPassword { [weak self] in self?.unlockWithUserPassword(confirmed: true) }
+            confirmTypingUserPassword { [weak self] confirmed in self?.unlockWithUserPassword(confirmedAt: confirmed) }
             return
         }
-        unlockWithUserPassword(confirmed: false)
+        unlockWithUserPassword(confirmedAt: nil)
     }
 
     /// Standard VNC sends keys in the clear, and a server that didn't prove its identity, as when asking for
@@ -1794,16 +1803,19 @@ final class SessionController: Identifiable {
         remoteSeemsLocked && !lockNeedsConfirmation
     }
 
-    private func confirmTypingUserPassword(_ type: @escaping () -> Void) {
+    /// Asks the owner to make sure the screen shows a lock screen, then calls `type` with `lockScreenChanges` as it was
+    /// when they looked.
+    private func confirmTypingUserPassword(_ type: @escaping (_ confirmedAt: Int) -> Void) {
         let session = userPasswordSession
+        let changes = lockScreenChanges
         let answered = { [weak self] (typing: Bool) in
             guard let self, self.userPasswordSession == session else { return }
             self.userPasswordConfirmation = nil
-            if typing { type() }
+            if typing { type(changes) }
         }
         let confirmation = AlertState(
             title: String(localized: "Type Your Password?"),
-            message: String(localized: "Make sure “\(title)” shows its lock screen. It’s typed into the focused field, then Return."),
+            message: String(localized: "Make sure the lock screen is showing."),
             actions: [
                 AlertState.Action(label: String(localized: "Cancel"), role: .cancel) { answered(false) },
                 AlertState.Action(label: String(localized: "Type"), role: nil, isDefault: true) { answered(true) },
@@ -1812,12 +1824,12 @@ final class SessionController: Identifiable {
         alert = confirmation
     }
 
-    /// `confirmed` tells whether the owner confirmed the password field; otherwise the lock screen has to be still
-    /// showing for sure once they authenticate, which takes a few seconds the Mac may be unlocked in.
-    private func unlockWithUserPassword(confirmed: Bool) {
+    /// `confirmedAt` is `lockScreenChanges` when the owner confirmed the password field, nil when the lock was told for
+    /// sure. Either has to still hold once they authenticate, which takes a few seconds the Mac may be unlocked in.
+    private func unlockWithUserPassword(confirmedAt: Int?) {
         guard isControlling, offersUserPassword, userPasswordPrompt == nil, !isAuthenticatingUserPassword else { return }
         guard let computerID, UserPasswordStore.hasPassword(for: computerID) else {
-            userPasswordPrompt = newUserPasswordPrompt()
+            userPasswordPrompt = newUserPasswordPrompt(confirmedAt: confirmedAt)
             return
         }
         isAuthenticatingUserPassword = true
@@ -1828,7 +1840,7 @@ final class SessionController: Identifiable {
                 let saved = try await UserPasswordStore.authenticatedPassword(for: computerID, reason: reason)
                 guard !Task.isCancelled, isControlling else { return }
                 guard let saved else {
-                    userPasswordPrompt = newUserPasswordPrompt()
+                    userPasswordPrompt = newUserPasswordPrompt(confirmedAt: confirmedAt)
                     return
                 }
                 // A password saved for another server key, as after accepting a changed one, could reach a server that
@@ -1837,19 +1849,14 @@ final class SessionController: Identifiable {
                 if saved.server.isEmpty, !info.fingerprint.isEmpty {
                     try? UserPasswordStore.setPassword(saved.password, server: info.fingerprint, for: computerID)
                 } else if !saved.belongs(toServer: info.fingerprint) {
-                    userPasswordPrompt = newUserPasswordPrompt(serverChanged: true)
+                    userPasswordPrompt = newUserPasswordPrompt(serverChanged: true, confirmedAt: confirmedAt)
                     return
                 }
-                if confirmed || locksForSure {
-                    // Typed only if a password field still has focus: the Mac may have been unlocked meanwhile.
-                    typePassword(saved.password)
-                } else {
-                    confirmTypingUserPassword { [weak self] in self?.typePassword(saved.password) }
-                }
+                typePasswordIfStillLocked(saved.password, confirmedAt: confirmedAt)
             } catch where UserPasswordStore.isPasscodeMissing(error) {
                 // Saved before the passcode was turned off; it can't be read safely, and the owner can enter it anew.
                 try? UserPasswordStore.removePassword(for: computerID)
-                userPasswordPrompt = newUserPasswordPrompt()
+                userPasswordPrompt = newUserPasswordPrompt(confirmedAt: confirmedAt)
             } catch {
                 guard !Task.isCancelled, !UserPasswordStore.isCancellation(error) else { return }
                 alert = AlertState(String(localized: "Can’t Unlock “\(title)”"), error: error)
@@ -1869,10 +1876,23 @@ final class SessionController: Identifiable {
             message: String(localized: "Click the password field of the lock screen or login window, then try again."))
     }
 
-    private func newUserPasswordPrompt(serverChanged: Bool = false) -> UserPasswordPrompt {
+    private func newUserPasswordPrompt(serverChanged: Bool = false, confirmedAt: Int?) -> UserPasswordPrompt {
         UserPasswordPrompt(
             canRemember: computerID != nil && UserPasswordStore.canSave, asciiOnly: typesOnlyASCIIPasswords,
-            serverChanged: serverChanged)
+            serverChanged: serverChanged, confirmedAt: confirmedAt)
+    }
+
+    /// Types the password while the screen still takes it: a lock told for sure, or a field the owner confirmed with
+    /// nothing reported since that locking or unlocking would send. Otherwise the owner confirms the field again,
+    /// since a Mac unlocked meanwhile may focus a password field of a web page or an app, which Return would submit.
+    private func typePasswordIfStillLocked(_ password: String, confirmedAt: Int?) {
+        if locksForSure || confirmedAt == lockScreenChanges {
+            typePassword(password)
+        } else {
+            confirmTypingUserPassword { [weak self] confirmed in
+                self?.typePasswordIfStillLocked(password, confirmedAt: confirmed)
+            }
+        }
     }
 
     /// Screen Sharing names no lock state, but locking, unlocking and waking a locked Mac each resend its unchanged
@@ -1881,7 +1901,11 @@ final class SessionController: Identifiable {
     /// orders, the two arrive within about 0.6 s of each other. A Mac whose lock screen is asleep when the session
     /// starts reports neither until `probeLockScreen()` wakes it. Secure input that's already on before the Mac locks
     /// has no change to see, and the banner doesn't show.
-    private func guessLockScreen(secureInputRose: Bool) {
+    ///
+    /// Unlocking can keep secure input on throughout when the app shown next focuses a password field, as a sign-in
+    /// page does, so a layout resent while locked without secure input turning on near it no longer tells a lock for
+    /// sure. Waking a lock screen turns secure input on with it, which tells it again.
+    private func guessLockScreen(secureInputRose: Bool, layoutResent: Bool = false) {
         let now = ProcessInfo.processInfo.systemUptime
         if secureInputRose { secureInputRoseAt = now }
         // Only Screen Sharing on a Mac reports secure input this way; an iPhone or iPad shares no lock screen to type into.
@@ -1901,6 +1925,8 @@ final class SessionController: Identifiable {
         } else if abs(secureInputRoseAt - displaysArrivedAt) < 1.5, now - secureInputRoseAt < 1.5 {
             remoteSeemsLocked = true
             lockNeedsConfirmation = false
+        } else if layoutResent, remoteSeemsLocked {
+            lockNeedsConfirmation = true
         }
     }
 
@@ -1929,7 +1955,7 @@ final class SessionController: Identifiable {
         info.dialect == .apple
     }
 
-    func submitUserPassword(_ password: String, remember: Bool) {
+    func submitUserPassword(_ password: String, remember: Bool, for prompt: UserPasswordPrompt) {
         userPasswordPrompt = nil
         guard isControlling else { return }
         if remember, let computerID {
@@ -1939,7 +1965,8 @@ final class SessionController: Identifiable {
                 alert = AlertState(String(localized: "Couldn’t Save “\(title)”"), error: error)
             }
         }
-        typePassword(password)
+        // The sheet covers the screen, which may have changed while the password was entered.
+        typePasswordIfStillLocked(password, confirmedAt: prompt.confirmedAt)
     }
 
     private func typePassword(_ password: String) {

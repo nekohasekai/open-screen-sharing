@@ -150,7 +150,7 @@ struct SessionView: View {
                 .sheet(item: $controller.userPasswordPrompt) { prompt in
                     WithPerceptionTracking {
                         UserPasswordView(prompt: prompt, computerName: controller.title) { password, remember in
-                            controller.submitUserPassword(password, remember: remember)
+                            controller.submitUserPassword(password, remember: remember, for: prompt)
                         } onCancel: {
                             controller.userPasswordPrompt = nil
                         }
@@ -262,7 +262,7 @@ struct SessionView: View {
             }
             .sheet(item: $controller.userPasswordPrompt) { prompt in
                 UserPasswordView(prompt: prompt, computerName: controller.title) { password, remember in
-                    controller.submitUserPassword(password, remember: remember)
+                    controller.submitUserPassword(password, remember: remember, for: prompt)
                 } onCancel: {
                     controller.userPasswordPrompt = nil
                 }
