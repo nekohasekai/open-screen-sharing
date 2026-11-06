@@ -178,6 +178,7 @@ final class SessionController: Identifiable {
     private(set) var dropTarget: DropTarget?
     var isShowingResolution = false
     var isCustomizingToolbar = false
+    var isEditingQuickInputs = false
     let debugInfo = DebugInfoMonitor()
     @PerceptionIgnored private var transfers: [FileTransfer] = [] {
         didSet { updateTransferTask() }
@@ -2323,6 +2324,11 @@ final class SessionController: Identifiable {
         tapKey(key)
     }
 
+    func perform(_ input: QuickInput) {
+        guard isControlling else { return }
+        performMapping(input.steps(for: mappingTarget), held: [])
+    }
+
     private func tapKey(_ key: MacKey) {
         let sticky = stickyModifiers
         stickyModifiers = []
@@ -2347,12 +2353,12 @@ final class SessionController: Identifiable {
         for modifier in lockedModifiers.union(pressedModifiers) { down.insert(modifier.macKey) }
         var released: [MacKey] = []
         for step in steps {
-            let chord: KeyChord? =
+            let chords: [KeyChord] =
                 switch step {
-                case .key(let shortcut): shortcut.chord(for: mappingTarget)
-                case .text: nil
+                case .key(let combo): combo.shortcuts.compactMap { $0.chord(for: mappingTarget) }
+                case .text: []
                 }
-            let wanted = Set(chord?.modifiers ?? [])
+            let wanted = Set(chords.first?.modifiers ?? [])
             for key in down {
                 guard let modifier = ModifierKey(keysym: key.keysym), !wanted.contains(modifier) else { continue }
                 send(key, down: false)
@@ -2360,11 +2366,13 @@ final class SessionController: Identifiable {
                 latched.remove(modifier)
                 released.append(key)
             }
-            if let chord {
-                tap(chord.key, modifiers: wanted.subtracting(latched))
+            if !chords.isEmpty {
+                let held = ModifierKey.allCases.filter { wanted.subtracting(latched).contains($0) }.map(\.macKey)
+                for key in held + chords.map(\.key) { send(key, down: true) }
+                for key in (held + chords.map(\.key)).reversed() { send(key, down: false) }
             } else if case .text(let text) = step {
                 _ = typeUnmodified(Substring(text))
-            } else if case .key(let shortcut) = step, let command = shortcut.command {
+            } else if case .key(let combo) = step, let command = combo.command {
                 perform(command)
             }
         }

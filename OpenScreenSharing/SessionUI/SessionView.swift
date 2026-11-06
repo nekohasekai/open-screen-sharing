@@ -51,7 +51,7 @@ struct SessionView: View {
         controller.isToolbarVisible || controller.isZoomModeOn || !controller.isControlling || controller.isKeyboardVisible
             || controller.picture == .none
             || controller.isShowingResolution
-            || controller.isCustomizingToolbar
+            || controller.isCustomizingToolbar || controller.isEditingQuickInputs
             || controller.credentialPrompt != nil || controller.alert != nil
     }
 
@@ -120,6 +120,16 @@ struct SessionView: View {
                 .sheet(isPresented: $controller.isCustomizingToolbar) {
                     WithPerceptionTracking {
                         CustomizeToolbarView(controller: controller, slots: toolbarSlots)
+                    }
+                }
+                .sheet(isPresented: $controller.isEditingQuickInputs) {
+                    NavigationStackCompat {
+                        QuickInputView()
+                            .toolbar {
+                                ToolbarItem(placement: .cancellationAction) {
+                                    CloseButton { controller.isEditingQuickInputs = false }
+                                }
+                            }
                     }
                 }
                 .alert($controller.alert)

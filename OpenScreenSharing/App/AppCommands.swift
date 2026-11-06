@@ -234,6 +234,14 @@ private struct ControlCommandItems: View {
                     .disabled(!controlling)
                 #endif
             }
+            Section {
+                Menu("Quick Input") {
+                    if let session {
+                        QuickInputItems(controller: session)
+                    }
+                }
+                .disabled(!controlling)
+            }
             if session?.platform == .iOS {
                 Section {
                     deviceButton(.home, shortcut: .home) { $0.perform(.showDesktop) }

@@ -1,6 +1,3 @@
-#if os(iOS)
-import GameController
-#endif
 import Perception
 import SwiftUI
 
@@ -267,7 +264,7 @@ struct ShortcutButton: View {
     }
 }
 
-private struct ShortcutButtonLabel: View {
+struct ShortcutButtonLabel: View {
     let isRecording: Bool
     let shortcut: String?
     let prompt: LocalizedStringKey
@@ -291,8 +288,9 @@ private struct KeyMappingEditor: View {
 
     private let shortcuts = KeyShortcuts.shared
     @State private var trigger: KeyShortcut
-    @State private var steps: [Step]
+    @State private var steps: [InputStep]
     @State private var recording: Field?
+    @State private var selectedStep: UUID?
     @State private var alert: AlertState?
     @Environment(\.dismiss) private var dismiss
 
@@ -301,35 +299,12 @@ private struct KeyMappingEditor: View {
         self.target = target
         self.isNew = isNew
         _trigger = State(initialValue: mapping.trigger)
-        _steps = State(initialValue: mapping.steps.map(Step.init))
-    }
-
-    private struct Step: Identifiable {
-        let id = UUID()
-        let sendsText: Bool
-        var shortcut: KeyShortcut
-        var text: String
-
-        init(_ step: KeyMapping.Step) {
+        _steps = State(initialValue: mapping.steps.map { step in
             switch step {
-            case .key(let shortcut):
-                sendsText = false
-                self.shortcut = shortcut
-                text = ""
-            case .text(let text):
-                sendsText = true
-                shortcut = .unset
-                self.text = text
+            case .key(let combo): InputStep(key: combo, target: target)
+            case .text(let text): InputStep(text: text)
             }
-        }
-
-        var value: KeyMapping.Step {
-            sendsText ? .text(text) : .key(shortcut)
-        }
-
-        var isComplete: Bool {
-            sendsText ? !text.isEmpty : !shortcut.isUnset && (shortcut.hasCommandModifier || shortcut.isNamed)
-        }
+        })
     }
 
     private enum Field: Hashable {
@@ -337,40 +312,12 @@ private struct KeyMappingEditor: View {
         case key(UUID)
     }
 
-    private static let appleModifiers: [(flag: EventModifiers, label: String, title: String)] = [
-        (.control, "⌃", String(localized: "Control Key")),
-        (.option, "⌥", String(localized: "Option Key")),
-        (.shift, "⇧", String(localized: "Shift Key")),
-        (.command, "⌘", String(localized: "Command Key")),
-    ]
-
-    private static let pcModifiers: [(flag: EventModifiers, label: String, title: String)] = [
-        (.control, "Ctrl", String(localized: "Ctrl Key")),
-        (.option, "Alt", String(localized: "Alt Key")),
-        (.shift, "Shift", String(localized: "Shift Key")),
-        (.command, "Win", String(localized: "Windows Key")),
-    ]
-
-    private var modifiers: [(flag: EventModifiers, label: String, title: String)] {
-        target == .pc ? Self.pcModifiers : Self.appleModifiers
-    }
-
     private var mapping: KeyMapping {
-        KeyMapping(id: id, trigger: trigger, steps: steps.map(\.value))
+        KeyMapping(id: id, trigger: trigger, steps: steps.map { $0.target == nil ? .text($0.text) : .key($0.combo) })
     }
 
     private var isComplete: Bool {
         !trigger.isUnset && !steps.isEmpty && steps.allSatisfy(\.isComplete)
-    }
-
-    private func binding(for step: Step) -> Binding<Step> {
-        Binding(
-            get: { steps.first { $0.id == step.id } ?? step },
-            set: { value in
-                guard let index = steps.firstIndex(where: { $0.id == step.id }) else { return }
-                steps[index] = value
-            }
-        )
     }
 
     var body: some View {
@@ -386,113 +333,13 @@ private struct KeyMappingEditor: View {
                     }
                 }
                 Section("Sends") {
-                    ForEach(steps) { step in
-                        let binding = self.binding(for: step)
-                        HStack {
-                            #if os(macOS)
-                            Button {
-                                recording = nil
-                                steps.removeAll { $0.id == step.id }
-                            } label: {
-                                Image(systemName: "minus.circle.fill")
-                                    .symbolRenderingMode(.palette)
-                                    .foregroundStyle(.white, .red)
-                                    .font(.title2)
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel(Text("Delete"))
-                            #endif
-                            if step.sendsText {
-                                if #available(iOS 16, *) {
-                                    TextField("Text", text: binding.text, prompt: Text("Text"), axis: .vertical)
-                                        .labelsHidden()
-                                } else {
-                                    TextField("Text", text: binding.text)
-                                }
-                            } else {
-                                if step.shortcut.command == nil {
-                                    ForEach(modifiers, id: \.label) { modifier in
-                                        Toggle(isOn: Binding(
-                                            get: { step.shortcut.eventModifiers.contains(modifier.flag) },
-                                            set: { on in
-                                                var flags = step.shortcut.eventModifiers
-                                                if on { flags.insert(modifier.flag) } else { flags.remove(modifier.flag) }
-                                                binding.wrappedValue.shortcut = KeyShortcut(key: step.shortcut.key, modifiers: flags)
-                                            }
-                                        )) {
-                                            Text(verbatim: modifier.label)
-                                        }
-                                        .toggleStyle(.button)
-                                        .accessibilityLabel(Text(verbatim: modifier.title))
-                                    }
-                                }
-                                keyControl(binding)
-                                Spacer(minLength: 0)
-                            }
-                            #if os(macOS)
-                            Image(systemName: "line.3.horizontal")
-                                .foregroundStyle(.tertiary)
-                                .accessibilityHidden(true)
-                            #endif
-                        }
-                        #if os(macOS)
-                        .contextMenu {
-                            Button {
-                                guard let index = steps.firstIndex(where: { $0.id == step.id }), index > 0 else { return }
-                                steps.swapAt(index, index - 1)
-                            } label: {
-                                Label("Move Up", systemImage: "arrow.up")
-                            }
-                            .disabled(steps.first?.id == step.id)
-                            Button {
-                                guard let index = steps.firstIndex(where: { $0.id == step.id }), index < steps.count - 1 else { return }
-                                steps.swapAt(index, index + 1)
-                            } label: {
-                                Label("Move Down", systemImage: "arrow.down")
-                            }
-                            .disabled(steps.last?.id == step.id)
-                        }
-                        #endif
-                    }
-                    .onMove { source, destination in steps.move(fromOffsets: source, toOffset: destination) }
-                    .onDelete { offsets in
-                        recording = nil
-                        steps.remove(atOffsets: offsets)
-                    }
-                    Menu {
-                        Button {
-                            steps.append(Step(.key(.unset)))
-                        } label: {
-                            Label("Key", systemImage: "keyboard")
-                        }
-                        Button {
-                            steps.append(Step(.text("")))
-                        } label: {
-                            Label("Text", systemImage: "character.cursor.ibeam")
-                        }
-                    } label: {
-                        HStack {
-                            Image(systemName: "plus.circle.fill")
-                                .symbolRenderingMode(.palette)
-                                .foregroundStyle(.white, .green)
-                                .font(.title2)
-                                .accessibilityHidden(true)
-                            Text("Add")
-                                .foregroundStyle(.primary)
-                            Spacer(minLength: 0)
-                        }
-                        .contentShape(Rectangle())
-                    }
-                    #if os(macOS)
-                    .menuStyle(.button)
-                    .buttonStyle(.plain)
-                    .menuIndicator(.hidden)
-                    #endif
+                    InputStepsEditor(steps: $steps, keyKinds: keyKinds, recording: stepRecording, selected: $selectedStep)
                 }
             }
             #if os(iOS)
             .environment(\.editMode, .constant(.active))
             #endif
+            .inputStepDestination(steps: $steps, selected: $selectedStep, keyKinds: keyKinds, recording: stepRecording)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -510,48 +357,18 @@ private struct KeyMappingEditor: View {
         #endif
     }
 
-    @ViewBuilder
-    private func keyControl(_ step: Binding<Step>) -> some View {
-        let shortcut = step.wrappedValue.shortcut
-        let key = shortcut.isUnset ? nil : KeyShortcut(key: shortcut.key, modifiers: []).displayName(for: target)
-        let isRecording = recording == .key(step.id)
-        Menu {
-            Button {
-                recording = .key(step.id)
-            } label: {
-                Label("Type Key", systemImage: "keyboard")
-            }
-            ForEach(KeyShortcut.KeyGroup.allCases) { group in
-                let sections = group.sections(for: target)
-                if !sections.isEmpty {
-                    Menu(group.title) {
-                        ForEach(sections) { section in
-                            Section {
-                                ForEach(section.keys) { key in
-                                    Button {
-                                        recording = nil
-                                        step.wrappedValue.shortcut = KeyShortcut(key: key.name, modifiers: key.command == nil ? shortcut.eventModifiers : [])
-                                    } label: {
-                                        Text(verbatim: key.label(for: target))
-                                    }
-                                }
-                            } header: {
-                                if let title = section.title {
-                                    Text(verbatim: title)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } label: {
-            ShortcutButtonLabel(isRecording: isRecording, shortcut: key, prompt: "Type Key")
-        }
-        .buttonStyle(.bordered)
-        .tint(isRecording ? .accentColor : nil)
-        .id(isRecording)
-        .accessibilityLabel(Text("Key"))
-        .accessibilityValue(isRecording ? Text("Type Key") : key.map { Text(verbatim: $0) } ?? Text("None"))
+    private var keyKinds: [(target: MappingTarget, title: LocalizedStringKey)] {
+        [(target, "Key")]
+    }
+
+    private var stepRecording: Binding<UUID?> {
+        Binding(
+            get: {
+                guard case .key(let id) = recording else { return nil }
+                return id
+            },
+            set: { recording = $0.map(Field.key) }
+        )
     }
 
     private func record(_ field: Field, _ press: ShortcutPress) -> Bool {
@@ -565,7 +382,7 @@ private struct KeyMappingEditor: View {
                 trigger = .unset
             case .key(let stepID):
                 guard let index = steps.firstIndex(where: { $0.id == stepID }) else { break }
-                steps[index].shortcut = KeyShortcut(key: "", modifiers: steps[index].shortcut.eventModifiers)
+                steps[index].clearKey()
             }
         case .shortcut(let shortcut):
             switch field {
@@ -574,11 +391,8 @@ private struct KeyMappingEditor: View {
                 recording = nil
                 trigger = shortcut
             case .key(let stepID):
-                guard shortcut.chord(for: target) != nil else { return false }
+                guard let index = steps.firstIndex(where: { $0.id == stepID }), steps[index].record(shortcut) else { return false }
                 recording = nil
-                guard let index = steps.firstIndex(where: { $0.id == stepID }) else { break }
-                let modifiers = shortcut.eventModifiers.isEmpty ? steps[index].shortcut.eventModifiers : shortcut.eventModifiers
-                steps[index].shortcut = KeyShortcut(key: shortcut.key, modifiers: modifiers)
             }
         #if os(macOS)
         case .modifierChord:
@@ -628,21 +442,3 @@ private struct KeyMappingEditor: View {
         dismiss()
     }
 }
-
-#if os(iOS)
-@Perceptible
-private final class ConnectedKeyboard {
-    static let shared = ConnectedKeyboard()
-
-    private(set) var isConnected = GCKeyboard.coalesced != nil
-
-    private init() {
-        NotificationCenter.default.addObserver(forName: .GCKeyboardDidConnect, object: nil, queue: .main) { _ in
-            MainActor.assumeIsolated { ConnectedKeyboard.shared.isConnected = true }
-        }
-        NotificationCenter.default.addObserver(forName: .GCKeyboardDidDisconnect, object: nil, queue: .main) { _ in
-            MainActor.assumeIsolated { ConnectedKeyboard.shared.isConnected = false }
-        }
-    }
-}
-#endif

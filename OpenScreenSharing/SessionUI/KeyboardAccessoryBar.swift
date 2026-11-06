@@ -28,7 +28,8 @@ struct KeyboardAccessoryBar: View {
                             }
                         }
                         group {
-                            functionKeysMenu
+                            menu("Function Keys", systemImage: "fn") { FunctionKeyItems(controller: controller) }
+                            menu("Quick Input", systemImage: "text.insert") { QuickInputItems(controller: controller) }
                         }
                         if UIDevice.current.userInterfaceIdiom == .phone {
                             group {
@@ -82,11 +83,11 @@ struct KeyboardAccessoryBar: View {
         .accessibilityShowsLargeContentViewer()
     }
 
-    private var functionKeysMenu: some View {
+    private func menu(_ title: String.LocalizationValue, systemImage: String, @ViewBuilder items: () -> some View) -> some View {
         Menu {
-            FunctionKeyItems(controller: controller)
+            items()
         } label: {
-            Label("Function Keys", systemImage: "fn")
+            Label(String(localized: title), systemImage: systemImage)
                 .frame(minWidth: 44, minHeight: 44)
                 .contentShape(Rectangle())
         }

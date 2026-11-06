@@ -83,6 +83,26 @@ enum AppDatabase {
                 t.drop(column: "remoteAudio")
             }
         }
+        migrator.registerMigration("1.0.5") { db in
+            for name in ["keyboardMappings", "pcKeyboardMappings"] {
+                guard let data = try Data.fetchOne(db, sql: "SELECT data FROM preferences WHERE name = ?", arguments: [name]),
+                    var mappings = (try? JSONSerialization.jsonObject(with: data)) as? [[String: Any]]
+                else { continue }
+                for index in mappings.indices {
+                    guard let steps = mappings[index]["steps"] as? [[String: Any]] else { continue }
+                    mappings[index]["steps"] = steps.map { step -> [String: Any] in
+                        guard let payload = step["key"] as? [String: Any], var shortcut = payload["_0"] as? [String: Any],
+                            let key = shortcut.removeValue(forKey: "key")
+                        else { return step }
+                        shortcut["keys"] = [key]
+                        return ["key": ["_0": shortcut]]
+                    }
+                }
+                try db.execute(
+                    sql: "UPDATE preferences SET data = ? WHERE name = ?",
+                    arguments: [JSONSerialization.data(withJSONObject: mappings), name])
+            }
+        }
         return migrator
     }()
 

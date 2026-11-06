@@ -30,6 +30,11 @@ struct SettingsView: View {
                     Label("Keyboard", systemImage: "keyboard")
                 }
                 NavigationLink {
+                    QuickInputView()
+                } label: {
+                    Label("Quick Input", systemImage: "text.insert")
+                }
+                NavigationLink {
                     ControlSettingsView()
                 } label: {
                     Label("Control", systemImage: "slider.horizontal.3")

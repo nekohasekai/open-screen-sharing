@@ -4,6 +4,7 @@ enum SessionTutorial: String, CaseIterable, Codable, Identifiable {
     case pressToDrag
     case pointerLock
     case dictation
+    case customInput
 
     var id: Self { self }
 
@@ -14,7 +15,7 @@ enum SessionTutorial: String, CaseIterable, Codable, Identifiable {
         return allCases.filter { tutorial in
             guard !AppSettings.shared.seenTutorials.contains(tutorial) else { return false }
             switch tutorial {
-            case .pressToDrag: return true
+            case .pressToDrag, .customInput: return true
             case .pointerLock, .dictation: return isPad
             }
         }
@@ -72,6 +73,7 @@ struct SessionTutorialView: View {
                 case .pressToDrag: PressToDragIllustration()
                 case .pointerLock: PointerLockIllustration()
                 case .dictation: DictationIllustration()
+                case .customInput: CustomInputIllustration()
                 }
             }
             .frame(width: 310, height: 210)
@@ -113,6 +115,14 @@ struct SessionTutorialView: View {
                     .font(.title2.bold())
                 Text(
                     "When Magic Keyboard is connected, you can also use \(Image(systemName: "mic")) Dictation and the \(Image(systemName: "globe")) emoji keyboard on this iPad."
+                )
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            case .customInput:
+                Text("Custom Keys and Text")
+                    .font(.title2.bold())
+                Text(
+                    "Set up a keyboard shortcut in \(String(localized: "Settings")) › \(String(localized: "Keyboard")), or add an item in \(String(localized: "Settings")) › \(String(localized: SessionCommand.quickInput.title)) and choose it from the Quick Input menu, to send a custom sequence of keys and text to the connected device."
                 )
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -294,6 +304,46 @@ private struct DictationIllustration: View {
             .font(.system(size: 30, weight: .medium))
             .foregroundStyle(.white)
             .frame(width: 84, height: 76)
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color(white: 0.26)))
+            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Color.accentColor, lineWidth: 2))
+    }
+}
+
+private struct CustomInputIllustration: View {
+    var body: some View {
+        VStack(spacing: 14) {
+            HStack(spacing: 8) {
+                key(Text(verbatim: "⌘"))
+                key(Text(verbatim: "J"))
+                Text(verbatim: "/")
+                    .font(.system(size: 24, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 6)
+                key(Text(Image(systemName: SessionCommand.quickInput.systemImage)))
+            }
+            Image(systemName: "arrow.down")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(.secondary)
+            HStack(spacing: 8) {
+                ForEach(["⌃C", "“hello”", "↩\u{FE0E}"], id: \.self) { step in
+                    Text(verbatim: step)
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 14)
+                        .frame(height: 40)
+                        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color(white: 0.26)))
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(white: 0.17))
+    }
+
+    private func key(_ label: Text) -> some View {
+        label
+            .font(.system(size: 24, weight: .medium))
+            .foregroundStyle(.white)
+            .frame(width: 58, height: 54)
             .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color(white: 0.26)))
             .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Color.accentColor, lineWidth: 2))
     }

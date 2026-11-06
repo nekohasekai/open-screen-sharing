@@ -161,6 +161,38 @@ struct ClipboardMenuItems: View {
     }
 }
 
+struct QuickInputItems: View {
+    let controller: SessionController
+
+    private let inputs = QuickInputs.shared
+    #if os(macOS)
+    @Environment(\.openWindow) private var openWindow
+    #endif
+
+    var body: some View {
+        WithPerceptionTracking {
+            let target = controller.mappingTarget
+            Section {
+                ForEach(inputs.inputs.filter { !$0.steps(for: target).isEmpty }) { input in
+                    Button {
+                        controller.perform(input)
+                    } label: {
+                        Text(verbatim: input.name)
+                    }
+                }
+            }
+            Button("Edit…") {
+                #if os(macOS)
+                HomeRequest.shared.pending = .settings
+                openWindow(id: "home")
+                #else
+                controller.isEditingQuickInputs = true
+                #endif
+            }
+        }
+    }
+}
+
 #if os(iOS)
 struct FunctionKeyItems: View {
     let controller: SessionController
@@ -228,7 +260,10 @@ struct SessionMoreMenuContent: View {
                                 items(commands.filter { local.contains($0) })
                             }
                             Section {
-                                items(commands.filter { !local.contains($0) })
+                                items(commands.filter { $0 == .quickInput })
+                            }
+                            Section {
+                                items(commands.filter { !local.contains($0) && $0 != .quickInput })
                             }
                         } else {
                             items(commands)

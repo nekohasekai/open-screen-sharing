@@ -6,7 +6,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
     case audio, sendAudio
     case nativeTouch
     case observe = "control"
-    case pointerLock, keyboard
+    case pointerLock, keyboard, quickInput
     case missionControl, appWindows, showDesktop, launchpad
     case home, appSwitcher, lock
     case clipboard
@@ -28,6 +28,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
         case .pointerLock: "Pointer Lock"
         case .nativeTouch: "Native Touch"
         case .keyboard: "Keyboard"
+        case .quickInput: "Quick Input"
         case .missionControl, .appWindows, .showDesktop, .launchpad: systemCommand!.title
         case .home: "Home Screen"
         case .appSwitcher: "App Switcher"
@@ -51,6 +52,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
         case .pointerLock: "computermouse"
         case .nativeTouch: "hand.tap"
         case .keyboard: "keyboard"
+        case .quickInput: "text.insert"
         case .missionControl, .appWindows, .showDesktop, .launchpad: systemCommand!.systemImage
         case .home: "house"
         case .appSwitcher: if #available(iOS 18, *) { "iphone.app.switcher" } else { "square.stack" }
@@ -64,7 +66,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
         switch self {
         case .zoomMode, .scale, .displays, .quality, .resolution, .hdr: .view
         case .audio, .sendAudio: .sound
-        case .observe, .pointerLock, .nativeTouch, .keyboard, .missionControl, .appWindows, .showDesktop,
+        case .observe, .pointerLock, .nativeTouch, .keyboard, .quickInput, .missionControl, .appWindows, .showDesktop,
             .launchpad, .home, .appSwitcher, .lock:
             .control
         case .clipboard: .clipboard
@@ -87,7 +89,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
         case .home, .appSwitcher, .lock: platform == .iOS
         case .displays, .quality, .resolution, .hdr: platform != .iOS
         case .missionControl, .appWindows, .showDesktop, .launchpad: platform == .mac
-        case .zoomMode, .scale, .audio, .sendAudio, .observe, .pointerLock, .clipboard, .debugInfo: true
+        case .zoomMode, .scale, .audio, .sendAudio, .observe, .pointerLock, .quickInput, .clipboard, .debugInfo: true
         #if os(iOS)
         case .keyboard: true
         case .nativeTouch: platform == .pc
@@ -114,7 +116,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
             return controller.usesHighPerformance && controller.displaySupportsHDR && offers(.highPerformance)
                 && controller.networkSupportsHDR
         case .observe: return offers(.control) && offers(.observe)
-        case .keyboard, .lock: return offers(.control)
+        case .keyboard, .quickInput, .lock: return offers(.control)
         case .nativeTouch: return capabilities.contains(.touch)
         #if os(iOS)
         case .pointerLock: return offers(.control) && PointerLock.hasMouse
@@ -138,7 +140,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
         case .hdr: return controller.canUseHDR
         case .observe: return controller.capabilities.contains(.control)
         case .pointerLock: return controller.canLockPointer
-        case .nativeTouch, .keyboard, .missionControl, .appWindows, .showDesktop, .launchpad, .home,
+        case .nativeTouch, .keyboard, .quickInput, .missionControl, .appWindows, .showDesktop, .launchpad, .home,
             .appSwitcher, .lock:
             return controller.isControlling
         }
@@ -267,6 +269,8 @@ struct SessionCommandView: View {
             Button { controller.perform(.missionControl) } label: { label }
         case .lock:
             Button { controller.sendChord(.sideButton) } label: { label }
+        case .quickInput:
+            Menu { QuickInputItems(controller: controller) } label: { label }
         case .clipboard:
             items(isOn: controller.clipboardSharing) { ClipboardMenuItems(controller: controller) }
         case .debugInfo:

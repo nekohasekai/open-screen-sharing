@@ -218,6 +218,7 @@ struct KeyShortcut: Codable, Hashable {
             for targets: Set<MappingTarget> = [.apple, .pc], equivalent: KeyEquivalent? = nil, standalone: Bool = false,
             command: SystemCommand? = nil
         ) {
+            let symbol = symbol.unicodeScalars.count == 1 ? symbol + "\u{FE0E}" : symbol
             keys.append(
                 NamedKey(
                     name: name, symbol: symbol, title: title ?? symbol, pcLabel: pc ?? title ?? symbol, output: output, targets: targets,
@@ -432,7 +433,7 @@ extension EventModifiers {
     #endif
 }
 
-nonisolated enum MappingTarget: CaseIterable, Identifiable {
+nonisolated enum MappingTarget: Codable, CaseIterable, Identifiable {
     case apple
     case pc
 
@@ -446,15 +447,40 @@ nonisolated enum MappingTarget: CaseIterable, Identifiable {
     }
 }
 
+struct KeyCombo: Codable, Hashable {
+    var keys: [String]
+    var modifiers: Int
+
+    init(keys: [String], modifiers: EventModifiers) {
+        self.keys = keys
+        self.modifiers = modifiers.rawValue
+    }
+
+    static let empty = KeyCombo(keys: [], modifiers: [])
+
+    var eventModifiers: EventModifiers { EventModifiers(rawValue: modifiers) }
+
+    var shortcuts: [KeyShortcut] { keys.map { KeyShortcut(key: $0, modifiers: eventModifiers) } }
+
+    var command: SystemCommand? { keys.count == 1 ? shortcuts[0].command : nil }
+
+    func displayName(for target: MappingTarget) -> String {
+        guard let first = keys.first else { return "" }
+        return ([KeyShortcut(key: first, modifiers: eventModifiers).displayName(for: target)]
+            + keys.dropFirst().map { KeyShortcut(key: $0, modifiers: []).displayName(for: target) })
+            .joined(separator: "+")
+    }
+}
+
 struct KeyMapping: Codable, Hashable, Identifiable {
     enum Step: Codable, Hashable {
-        case key(KeyShortcut)
+        case key(KeyCombo)
         case text(String)
 
         func displayName(for target: MappingTarget) -> String {
             switch self {
-            case .key(let shortcut):
-                shortcut.displayName(for: target)
+            case .key(let combo):
+                combo.displayName(for: target)
             case .text(let text):
                 "“"
                     + text.map { character in
