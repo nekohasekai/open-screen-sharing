@@ -340,6 +340,12 @@ func (c *Client) receiveVendorKeysyms() error {
 	return nil
 }
 
+func (c *Client) SystemCommands() []SystemCommand {
+	c.access.Lock()
+	defer c.access.Unlock()
+	return slices.Clone(c.gestures.systemCommands)
+}
+
 func (c *Client) SendSystemCommand(command SystemCommand) error {
 	c.access.Lock()
 	if c.mode == ModeObserve {

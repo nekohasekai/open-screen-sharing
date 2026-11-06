@@ -81,6 +81,7 @@ type Session struct {
 	resizeHeight int
 
 	pictureEncoding atomic.Int64
+	supportsTouch   atomic.Bool
 }
 
 func NewSession(options *SessionOptions, handler SessionHandler) (*Session, error) {
@@ -121,6 +122,7 @@ type remote interface {
 	SendKey(keysym uint32, down bool) error
 	SendKeyCode(keyCode uint16, keyboardType int32, keysym uint32, down bool) error
 	SendText(text string) error
+	SendTouches(touches []rdp.Touch) error
 
 	SetClipboard(clipboard *Clipboard) error
 	PasteClipboard(clipboard *Clipboard) error
@@ -134,7 +136,12 @@ type rfbRemote struct {
 }
 
 func (r rfbRemote) serverInfo() *ServerInfo {
-	return newServerInfo(r.Info(), r.session.options.Platform)
+	info := newServerInfo(r.Info(), r.session.options.Platform)
+	width, height := r.FramebufferSize()
+	info.Width, info.Height = int32(width), int32(height)
+	info.SupportsTouch = r.TouchAvailable()
+	info.setSystemCommands(r.SystemCommands())
+	return info
 }
 
 func (r rfbRemote) apply(setup sessionSetup) {
@@ -185,6 +192,12 @@ func (r rfbRemote) setKeepsAwake(enabled bool) error {
 
 func (r rfbRemote) SendKeyCode(keyCode uint16, keyboardType int32, keysym uint32, down bool) error {
 	return r.Client.SendKeyCode(keyCode, rfb.KeyboardType(keyboardType), keysym, down)
+}
+
+func (r rfbRemote) SendTouches(touches []rdp.Touch) error {
+	return r.Client.SendTouches(common.Map(touches, func(touch rdp.Touch) rfb.Touch {
+		return rfb.Touch{ID: touch.ID, Phase: rfb.TouchPhase(touch.Phase), X: touch.X, Y: touch.Y}
+	}))
 }
 
 func (r rfbRemote) SetClipboard(clipboard *Clipboard) error {
@@ -335,7 +348,7 @@ func (s *Session) run(ctx context.Context, dial func(ctx context.Context) (remot
 		return
 	}
 	connected.apply(late)
-	s.handler.OnServerInfo(connected.serverInfo())
+	s.reportServerInfo(connected)
 	s.handler.OnStateChanged(StateConnected, ErrorNone, "")
 	err = connected.Run()
 	if ctx.Err() != nil {
@@ -344,6 +357,12 @@ func (s *Session) run(ctx context.Context, dial func(ctx context.Context) (remot
 		}
 	}
 	s.finish(err)
+}
+
+func (s *Session) reportServerInfo(connected remote) {
+	info := connected.serverInfo()
+	s.supportsTouch.Store(info.SupportsTouch)
+	s.handler.OnServerInfo(info)
 }
 
 type sessionSetup struct {
@@ -577,6 +596,29 @@ func (s *Session) SendKeyCode(keyCode int32, keyboardType int32, keysym int32, d
 		return err
 	}
 	return client.SendKeyCode(uint16(keyCode), keyboardType, uint32(keysym), down)
+}
+
+const (
+	TouchPhaseBegan     = int32(rdp.TouchBegan)
+	TouchPhaseMoved     = int32(rdp.TouchMoved)
+	TouchPhaseEnded     = int32(rdp.TouchEnded)
+	TouchPhaseCancelled = int32(rdp.TouchCancelled)
+)
+
+type TouchFrame struct {
+	touches []rdp.Touch
+}
+
+func (f *TouchFrame) Add(id int64, phase int32, x int32, y int32) {
+	f.touches = append(f.touches, rdp.Touch{ID: id, Phase: rdp.TouchPhase(phase), X: int(x), Y: int(y)})
+}
+
+func (s *Session) SendTouches(frame *TouchFrame) error {
+	client, err := s.connectedRemote()
+	if err != nil {
+		return err
+	}
+	return client.SendTouches(frame.touches)
 }
 
 func (s *Session) SendText(text string) error {
@@ -857,6 +899,13 @@ func (e *sessionEvents) CursorMoved(x, y int) {
 
 func (e *sessionEvents) DisplaysChanged(layout *rfb.DisplayLayout) {
 	e.session.handler.OnDisplays(newDisplayList(layout))
+	connected, err := e.session.connectedRemote()
+	if err != nil {
+		return
+	}
+	if connected.serverInfo().SupportsTouch != e.session.supportsTouch.Load() {
+		e.session.reportServerInfo(connected)
+	}
 }
 
 func (e *sessionEvents) ClipboardReceived(clipboard *rfb.Clipboard) {

@@ -131,12 +131,10 @@ func (i *ServerInfo) setSystemCommands(commands []rfb.SystemCommand) {
 	}
 }
 
-func (e *sessionEvents) SystemCommandsChanged(commands []rfb.SystemCommand) {
-	client, err := e.session.connected()
+func (e *sessionEvents) SystemCommandsChanged([]rfb.SystemCommand) {
+	connected, err := e.session.connectedRemote()
 	if err != nil {
 		return
 	}
-	info := newServerInfo(client.Info(), e.session.options.Platform)
-	info.setSystemCommands(commands)
-	e.session.handler.OnServerInfo(info)
+	e.session.reportServerInfo(connected)
 }

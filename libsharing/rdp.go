@@ -162,33 +162,6 @@ func (r *rdpRemote) PasteClipboard(clipboard *Clipboard) error {
 	return r.Paste(text)
 }
 
-const (
-	TouchPhaseBegan     = int32(rdp.TouchBegan)
-	TouchPhaseMoved     = int32(rdp.TouchMoved)
-	TouchPhaseEnded     = int32(rdp.TouchEnded)
-	TouchPhaseCancelled = int32(rdp.TouchCancelled)
-)
-
-type TouchFrame struct {
-	touches []rdp.Touch
-}
-
-func (f *TouchFrame) Add(id int64, phase int32, x int32, y int32) {
-	f.touches = append(f.touches, rdp.Touch{ID: id, Phase: rdp.TouchPhase(phase), X: int(x), Y: int(y)})
-}
-
-func (s *Session) SendTouches(frame *TouchFrame) error {
-	connected, err := s.connectedRemote()
-	if err != nil {
-		return err
-	}
-	client, isRDP := connected.(*rdpRemote)
-	if !isRDP {
-		return E.New("touch input is available only over RDP")
-	}
-	return client.SendTouches(frame.touches)
-}
-
 func (s *Session) SendMicrophoneAudio(data []byte) error {
 	connected, err := s.connectedRemote()
 	if err != nil {

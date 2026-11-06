@@ -111,6 +111,10 @@ func (r Rectangle) Empty() bool {
 	return r.Width <= 0 || r.Height <= 0
 }
 
+func (r Rectangle) contains(x, y int) bool {
+	return x >= r.X && y >= r.Y && x < r.X+r.Width && y < r.Y+r.Height
+}
+
 func (r Rectangle) Union(other Rectangle) Rectangle {
 	if r.Empty() {
 		return other

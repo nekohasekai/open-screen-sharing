@@ -30,6 +30,16 @@ type Display struct {
 	Flags   uint32
 }
 
+const sessionStateOnConsole uint32 = 0x04
+
+// ScreenSharing reads bit 2 of the session state as being on the console, and trusts it only
+// from layout version 3 (ScreenSharing 786.5, macOS 27.3 26C5035r, UUID 66328DDB-F81D-37BC-8D31-6BF1A28A3E87,
+// -[SSSessionView serverSessionIsOnConsole] 0x22f2575a8, -[SSSession hasReliableVirtualDisplayInfo] 0x22f296bbc,
+// -[SSSession handleDisplayInfo2b:screenFlags:screenConfiguration:newSelectedScreen:displayCountChanged:] 0x22f2a584c).
+func (l *DisplayLayout) onConsole() bool {
+	return l.Version <= 2 || l.SessionState&sessionStateOnConsole != 0
+}
+
 const (
 	DisplayFlagMain       uint32 = 0x01
 	DisplayFlagMirrored   uint32 = 0x02

@@ -126,6 +126,7 @@ type Client struct {
 	hdr              bool
 	mediaStarted     bool
 	gestures         gestureState
+	touch            touchState
 	keyboard         keyboardState
 	keepsAwake       bool
 

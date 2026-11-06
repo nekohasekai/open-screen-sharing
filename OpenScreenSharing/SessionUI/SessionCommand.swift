@@ -92,7 +92,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
         case .zoomMode, .scale, .audio, .sendAudio, .observe, .pointerLock, .quickInput, .clipboard, .debugInfo: true
         #if os(iOS)
         case .keyboard: true
-        case .nativeTouch: platform == .pc
+        case .nativeTouch: platform != .iOS
         #else
         case .keyboard, .nativeTouch: false
         #endif
