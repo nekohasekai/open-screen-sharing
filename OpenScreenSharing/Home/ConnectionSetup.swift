@@ -17,6 +17,7 @@ struct NewComputer: Hashable {
         saved.model = model ?? ""
         saved.trustedFingerprint = check.fingerprint
         saved.usesHighPerformance = check.supportsHighPerformance
+        saved.usesNativeTouch = SessionMemory.defaultUsesNativeTouch
         return SignedInComputer(computer: saved, credentials: credentials, server: server.authentication)
     }
 }

@@ -5,6 +5,7 @@ enum SessionTutorial: String, CaseIterable, Codable, Identifiable {
     case pointerLock
     case dictation
     case customInput
+    case nativeTouch
 
     var id: Self { self }
 
@@ -15,7 +16,7 @@ enum SessionTutorial: String, CaseIterable, Codable, Identifiable {
         return allCases.filter { tutorial in
             guard !AppSettings.shared.seenTutorials.contains(tutorial) else { return false }
             switch tutorial {
-            case .pressToDrag, .customInput: return true
+            case .pressToDrag, .customInput, .nativeTouch: return true
             case .pointerLock, .dictation: return isPad
             }
         }
@@ -74,6 +75,7 @@ struct SessionTutorialView: View {
                 case .pointerLock: PointerLockIllustration()
                 case .dictation: DictationIllustration()
                 case .customInput: CustomInputIllustration()
+                case .nativeTouch: NativeTouchIllustration()
                 }
             }
             .frame(width: 310, height: 210)
@@ -126,6 +128,20 @@ struct SessionTutorialView: View {
                 )
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+            case .nativeTouch:
+                Text("Native Touch for Mac")
+                    .font(.title2.bold())
+                Group {
+                    if SessionMemory.defaultUsesNativeTouch {
+                        Text("Native touch is supported when you connect with Apple VNC to a Mac with macOS 27.3 or later.")
+                    } else {
+                        Text(
+                            "When you connect with Apple VNC to a Mac with macOS 27.3 or later, you can turn on \(String(localized: SessionCommandCategory.control.title)) › \(String(localized: SessionCommand.nativeTouch.title))."
+                        )
+                    }
+                }
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
             }
         }
         .fixedSize(horizontal: false, vertical: true)
@@ -166,6 +182,12 @@ private enum TutorialPalette {
         let circle = Path(ellipseIn: CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2))
         context.fill(circle, with: .color(Color(white: 0.28).opacity(0.62)))
         context.stroke(circle, with: .color(.white.opacity(0.55)), lineWidth: 0.8)
+    }
+
+    static func drawFinger(_ context: inout GraphicsContext, at center: CGPoint, radius: CGFloat) {
+        let circle = Path(ellipseIn: CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2))
+        context.fill(circle, with: .color(.white.opacity(0.35)))
+        context.stroke(circle, with: .color(.white.opacity(0.9)), lineWidth: 1.5)
     }
 }
 
@@ -270,11 +292,10 @@ private struct PressToDragIllustration: View {
             indicator.stroke(ring, with: .color(.white), style: StrokeStyle(lineWidth: 3, lineCap: .round))
         }
         func drawFinger(opacity: CGFloat, scale: CGFloat) {
-            let center = CGPoint(x: Self.fingerOrigin.x + offset.x, y: Self.fingerOrigin.y + offset.y)
             var finger = context
             finger.opacity = opacity
-            finger.fill(circle(center, 17 * scale), with: .color(.white.opacity(0.35)))
-            finger.stroke(circle(center, 17 * scale), with: .color(.white.opacity(0.9)), lineWidth: 1.5)
+            TutorialPalette.drawFinger(
+                &finger, at: CGPoint(x: Self.fingerOrigin.x + offset.x, y: Self.fingerOrigin.y + offset.y), radius: 17 * scale)
         }
 
         if t >= 0.5, t < 3.3 {
@@ -285,6 +306,109 @@ private struct PressToDragIllustration: View {
             drawIndicator(
                 opacity: min(progress(0.65, 0.7), 1 - lift), hold: progress(0.65, 0.8),
                 pulse: t >= 0.8 && t < 1.15 ? progress(0.8, 1.15) : nil)
+        }
+    }
+}
+
+private struct NativeTouchIllustration: View {
+    private static let size = CGSize(width: 310, height: 210)
+    private static let period = 4.6
+    private static let window = CGRect(x: 55, y: 36, width: 200, height: 146)
+    private static let focus = CGPoint(x: 155, y: 125)
+    private static let direction = CGPoint(x: 0.82, y: -0.57)
+    private static let spread: (from: CGFloat, to: CGFloat) = (24, 43)
+    private static let sky = Gradient(colors: [
+        Color(red: 0x6B / 255, green: 0xA8 / 255, blue: 0xEC / 255), Color(red: 0xCD / 255, green: 0xE3 / 255, blue: 0xFA / 255),
+    ])
+    private static let sun = Color(red: 1, green: 0xCC / 255, blue: 0x5A / 255)
+    private static let mountain = Color(red: 0x73 / 255, green: 0x84 / 255, blue: 0xB8 / 255)
+    private static let hill = Color(red: 0x5C / 255, green: 0x9E / 255, blue: 0x6B / 255)
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var start = Date()
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: nil, paused: reduceMotion)) { timeline in
+            let time = reduceMotion ? 2.1 : timeline.date.timeIntervalSince(start).truncatingRemainder(dividingBy: Self.period)
+            Canvas { context, size in
+                let scale = size.width / Self.size.width
+                context.scaleBy(x: scale, y: scale)
+                draw(in: &context, size: Self.size, at: time)
+            }
+        }
+    }
+
+    private func draw(in context: inout GraphicsContext, size: CGSize, at t: Double) {
+        func progress(_ from: Double, _ to: Double) -> CGFloat { CGFloat(min(1, max(0, (t - from) / (to - from)))) }
+        func eased(_ x: CGFloat) -> CGFloat { x < 0.5 ? 4 * x * x * x : 1 - pow(-2 * x + 2, 3) / 2 }
+
+        let reset = t >= 4
+        let pinch = reset ? 0 : eased(progress(0.75, 1.95))
+        let spread = Self.spread.from + (Self.spread.to - Self.spread.from) * pinch
+        let zoom = spread / Self.spread.from
+        let fade = reset ? progress(4, 4.3) : 1 - progress(3.7, 4)
+
+        context.fill(
+            Path(CGRect(origin: .zero, size: size)),
+            with: .linearGradient(TutorialPalette.wallpaper, startPoint: .zero, endPoint: CGPoint(x: size.width, y: size.height)))
+        context.fill(Path(CGRect(x: 0, y: 0, width: size.width, height: 14)), with: .color(.white.opacity(0.2)))
+
+        var windowContext = context
+        windowContext.addFilter(.shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 3))
+        windowContext.drawLayer { layer in
+            let frame = Self.window
+            let shape = Path(roundedRect: frame, cornerRadius: 8, style: .continuous)
+            layer.clip(to: shape)
+            layer.fill(shape, with: .color(TutorialPalette.window))
+
+            let content = CGRect(x: frame.minX, y: frame.minY + 19, width: frame.width, height: frame.height - 19)
+            var photo = layer
+            photo.clip(to: Path(content))
+            photo.opacity = fade
+            photo.translateBy(x: Self.focus.x, y: Self.focus.y)
+            photo.scaleBy(x: zoom, y: zoom)
+            photo.translateBy(x: content.minX - Self.focus.x, y: content.minY - Self.focus.y)
+            let width = content.width
+            let height = content.height
+            photo.fill(
+                Path(CGRect(origin: .zero, size: content.size)),
+                with: .linearGradient(Self.sky, startPoint: .zero, endPoint: CGPoint(x: 0, y: height)))
+            photo.fill(Path(ellipseIn: CGRect(x: 139, y: 19, width: 22, height: 22)), with: .color(Self.sun))
+            var mountains = Path()
+            mountains.addLines([
+                CGPoint(x: 0, y: 88), CGPoint(x: 48, y: 40), CGPoint(x: 82, y: 70), CGPoint(x: 122, y: 30), CGPoint(x: 172, y: 76),
+                CGPoint(x: width, y: 58), CGPoint(x: width, y: height), CGPoint(x: 0, y: height),
+            ])
+            mountains.closeSubpath()
+            photo.fill(mountains, with: .color(Self.mountain))
+            var hills = Path()
+            hills.move(to: CGPoint(x: 0, y: 104))
+            hills.addQuadCurve(to: CGPoint(x: 110, y: 96), control: CGPoint(x: 50, y: 80))
+            hills.addQuadCurve(to: CGPoint(x: width, y: 92), control: CGPoint(x: 160, y: 108))
+            hills.addLine(to: CGPoint(x: width, y: height))
+            hills.addLine(to: CGPoint(x: 0, y: height))
+            hills.closeSubpath()
+            photo.fill(hills, with: .color(Self.hill))
+
+            layer.fill(Path(CGRect(x: frame.minX, y: frame.minY, width: frame.width, height: 19)), with: .color(Color(white: 0.89)))
+            for (i, color) in TutorialPalette.lights.enumerated() {
+                let x = frame.minX + 11 + CGFloat(i) * 10
+                layer.fill(Path(ellipseIn: CGRect(x: x - 3.3, y: frame.minY + 6.2, width: 6.6, height: 6.6)), with: .color(color))
+            }
+        }
+
+        if t >= 0.4, t < 2.45 {
+            let appear = progress(0.4, 0.55)
+            let lift = progress(2.25, 2.45)
+            var fingers = context
+            fingers.opacity = min(appear, 1 - lift)
+            let radius = 17 * (t < 1 ? 1.25 - 0.25 * appear : 1 + 0.2 * lift)
+            for sign: CGFloat in [-1, 1] {
+                TutorialPalette.drawFinger(
+                    &fingers,
+                    at: CGPoint(x: Self.focus.x + sign * Self.direction.x * spread, y: Self.focus.y + sign * Self.direction.y * spread),
+                    radius: radius)
+            }
         }
     }
 }

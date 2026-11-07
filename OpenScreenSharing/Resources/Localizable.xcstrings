@@ -63145,13 +63145,621 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "原生触摸"
+            "value" : "原生触控"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "原生觸控"
+          }
+        }
+      }
+    },
+    "Native Touch for Mac" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اللمس الأصلي لجهاز Mac"
+          }
+        },
+        "bg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нативно докосване за Mac"
+          }
+        },
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac-এর জন্য নেটিভ টাচ"
+          }
+        },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tacte natiu per al Mac"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nativní dotyk pro Mac"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indbygget berøring til Mac"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Native Touch-Eingabe für den Mac"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Εγγενής αφή για το Mac"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrada táctil nativa para el Mac"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrada táctil nativa para la Mac"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Natiivi kosketus Macille"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tactile natif pour le Mac"
+          }
+        },
+        "fr-CA" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tactile natif pour le Mac"
+          }
+        },
+        "gu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac માટે નેટિવ ટચ"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "מגע מקורי עבור ה-Mac"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac के लिए नेटिव टच"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izvorni dodir za Mac računalo"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Natív érintés a Mac számára"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sentuhan Asli untuk Mac"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tocco nativo per il Mac"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Macでのネイティブタッチ"
+          }
+        },
+        "kk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac үшін нативті жанасу"
+          }
+        },
+        "kn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Macಗಾಗಿ ನೇಟಿವ್ ಟಚ್"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac용 네이티브 터치"
+          }
+        },
+        "lt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vietinis lietimas „Mac” kompiuteryje"
+          }
+        },
+        "ml" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac-നുള്ള നേറ്റീവ് ടച്ച്"
+          }
+        },
+        "mr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac साठी नेटिव्ह टच"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sentuhan Asli untuk Mac"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Innebygd berøring for Mac"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Native aanraking voor Mac"
+          }
+        },
+        "or" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac ପାଇଁ ନେଟିଭ୍ ଟଚ୍"
+          }
+        },
+        "pa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac ਲਈ ਨੇਟਿਵ ਟੱਚ"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Natywny dotyk na Macu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toque Nativo para o Mac"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toque nativo para o Mac"
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atingere nativă pentru Mac"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нативный сенсорный ввод для Mac"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Natívny dotyk pre Mac"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izvorni dotik za Mac"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inbyggd beröring för Mac"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Macக்கான நேட்டிவ் தொடுதல்"
+          }
+        },
+        "te" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac కోసం నేటివ్ టచ్"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การสัมผัสแบบเนทีฟสำหรับ Mac"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac için Yerel Dokunma"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нативний сенсорний ввід для Mac"
+          }
+        },
+        "ur" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‏Mac کے لیے نیٹو ٹچ"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cảm ứng gốc cho Mac"
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac 原生觸控"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac 原生触控"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac 原生觸控"
+          }
+        }
+      }
+    },
+    "Native touch is supported when you connect with Apple VNC to a Mac with macOS 27.3 or later." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يتوفر دعم اللمس الأصلي عند الاتصال عبر Apple VNC بجهاز Mac يعمل بنظام macOS 27.3 أو أحدث."
+          }
+        },
+        "bg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нативното докосване се поддържа, когато се свързвате чрез Apple VNC с Mac с macOS 27.3 или по-нова версия."
+          }
+        },
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC দিয়ে macOS 27.3 বা তার পরের ভার্সন চালিত Mac-এ কানেক্ট করলে নেটিভ টাচ সাপোর্ট করে।"
+          }
+        },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El tacte natiu és compatible quan et connectes amb Apple VNC a un Mac amb el macOS 27.3 o posterior."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nativní dotyk je podporován při připojení přes Apple VNC k Macu se systémem macOS 27.3 nebo novějším."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indbygget berøring understøttes, når du opretter forbindelse med Apple VNC til en Mac med macOS 27.3 eller nyere."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Native Touch-Eingabe wird unterstützt, wenn du dich über Apple VNC mit einem Mac mit macOS 27.3 oder neuer verbindest."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η εγγενής αφή υποστηρίζεται όταν συνδέεστε μέσω Apple VNC σε Mac με macOS 27.3 ή νεότερη έκδοση."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La entrada táctil nativa es compatible cuando te conectas con Apple VNC a un Mac con macOS 27.3 o posterior."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La entrada táctil nativa es compatible cuando te conectas con Apple VNC a una Mac con macOS 27.3 o posterior."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Natiivia kosketusta tuetaan, kun yhdistät Apple VNC:llä Maciin, jossa on macOS 27.3 tai uudempi."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le tactile natif est pris en charge lorsque vous vous connectez via Apple VNC à un Mac doté de macOS 27.3 ou d’une version ultérieure."
+          }
+        },
+        "fr-CA" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le tactile natif est pris en charge lorsque vous vous connectez via Apple VNC à un Mac doté de macOS 27.3 ou d’une version ultérieure."
+          }
+        },
+        "gu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC દ્વારા macOS 27.3 અથવા તે પછીનું વર્ઝન ધરાવતા Mac સાથે કનેક્ટ કરો ત્યારે નેટિવ ટચ સપોર્ટેડ છે."
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "מגע מקורי נתמך בעת התחברות באמצעות Apple VNC ל-Mac עם macOS 27.3 ואילך."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC से macOS 27.3 या उसके बाद के वर्शन वाले Mac से कनेक्ट करने पर नेटिव टच सपोर्ट होता है।"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izvorni dodir podržan je kada se putem Apple VNC-a povežete s Mac računalom sa sustavom macOS 27.3 ili novijim."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A natív érintés akkor támogatott, ha Apple VNC-n keresztül macOS 27.3 vagy újabb rendszert futtató Machez csatlakozik."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sentuhan asli didukung saat Anda terhubung dengan Apple VNC ke Mac dengan macOS 27.3 atau lebih baru."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il tocco nativo è supportato quando ti connetti con Apple VNC a un Mac con macOS 27.3 o versione successiva."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNCでmacOS 27.3以降のMacに接続すると、ネイティブタッチを使用できます。"
+          }
+        },
+        "kk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC арқылы macOS 27.3 немесе одан кейінгі нұсқасы орнатылған Mac компьютеріне қосылғанда нативті жанасуға қолдау көрсетіледі."
+          }
+        },
+        "kn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC ಮೂಲಕ macOS 27.3 ಅಥವಾ ನಂತರದ ಆವೃತ್ತಿ ಇರುವ Macಗೆ ಕನೆಕ್ಟ್ ಮಾಡಿದಾಗ ನೇಟಿವ್ ಟಚ್ ಬೆಂಬಲಿತವಾಗಿದೆ."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC로 macOS 27.3 이상이 설치된 Mac에 연결하면 네이티브 터치가 지원됩니다."
+          }
+        },
+        "lt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vietinis lietimas palaikomas, kai per „Apple VNC” jungiatės prie „Mac” kompiuterio su „macOS 27.3” ar naujesne versija."
+          }
+        },
+        "ml" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC വഴി macOS 27.3 അല്ലെങ്കിൽ അതിനുശേഷമുള്ള പതിപ്പുള്ള Mac-ലേക്ക് കണക്റ്റ് ചെയ്യുമ്പോൾ നേറ്റീവ് ടച്ച് പിന്തുണയ്ക്കുന്നു."
+          }
+        },
+        "mr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC द्वारे macOS 27.3 किंवा नंतरची आवृत्ती असलेल्या Mac शी कनेक्ट केल्यावर नेटिव्ह टच सपोर्ट करते."
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sentuhan asli disokong apabila anda menyambung dengan Apple VNC ke Mac yang menjalankan macOS 27.3 atau lebih baharu."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Innebygd berøring støttes når du kobler til en Mac med macOS 27.3 eller nyere med Apple VNC."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Native aanraking wordt ondersteund als je via Apple VNC verbinding maakt met een Mac met macOS 27.3 of nieuwer."
+          }
+        },
+        "or" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC ମାଧ୍ୟମରେ macOS 27.3 କିମ୍ବା ପରବର୍ତ୍ତୀ ସଂସ୍କରଣ ଥିବା Mac ସହ ସଂଯୋଗ କଲେ ନେଟିଭ୍ ଟଚ୍ ସମର୍ଥିତ।"
+          }
+        },
+        "pa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC ਰਾਹੀਂ macOS 27.3 ਜਾਂ ਇਸ ਤੋਂ ਬਾਅਦ ਵਾਲੇ ਵਰਜਨ ਵਾਲੇ Mac ਨਾਲ ਕਨੈਕਟ ਕਰਨ 'ਤੇ ਨੇਟਿਵ ਟੱਚ ਸਮਰਥਿਤ ਹੈ।"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Natywny dotyk jest obsługiwany po połączeniu przez Apple VNC z Makiem z systemem macOS 27.3 lub nowszym."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O toque nativo é compatível quando você se conecta via Apple VNC a um Mac com macOS 27.3 ou posterior."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O toque nativo é suportado quando estabelece ligação via Apple VNC a um Mac com macOS 27.3 ou posterior."
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atingerea nativă este acceptată când te conectezi prin Apple VNC la un Mac cu macOS 27.3 sau o versiune ulterioară."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нативный сенсорный ввод поддерживается при подключении через Apple VNC к Mac с macOS 27.3 или новее."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Natívny dotyk je podporovaný pri pripojení cez Apple VNC k Macu so systémom macOS 27.3 alebo novším."
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izvorni dotik je podprt, ko se prek Apple VNC povežete z Macom s sistemom macOS 27.3 ali novejšim."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inbyggd beröring stöds när du ansluter med Apple VNC till en Mac med macOS 27.3 eller senare."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC மூலம் macOS 27.3 அல்லது அதற்குப் பிந்தைய பதிப்பு உள்ள Macஉடன் இணைக்கும்போது நேட்டிவ் தொடுதல் ஆதரிக்கப்படும்."
+          }
+        },
+        "te" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC ద్వారా macOS 27.3 లేదా తర్వాతి వెర్షన్ ఉన్న Macకు కనెక్ట్ చేసినప్పుడు నేటివ్ టచ్ సపోర్ట్ చేయబడుతుంది."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "รองรับการสัมผัสแบบเนทีฟเมื่อเชื่อมต่อผ่าน Apple VNC กับ Mac ที่ใช้ macOS 27.3 หรือใหม่กว่า"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.3 veya sonrasını çalıştıran bir Mac’e Apple VNC ile bağlandığınızda yerel dokunma desteklenir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нативний сенсорний ввід підтримується під час підʼєднання через Apple VNC до Mac з macOS 27.3 або новішої версії."
+          }
+        },
+        "ur" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC کے ذریعے macOS 27.3 یا اس کے بعد کے ورژن والے Mac سے کنیکٹ کرنے پر نیٹو ٹچ سپورٹ ہوتا ہے۔"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cảm ứng gốc được hỗ trợ khi bạn kết nối bằng Apple VNC với máy Mac chạy macOS 27.3 trở lên."
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "透過 Apple VNC 連線到執行 macOS 27.3 或以上版本的 Mac 時，可以使用原生觸控。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通过 Apple VNC 连接到运行 macOS 27.3 或更高版本的 Mac 时，可以使用原生触控。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "透過 Apple VNC 連線到執行 macOS 27.3 或以上版本的 Mac 時，可以使用原生觸控。"
           }
         }
       }
@@ -117308,6 +117916,310 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "使用滑鼠或觸控式軌跡板時，開啟「%1$@」>「%2$@」，移到螢幕邊緣就不會打開 Dock 或控制中心。"
+          }
+        }
+      }
+    },
+    "When you connect with Apple VNC to a Mac with macOS 27.3 or later, you can turn on %@ › %@." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "عند الاتصال عبر Apple VNC بجهاز Mac يعمل بنظام macOS 27.3 أو أحدث، يمكنك تشغيل %1$@ > %2$@."
+          }
+        },
+        "bg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Когато се свързвате чрез Apple VNC с Mac с macOS 27.3 или по-нова версия, можете да включите %1$@ › %2$@."
+          }
+        },
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC দিয়ে macOS 27.3 বা তার পরের ভার্সন চালিত Mac-এ কানেক্ট করলে %1$@ › %2$@ চালু করতে পারবেন।"
+          }
+        },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quan et connectes amb Apple VNC a un Mac amb el macOS 27.3 o posterior, pots activar %1$@ › %2$@."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Při připojení přes Apple VNC k Macu se systémem macOS 27.3 nebo novějším můžete zapnout %1$@ › %2$@."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Når du opretter forbindelse med Apple VNC til en Mac med macOS 27.3 eller nyere, kan du slå %1$@ › %2$@ til."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn du dich über Apple VNC mit einem Mac mit macOS 27.3 oder neuer verbindest, kannst du „%1$@“ > „%2$@“ aktivieren."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Όταν συνδέεστε μέσω Apple VNC σε Mac με macOS 27.3 ή νεότερη έκδοση, μπορείτε να ενεργοποιήσετε το %1$@ › %2$@."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando te conectas con Apple VNC a un Mac con macOS 27.3 o posterior, puedes activar %1$@ > %2$@."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando te conectas con Apple VNC a una Mac con macOS 27.3 o posterior, puedes activar %1$@ > %2$@."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kun yhdistät Apple VNC:llä Maciin, jossa on macOS 27.3 tai uudempi, voit laittaa %1$@ › %2$@ päälle."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lorsque vous vous connectez via Apple VNC à un Mac doté de macOS 27.3 ou d’une version ultérieure, vous pouvez activer %1$@ > %2$@."
+          }
+        },
+        "fr-CA" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lorsque vous vous connectez via Apple VNC à un Mac doté de macOS 27.3 ou d’une version ultérieure, vous pouvez activer %1$@ > %2$@."
+          }
+        },
+        "gu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC દ્વારા macOS 27.3 અથવા તે પછીનું વર્ઝન ધરાવતા Mac સાથે કનેક્ટ કરો ત્યારે, તમે %1$@ › %2$@ ચાલુ કરી શકો છો."
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "בעת התחברות באמצעות Apple VNC ל-Mac עם macOS 27.3 ואילך, אפשר להפעיל את ״%1$@״ › ״%2$@״."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC से macOS 27.3 या उसके बाद के वर्शन वाले Mac से कनेक्ट करने पर, आप %1$@ › %2$@ चालू कर सकते हैं।"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kada se putem Apple VNC-a povežete s Mac računalom sa sustavom macOS 27.3 ili novijim, možete uključiti %1$@ › %2$@."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ha Apple VNC-n keresztül macOS 27.3 vagy újabb rendszert futtató Machez csatlakozik, bekapcsolhatja a(z) %1$@ › %2$@ lehetőséget."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saat Anda terhubung dengan Apple VNC ke Mac dengan macOS 27.3 atau lebih baru, Anda dapat menyalakan %1$@ › %2$@."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando ti connetti con Apple VNC a un Mac con macOS 27.3 o versione successiva, puoi attivare %1$@ › %2$@."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNCでmacOS 27.3以降のMacに接続しているときは、“%1$@”＞“%2$@”をオンにできます。"
+          }
+        },
+        "kk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC арқылы macOS 27.3 немесе одан кейінгі нұсқасы орнатылған Mac компьютеріне қосылғанда, %1$@ › %2$@ параметрін қоса аласыз."
+          }
+        },
+        "kn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC ಮೂಲಕ macOS 27.3 ಅಥವಾ ನಂತರದ ಆವೃತ್ತಿ ಇರುವ Macಗೆ ಕನೆಕ್ಟ್ ಮಾಡಿದಾಗ, %1$@ › %2$@ ಆನ್ ಮಾಡಬಹುದು."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC로 macOS 27.3 이상이 설치된 Mac에 연결하면 ‘%1$@’ > ‘%2$@’을(를) 켤 수 있습니다."
+          }
+        },
+        "lt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kai per „Apple VNC” jungiatės prie „Mac” kompiuterio su „macOS 27.3” ar naujesne versija, galite įjungti „%1$@” › „%2$@”."
+          }
+        },
+        "ml" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC വഴി macOS 27.3 അല്ലെങ്കിൽ അതിനുശേഷമുള്ള പതിപ്പുള്ള Mac-ലേക്ക് കണക്റ്റ് ചെയ്യുമ്പോൾ, %1$@ › %2$@ ഓണാക്കാം."
+          }
+        },
+        "mr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC द्वारे macOS 27.3 किंवा नंतरची आवृत्ती असलेल्या Mac शी कनेक्ट केल्यावर, तुम्ही %1$@ › %2$@ चालू करू शकता."
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apabila anda menyambung dengan Apple VNC ke Mac yang menjalankan macOS 27.3 atau lebih baharu, anda boleh mengaktifkan %1$@ › %2$@."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Når du kobler til en Mac med macOS 27.3 eller nyere med Apple VNC, kan du slå på %1$@ › %2$@."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als je via Apple VNC verbinding maakt met een Mac met macOS 27.3 of nieuwer, kun je %1$@ › %2$@ inschakelen."
+          }
+        },
+        "or" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC ମାଧ୍ୟମରେ macOS 27.3 କିମ୍ବା ପରବର୍ତ୍ତୀ ସଂସ୍କରଣ ଥିବା Mac ସହ ସଂଯୋଗ କଲେ, ଆପଣ %1$@ › %2$@ ଅନ୍ କରିପାରିବେ।"
+          }
+        },
+        "pa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC ਰਾਹੀਂ macOS 27.3 ਜਾਂ ਇਸ ਤੋਂ ਬਾਅਦ ਵਾਲੇ ਵਰਜਨ ਵਾਲੇ Mac ਨਾਲ ਕਨੈਕਟ ਕਰਨ 'ਤੇ, ਤੁਸੀਂ %1$@ › %2$@ ਚਾਲੂ ਕਰ ਸਕਦੇ ਹੋ।"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Po połączeniu przez Apple VNC z Makiem z systemem macOS 27.3 lub nowszym możesz włączyć %1$@ › %2$@."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ao se conectar via Apple VNC a um Mac com macOS 27.3 ou posterior, você pode ativar %1$@ › %2$@."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ao estabelecer ligação via Apple VNC a um Mac com macOS 27.3 ou posterior, pode ativar %1$@ › %2$@."
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Când te conectezi prin Apple VNC la un Mac cu macOS 27.3 sau o versiune ulterioară, poți activa %1$@ › %2$@."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "При подключении через Apple VNC к Mac с macOS 27.3 или новее можно включить «%1$@» > «%2$@»."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pri pripojení cez Apple VNC k Macu so systémom macOS 27.3 alebo novším môžete zapnúť %1$@ › %2$@."
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ko se prek Apple VNC povežete z Macom s sistemom macOS 27.3 ali novejšim, lahko vklopite %1$@ › %2$@."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "När du ansluter med Apple VNC till en Mac med macOS 27.3 eller senare kan du slå på %1$@ › %2$@."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC மூலம் macOS 27.3 அல்லது அதற்குப் பிந்தைய பதிப்பு உள்ள Macஉடன் இணைக்கும்போது, %1$@ › %2$@ என்பதை இயக்கலாம்."
+          }
+        },
+        "te" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC ద్వారా macOS 27.3 లేదా తర్వాతి వెర్షన్ ఉన్న Macకు కనెక్ట్ చేసినప్పుడు, ‘%1$@’ › ‘%2$@’ ఆన్ చేయవచ్చు."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เมื่อเชื่อมต่อผ่าน Apple VNC กับ Mac ที่ใช้ macOS 27.3 หรือใหม่กว่า คุณสามารถเปิด %1$@ › %2$@ ได้"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27.3 veya sonrasını çalıştıran bir Mac’e Apple VNC ile bağlandığınızda %1$@ › %2$@ seçeneğini açabilirsiniz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Під час підʼєднання через Apple VNC до Mac з macOS 27.3 або новішої версії можна увімкнути %1$@ › %2$@."
+          }
+        },
+        "ur" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple VNC کے ذریعے macOS 27.3 یا اس کے بعد کے ورژن والے Mac سے کنیکٹ کرنے پر، آپ %1$@ › %2$@ آن کر سکتے ہیں۔"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khi kết nối bằng Apple VNC với máy Mac chạy macOS 27.3 trở lên, bạn có thể bật %1$@ > %2$@."
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "透過 Apple VNC 連線到執行 macOS 27.3 或以上版本的 Mac 時，可以開啟「%1$@」>「%2$@」。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通过 Apple VNC 连接到运行 macOS 27.3 或更高版本的 Mac 时，可以打开“%1$@”>“%2$@”。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "透過 Apple VNC 連線到執行 macOS 27.3 或以上版本的 Mac 時，可以開啟「%1$@」>「%2$@」。"
           }
         }
       }
