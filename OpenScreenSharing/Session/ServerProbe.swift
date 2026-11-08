@@ -32,11 +32,14 @@ nonisolated struct LoginCheck: Sendable {
 }
 
 nonisolated enum ServerProber {
-    static func probe(host: String, port: Int?, remoteProtocol: RemoteProtocol?) async -> Result<ProbedServer, SessionFailure> {
+    static func probe(
+        host: String, port: Int?, remoteProtocol: RemoteProtocol?, checksOwnScreen: Bool = false
+    ) async -> Result<ProbedServer, SessionFailure> {
         let request = UncheckedSendable(value: LibsharingNewProbeRequest()!)
         return await withTaskCancellationHandler {
             await Task.detached(priority: .userInitiated) { () -> Result<ProbedServer, SessionFailure> in
                 LibsharingLog.installed
+                request.value.checkOwnScreen = checksOwnScreen
                 let probe: LibsharingServerProbe =
                     switch remoteProtocol {
                     case .vnc: request.value.probeServer(host, port: Int32(port ?? RemoteProtocol.vnc.defaultPort))!

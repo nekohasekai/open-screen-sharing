@@ -323,11 +323,6 @@ func rfbOptions(o *SessionOptions, seen func(fingerprint string)) (rfb.Options, 
 }
 
 func (s *Session) run(ctx context.Context, dial func(ctx context.Context) (remote, error)) {
-	err := checkOwnScreen(ctx, s.options.Host, s.options.Port)
-	if err != nil {
-		s.finish(err)
-		return
-	}
 	connected, err := dial(ctx)
 	if err != nil {
 		s.finish(err)

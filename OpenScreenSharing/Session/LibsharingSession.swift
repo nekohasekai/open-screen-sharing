@@ -542,8 +542,6 @@ nonisolated private final class LibsharingHandler: NSObject, LibsharingSessionHa
                 delegate.sessionPhaseChanged(.failed(SessionFailure(.permissionDenied, message: text)))
             case LibsharingErrorHostNotFound:
                 delegate.sessionPhaseChanged(.failed(SessionFailure(.hostNotFound, message: text)))
-            case LibsharingErrorOwnScreen:
-                delegate.sessionPhaseChanged(.failed(SessionFailure(.ownScreen, message: text)))
             case LibsharingErrorNetwork:
                 let started = locked { info.framebufferWidth > 0 }
                 delegate.sessionPhaseChanged(.failed(SessionFailure(started ? .connectionLost : .unreachable, message: text)))

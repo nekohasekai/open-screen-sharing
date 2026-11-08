@@ -87,9 +87,10 @@ final class NearbyBrowser {
             var names: [String] = []
             var models: [String: String] = [:]
             for result in results {
-                guard case let .service(name, _, _, _) = result.endpoint,
-                    !result.interfaces.contains(where: { $0.type == .loopback })
-                else { continue }
+                guard case let .service(name, _, _, _) = result.endpoint else { continue }
+                #if os(iOS)
+                if result.interfaces.contains(where: { $0.type == .loopback }) { continue }
+                #endif
                 names.append(name)
                 if case let .bonjour(record) = result.metadata, let model = record["model"], !model.isEmpty {
                     models[name] = model

@@ -170,8 +170,7 @@ extension SessionFailure {
         case .authenticationFailed: String(localized: "Couldn’t Sign In to “\(name)”")
         case .permissionDenied: String(localized: "“\(name)” Declined the Request")
         case .hostNotFound: String(localized: "Couldn’t Find “\(name)”")
-        case .ownScreen: String(localized: "You Can’t Control Your Own Screen")
-        case .unreachable, .other: String(localized: "Couldn’t Connect to “\(name)”")
+        case .ownScreen, .unreachable, .other: String(localized: "Couldn’t Connect to “\(name)”")
         case .connectionLost: String(localized: "Lost the Connection to “\(name)”")
         case .ended, .drawingFailed: String(localized: "Disconnected from “\(name)”")
         case .closedByServer:

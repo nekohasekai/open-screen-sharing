@@ -118528,310 +118528,6 @@
         }
       }
     },
-    "You Can’t Control Your Own Screen" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "لا يمكنك التحكم في شاشتك"
-          }
-        },
-        "bg" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Не можете да управлявате собствения си екран"
-          }
-        },
-        "bn" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "আপনি নিজের স্ক্রিন কন্ট্রোল করতে পারবেন না"
-          }
-        },
-        "ca" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No pots controlar la teva pròpia pantalla."
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nemůžete ovládat vlastní obrazovku"
-          }
-        },
-        "da" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du kan ikke kontrollere din egen skærm"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eigener Bildschirm kann nicht gesteuert werden"
-          }
-        },
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Δεν μπορείτε να ελέγξετε τη δική σας οθόνη"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No puedes controlar tu propia pantalla"
-          }
-        },
-        "es-419" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No puedes controlar tu propia pantalla"
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Et voi hallita omaa näyttöäsi"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous ne pouvez pas contrôler votre propre écran"
-          }
-        },
-        "fr-CA" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous ne pouvez pas contrôler votre propre écran"
-          }
-        },
-        "gu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "તમે તમારી પોતાની સ્ક્રીન કંટ્રોલ કરી શકતા નથી"
-          }
-        },
-        "he" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "לא ניתן לשלוט במסך שלך"
-          }
-        },
-        "hi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "आप अपनी ही स्क्रीन को कंट्रोल नहीं कर सकते"
-          }
-        },
-        "hr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ne možete upravljati vlastitim zaslonom"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nem vezérelheti a saját képernyőjét"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anda Tidak Dapat Mengontrol Layar Anda Sendiri"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Non puoi controllare il tuo schermo"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自分の画面は制御できません"
-          }
-        },
-        "kk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Өз экраныңызды басқара алмайсыз"
-          }
-        },
-        "kn" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ನಿಮ್ಮ ಸ್ವಂತ ಸ್ಕ್ರೀನ್ ಅನ್ನು ನೀವು ನಿಯಂತ್ರಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "본인의 화면을 제어할 수 없음"
-          }
-        },
-        "lt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Negalite valdyti savo ekrano"
-          }
-        },
-        "ml" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "നിങ്ങൾക്ക് സ്വന്തം സ്ക്രീൻ നിയന്ത്രിക്കാനാകില്ല"
-          }
-        },
-        "mr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "तुम्ही तुमची स्वतःची स्क्रीन नियंत्रित करू शकत नाही"
-          }
-        },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anda Tidak Boleh Mengawal Skrin Anda Sendiri"
-          }
-        },
-        "nb" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du kan ikke kontrollere din egen skjerm"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Je kunt je eigen scherm niet besturen"
-          }
-        },
-        "or" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ଆପଣ ନିଜ ସ୍କ୍ରିନ୍ ନିୟନ୍ତ୍ରଣ କରିପାରିବେ ନାହିଁ"
-          }
-        },
-        "pa" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ਤੁਸੀਂ ਆਪਣੀ ਖ਼ੁਦ ਦੀ ਸਕਰੀਨ ਨੂੰ ਕੰਟਰੋਲ ਨਹੀਂ ਕਰ ਸਕਦੇ"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nie można sterować własnym ekranem"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Você não pode controlar a própria tela"
-          }
-        },
-        "pt-PT" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Não é possível controlar o próprio ecrã"
-          }
-        },
-        "ro" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nu vă puteți controla propriul ecran"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нельзя управлять собственным экраном"
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nemôžete ovládať vlastnú obrazovku"
-          }
-        },
-        "sl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ne morete upravljati svojega zaslona"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du kan inte styra din egen skärm"
-          }
-        },
-        "ta" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "உங்கள் சொந்தத் திரையை நீங்கள் கட்டுப்படுத்த முடியாது"
-          }
-        },
-        "te" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "మీ స్వంత స్క్రీన్‌ను మీరు నియంత్రించలేరు"
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "คุณไม่สามารถควบคุมหน้าจอของคุณเองได้"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kendi Ekranınızı Kontrol Edemezsiniz"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Не можна керувати власним екраном"
-          }
-        },
-        "ur" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "آپ اپنی اسکرین کنٹرول نہیں کر سکتے"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bạn không thể điều khiển màn hình của chính mình"
-          }
-        },
-        "zh-HK" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你無法控制自己的螢幕"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你不能控制你自己的屏幕"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你無法控制自己的螢幕"
-          }
-        }
-      }
-    },
     "You can’t control your own screen." : {
       "localizations" : {
         "ar" : {
@@ -124604,6 +124300,310 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "「%@」拒絕了高效能模式"
+          }
+        }
+      }
+    },
+    "“%@” is the Mac you’re using." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إن \"%@\" هو جهاز Mac الذي تستخدمه."
+          }
+        },
+        "bg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ е Mac компютърът, който използвате."
+          }
+        },
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” হলো সেই Mac যেটি আপনি ব্যবহার করছেন।"
+          }
+        },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” és el Mac que estàs fent servir."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ je Mac, který právě používáte."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” er den Mac, du bruger."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ ist der Mac, den du gerade verwendest."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το «%@» είναι το Mac που χρησιμοποιείτε."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” es el Mac que estás usando."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” es la Mac que estás usando."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” on käyttämäsi Mac."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » est le Mac que vous utilisez."
+          }
+        },
+        "fr-CA" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » est le Mac que vous utilisez."
+          }
+        },
+        "gu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” એ જ Mac છે જેનો તમે ઉપયોગ કરી રહ્યા છો."
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "״%@״ הוא ה‑Mac שנמצא בשימושך."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” वही Mac है जिसका आप इस्तेमाल कर रहे हैं।"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ je Mac koji upotrebljavate."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A(z) „%@” az a Mac, amelyet éppen használ."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” adalah Mac yang sedang Anda gunakan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” è il Mac che stai usando."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”は使用中のMacです。"
+          }
+        },
+        "kk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» — сіз пайдаланып отырған Mac."
+          }
+        },
+        "kn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” ನೀವು ಬಳಸುತ್ತಿರುವ Mac ಆಗಿದೆ."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘%@’은(는) 현재 사용 중인 Mac입니다."
+          }
+        },
+        "lt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@” yra „Mac” kompiuteris, kurį naudojate."
+          }
+        },
+        "ml" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘%@’ ആണ് നിങ്ങൾ ഉപയോഗിക്കുന്ന Mac."
+          }
+        },
+        "mr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘%@’ हा तुम्ही वापरत असलेला Mac आहे."
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” ialah Mac yang sedang anda gunakan."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» er Macen du bruker."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'%@' is de Mac die je gebruikt."
+          }
+        },
+        "or" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” ହେଉଛି ଆପଣ ବ୍ୟବହାର କରୁଥିବା Mac।"
+          }
+        },
+        "pa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” ਉਹ Mac ਹੈ ਜਿਸਨੂੰ ਤੁਸੀਂ ਵਰਤ ਰਹੇ ਹੋ।"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@” to Mac, którego używasz."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” é o Mac que você está usando."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” é o Mac que está a utilizar."
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@” este Mac-ul pe care îl folosiți."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» — это Mac, которым вы пользуетесь."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ je Mac, ktorý používate."
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "»%@« je Mac, ki ga uporabljate."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” är den Mac du använder."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” என்பது நீங்கள் பயன்படுத்தும் Mac."
+          }
+        },
+        "te" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” మీరు ఉపయోగిస్తున్న Mac."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” คือ Mac ที่คุณกำลังใช้อยู่"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”, kullandığınız Mac’tir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» — це Mac, яким ви користуєтеся."
+          }
+        },
+        "ur" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“⁨%@⁩” وہی Mac ہے جسے آپ استعمال کر رہے ہیں۔"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” là máy Mac bạn đang sử dụng."
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」是你正在使用的 Mac。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”是你正在使用的 Mac。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」是你正在使用的 Mac。"
           }
         }
       }

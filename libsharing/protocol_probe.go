@@ -16,17 +16,19 @@ const (
 
 func (r *ProbeRequest) ProbeProtocol(host string, port int32) *ServerProbe {
 	if port != 0 {
-		err := checkOwnScreen(r.ctx, host, port)
-		if err != nil {
-			return failedProbe(port, err)
+		if r.CheckOwnScreen {
+			err := checkOwnScreen(r.ctx, host, port)
+			if err != nil {
+				return failedProbe(port, err)
+			}
 		}
-		return probeRDP(r.ctx, host, port, true)
+		return r.probeRDP(r.ctx, host, port, true)
 	}
 	ctx, cancel := context.WithCancel(r.ctx)
 	defer cancel()
 	rfbResults, rdpResults := make(chan *ServerProbe, 1), make(chan *ServerProbe, 1)
-	go func() { rfbResults <- probeServer(ctx, host, defaultRFBPort) }()
-	go func() { rdpResults <- probeRDP(ctx, host, defaultRDPPort, false) }()
+	go func() { rfbResults <- r.probeServer(ctx, host, defaultRFBPort) }()
+	go func() { rdpResults <- r.probeRDP(ctx, host, defaultRDPPort, false) }()
 	var rfbResult, rdpResult *ServerProbe
 	for rfbResult == nil || rdpResult == nil {
 		select {
@@ -56,7 +58,7 @@ func (r *ProbeRequest) ProbeProtocol(host string, port int32) *ServerProbe {
 	return rfbResult
 }
 
-func probeRDP(ctx context.Context, host string, port int32, rfbFallback bool) *ServerProbe {
+func (r *ProbeRequest) probeRDP(ctx context.Context, host string, port int32, rfbFallback bool) *ServerProbe {
 	conn, err := new(net.Dialer).DialContext(ctx, "tcp", net.JoinHostPort(host, strconv.Itoa(int(port))))
 	if err != nil {
 		return failedProbe(port, err)
@@ -65,7 +67,7 @@ func probeRDP(ctx context.Context, host string, port int32, rfbFallback bool) *S
 	fingerprint, err := rdp.Probe(ctx, conn)
 	if rfbFallback && errors.Is(err, rdp.ErrRFBServer) {
 		_ = conn.Close()
-		return probeServer(ctx, host, port)
+		return r.probeServer(ctx, host, port)
 	}
 	if err != nil {
 		return failedProbe(port, err)

@@ -31,6 +31,8 @@ type ServerProbe struct {
 }
 
 type ProbeRequest struct {
+	CheckOwnScreen bool
+
 	ctx    context.Context
 	cancel context.CancelFunc
 }
@@ -45,18 +47,20 @@ func (r *ProbeRequest) Cancel() {
 }
 
 func (r *ProbeRequest) ProbeServer(host string, port int32) *ServerProbe {
-	return probeServer(r.ctx, host, port)
+	return r.probeServer(r.ctx, host, port)
 }
 
 func (r *ProbeRequest) ProbeRDPServer(host string, port int32) *ServerProbe {
-	return probeRDP(r.ctx, host, port, false)
+	return r.probeRDP(r.ctx, host, port, false)
 }
 
-func probeServer(ctx context.Context, host string, port int32) *ServerProbe {
-	err := checkOwnScreen(ctx, host, port)
-	if err != nil {
-		code, message := classifyError(err)
-		return &ServerProbe{ErrorCode: code, ErrorMessage: message}
+func (r *ProbeRequest) probeServer(ctx context.Context, host string, port int32) *ServerProbe {
+	if r.CheckOwnScreen {
+		err := checkOwnScreen(ctx, host, port)
+		if err != nil {
+			code, message := classifyError(err)
+			return &ServerProbe{ErrorCode: code, ErrorMessage: message}
+		}
 	}
 	info, err := rfb.Probe(ctx, rfb.Options{
 		Address: net.JoinHostPort(host, strconv.Itoa(int(port))),
@@ -99,11 +103,6 @@ func (r *ProbeRequest) CheckLogin(options *SessionOptions) *LoginCheck {
 	}
 	var fingerprint string
 	rfbOptions, err := rfbOptions(options, func(seen string) { fingerprint = seen })
-	if err != nil {
-		code, message := classifyError(err)
-		return &LoginCheck{ErrorCode: code, ErrorMessage: message}
-	}
-	err = checkOwnScreen(r.ctx, options.Host, options.Port)
 	if err != nil {
 		code, message := classifyError(err)
 		return &LoginCheck{ErrorCode: code, ErrorMessage: message}

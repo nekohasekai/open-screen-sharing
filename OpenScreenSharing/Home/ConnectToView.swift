@@ -15,6 +15,7 @@ struct ConnectToView: View {
     @State private var checkedID: NearbyComputer.ID?
     @State private var nearbyProblem: SetupProblem?
     @State private var details: NearbyComputer?
+    @State private var alert: AlertState?
     @State private var opensLink = true
     @FocusState private var isFocused: Bool
 
@@ -112,6 +113,7 @@ struct ConnectToView: View {
             .sheet(item: $details) { computer in
                 NearbyDetailsView(computer: computer)
             }
+            .alert($alert)
             .interactiveDismissDisabled(isChecking)
             .onAppear {
                 guard opensLink, let link else { return }
@@ -146,12 +148,16 @@ struct ConnectToView: View {
         }
     }
 
-    private func choose(_ computer: NearbyComputer) {
+    private func choose(_ computer: NearbyComputer, allowsOwnScreen: Bool = false) {
         guard !isChecking, let address = computer.address else { return }
         nearbyProblem = nil
         checkedID = computer.id
         task = Task {
-            let problem = await check(host: address.host, port: address.port, remoteProtocol: computer.remoteProtocol) { server in
+            let problem = await check(
+                name: computer.name, host: address.host, port: address.port, remoteProtocol: computer.remoteProtocol,
+                allowsOwnScreen: allowsOwnScreen,
+                connectAnyway: { choose(computer, allowsOwnScreen: true) }, cancel: {}
+            ) { server in
                 NewComputer(name: computer.name, model: computer.model, server: server)
             }
             guard !Task.isCancelled else { return }
@@ -170,11 +176,15 @@ struct ConnectToView: View {
         connect(to: target)
     }
 
-    private func connect(to target: ConnectionTarget) {
+    private func connect(to target: ConnectionTarget, allowsOwnScreen: Bool = false) {
         problem = nil
         nearbyProblem = nil
         task = Task {
-            let problem = await check(host: target.host, port: target.port, remoteProtocol: target.remoteProtocol) { server in
+            let problem = await check(
+                name: target.host, host: target.host, port: target.port, remoteProtocol: target.remoteProtocol,
+                allowsOwnScreen: allowsOwnScreen,
+                connectAnyway: { connect(to: target, allowsOwnScreen: true) }, cancel: { isFocused = true }
+            ) { server in
                 let found = nearby.computer(matching: server.address, remoteProtocol: server.remoteProtocol)
                 return NewComputer(
                     name: found?.name ?? server.address.bonjourServiceName ?? server.address.host,
@@ -194,12 +204,23 @@ struct ConnectToView: View {
     }
 
     private func check(
-        host: String, port: Int?, remoteProtocol: RemoteProtocol?, making makeComputer: (ProbedServer) -> NewComputer
+        name: String, host: String, port: Int?, remoteProtocol: RemoteProtocol?, allowsOwnScreen: Bool,
+        connectAnyway: @escaping () -> Void, cancel: @escaping () -> Void, making makeComputer: (ProbedServer) -> NewComputer
     ) async -> SetupProblem? {
         let server: ProbedServer
-        switch await ServerProber.probe(host: host, port: port, remoteProtocol: remoteProtocol) {
+        switch await ServerProber.probe(host: host, port: port, remoteProtocol: remoteProtocol, checksOwnScreen: !allowsOwnScreen) {
         case .success(let found):
             server = found
+        #if os(macOS)
+        case .failure(let failure) where failure.kind == .ownScreen:
+            alert = AlertState(
+                title: String(localized: "“\(name)” is the Mac you’re using."),
+                actions: [
+                    AlertState.Action(label: String(localized: "Connect Anyway"), role: nil, perform: connectAnyway),
+                    AlertState.Action(label: String(localized: "Cancel"), role: .cancel, isDefault: true, perform: cancel),
+                ])
+            return nil
+        #endif
         case .failure(let failure):
             return SetupProblem(failure, host: host, asksForUsername: true)
         }
