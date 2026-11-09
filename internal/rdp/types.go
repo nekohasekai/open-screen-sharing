@@ -94,6 +94,7 @@ type Statistics struct {
 	Frames          uint64
 	Encoding        string
 	RoundTrip       time.Duration
+	RoundTripKnown  bool
 	UDP             bool
 	PacketsExpected uint64
 	PacketsMissed   uint64

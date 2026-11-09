@@ -485,6 +485,8 @@ func (s *Session) Disconnect() {
 	}
 }
 
+const abortCloseTimeout = 5 * time.Second
+
 func (s *Session) Abort() {
 	s.access.Lock()
 	s.disconnecting = true
@@ -495,7 +497,13 @@ func (s *Session) Abort() {
 		cancel()
 	}
 	if connected != nil {
-		_ = connected.Abort()
+		go func() {
+			timer := time.AfterFunc(abortCloseTimeout, func() {
+				_ = connected.Abort()
+			})
+			_ = connected.Close()
+			timer.Stop()
+		}()
 	}
 }
 
@@ -851,12 +859,12 @@ func (s *Session) resizeFramebuffer(width, height int) (*bgra.Image, error) {
 	s.access.Unlock()
 	s.handler.OnFramebufferResize(int32(width), int32(height))
 	s.access.Lock()
-	framebuffer := s.attached
+	framebuffer, disconnecting := s.attached, s.disconnecting
 	s.resizing = false
 	s.attached = nil
 	s.access.Unlock()
 
-	if framebuffer == nil {
+	if framebuffer == nil && !disconnecting {
 		return nil, E.New("no ", width, "x", height, " framebuffer was attached during OnFramebufferResize")
 	}
 	return framebuffer, nil

@@ -387,7 +387,7 @@ nonisolated struct AudioAccessUnit: Sendable {
 }
 
 nonisolated struct SessionStatistics: Sendable {
-    var roundTripMilliseconds: Double
+    var roundTripMilliseconds: Double?
     var receivedBytes: Int64
     var encoding: String?
     var packets: PacketStatistics?

@@ -1,9 +1,11 @@
 package filecopy
 
 import (
+	"context"
 	"encoding/binary"
 	"io"
 	"maps"
+	"net"
 	"slices"
 	"sync"
 
@@ -18,7 +20,6 @@ var (
 
 type Conn interface {
 	SendMessage(message []byte) error
-	QueueMessage(message []byte) error
 	SetDownloading(active bool) error
 }
 
@@ -34,6 +35,8 @@ type Manager struct {
 	access      sync.Mutex
 	nextSession uint32
 	transfers   map[uint32]*Transfer
+	senders     map[uint32]*Transfer
+	drained     chan struct{}
 	downloads   int
 	closeError  error
 
@@ -42,7 +45,7 @@ type Manager struct {
 }
 
 func NewManager(conn Conn, capabilities Capabilities) *Manager {
-	return &Manager{conn: conn, capabilities: capabilities, transfers: make(map[uint32]*Transfer)}
+	return &Manager{conn: conn, capabilities: capabilities, transfers: make(map[uint32]*Transfer), senders: make(map[uint32]*Transfer)}
 }
 
 func (m *Manager) ReadMessage(r io.Reader) error {
@@ -61,13 +64,35 @@ func (m *Manager) ReadMessage(r io.Reader) error {
 	if err != nil {
 		return err
 	}
+	command, session := binary.BigEndian.Uint16(message[8:]), binary.BigEndian.Uint32(message[10:])
 	m.access.Lock()
-	transfer := m.transfers[binary.BigEndian.Uint32(message[10:])]
+	transfer, sender := m.transfers[session], m.senders[session]
 	m.access.Unlock()
+	if sender != nil && (command == commandEnd || command == commandReceiverDone) {
+		m.removeSender(sender)
+	}
 	if transfer != nil {
-		transfer.handler.handle(binary.BigEndian.Uint16(message[8:]), message[headerSize:])
+		transfer.handler.handle(command, message[headerSize:])
 	}
 	return nil
+}
+
+func (m *Manager) Quiesce(ctx context.Context) error {
+	m.access.Lock()
+	if m.closeError == nil {
+		m.closeError = net.ErrClosed
+	}
+	idle, drained := len(m.senders) == 0, m.drained
+	m.access.Unlock()
+	if idle {
+		return nil
+	}
+	select {
+	case <-drained:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }
 
 func (m *Manager) Close(err error) {
@@ -76,18 +101,13 @@ func (m *Manager) Close(err error) {
 		m.closeError = err
 	}
 	transfers := slices.Collect(maps.Values(m.transfers))
+	senders := slices.Collect(maps.Values(m.senders))
 	m.access.Unlock()
-	var stopped []uint32
 	for _, transfer := range transfers {
-		if transfer.halt(err) {
-			stopped = append(stopped, transfer.session)
-		}
+		transfer.halt(err)
 	}
-	if len(stopped) == 0 {
-		return
-	}
-	for _, session := range stopped {
-		m.conn.QueueMessage(sessionStateMessage(commandStop, session))
+	for _, sender := range senders {
+		sender.stopRemote()
 	}
 }
 
@@ -104,7 +124,7 @@ func (m *Manager) register(transfer *Transfer) error {
 		return ErrObserveOnly
 	}
 	m.nextSession++
-	for m.nextSession == 0 || m.transfers[m.nextSession] != nil {
+	for m.nextSession == 0 || m.transfers[m.nextSession] != nil || m.senders[m.nextSession] != nil {
 		m.nextSession++
 	}
 	transfer.session = m.nextSession
@@ -126,6 +146,31 @@ func (m *Manager) unregister(transfer *Transfer) {
 	m.access.Unlock()
 	if transfer.direction == FromMac {
 		m.updatePacing()
+	}
+}
+
+func (m *Manager) addSender(transfer *Transfer) error {
+	m.access.Lock()
+	defer m.access.Unlock()
+	if m.closeError != nil {
+		return m.closeError
+	}
+	if len(m.senders) == 0 {
+		m.drained = make(chan struct{})
+	}
+	m.senders[transfer.session] = transfer
+	return nil
+}
+
+func (m *Manager) removeSender(transfer *Transfer) {
+	m.access.Lock()
+	defer m.access.Unlock()
+	if m.senders[transfer.session] != transfer {
+		return
+	}
+	delete(m.senders, transfer.session)
+	if len(m.senders) == 0 {
+		close(m.drained)
 	}
 }
 

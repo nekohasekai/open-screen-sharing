@@ -7,6 +7,7 @@ import (
 	"net"
 	"strings"
 	"sync/atomic"
+	"time"
 
 	"github.com/nekohasekai/open-screen-sharing/internal/rfb/filecopy"
 	E "github.com/sagernet/sing/common/exceptions"
@@ -113,32 +114,29 @@ func (s *Session) DownloadFile(remotePath string, localFolder string) (*FileTran
 	return s.startTransfer(transfer, transferID, cancel, err)
 }
 
+const downloadFilesIdleTimeout = 30 * time.Second
+
 func (s *Session) DownloadFiles(remotePaths string, localFolder string) error {
 	client, err := s.connected()
 	if err != nil {
 		return err
 	}
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	sources := strings.Split(remotePaths, "\n")
-	transfers := make([]*filecopy.Transfer, 0, len(sources))
-	for _, source := range sources {
-		transfer, err := client.FileCopy().Download(ctx, source, localFolder, func(filecopy.Progress) {})
-		if err != nil {
-			for _, started := range transfers {
-				started.Cancel()
-			}
-			return E.Cause(err, "download ", source)
+	ctx, cancel := context.WithCancelCause(context.Background())
+	defer cancel(nil)
+	idle := time.AfterFunc(downloadFilesIdleTimeout, func() {
+		cancel(E.New("no data for ", downloadFilesIdleTimeout))
+	})
+	defer idle.Stop()
+	for _, source := range strings.Split(remotePaths, "\n") {
+		var transfer *filecopy.Transfer
+		transfer, err = client.FileCopy().Download(ctx, source, localFolder, func(filecopy.Progress) {
+			idle.Reset(downloadFilesIdleTimeout)
+		})
+		if err == nil {
+			_, err = transfer.Wait(context.Background())
 		}
-		transfers = append(transfers, transfer)
-	}
-	for index, transfer := range transfers {
-		_, err = transfer.Wait(ctx)
 		if err != nil {
-			for _, remaining := range transfers[index+1:] {
-				remaining.Cancel()
-			}
-			return E.Cause(err, "download ", sources[index])
+			return E.Cause(E.Errors(context.Cause(ctx), err), "download ", source)
 		}
 	}
 	return nil

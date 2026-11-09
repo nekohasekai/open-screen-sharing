@@ -37,7 +37,7 @@ const (
 
 type autodetect struct {
 	logger    *slog.Logger
-	roundTrip *atomic.Int64
+	roundTrip *atomic.Pointer[time.Duration]
 	respond   func(response []byte) error
 
 	start     time.Time
@@ -90,7 +90,8 @@ func (a *autodetect) receive(r *reader, arrival time.Time, read uint64) error {
 		if fields.err != nil {
 			return E.Cause(fields.err, "rdp: parse network characteristics result")
 		}
-		a.roundTrip.Store(int64(averageRTT) * int64(time.Millisecond))
+		roundTrip := time.Duration(averageRTT) * time.Millisecond
+		a.roundTrip.Store(&roundTrip)
 		a.logger.Debug("network characteristics", "base_rtt_ms", baseRTT, "average_rtt_ms", averageRTT, "bandwidth_kbps", bandwidth)
 	default:
 		a.logger.Debug("ignore auto-detect request", "type", "0x"+strconv.FormatUint(uint64(request), 16))

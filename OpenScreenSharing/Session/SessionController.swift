@@ -2006,7 +2006,10 @@ final class SessionController: Identifiable {
         var shortcut: KeyShortcut?
         if down, isControlling {
             shortcut = KeyShortcut(key: key)
-            if let shortcut, KeyShortcuts.shared.action(using: shortcut) != nil { return false }
+            if let shortcut, KeyShortcuts.shared.action(using: shortcut) != nil {
+                commandTapPending = false
+                return false
+            }
             keyboardType = keyboardType.learning(from: usage)
             if let shortcut, let mapping = KeyShortcuts.shared.mapping(triggeredBy: shortcut, for: mappingTarget) {
                 performMapping(mapping.steps, held: heldModifiers(from: key.modifierFlags))

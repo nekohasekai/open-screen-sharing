@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"sync"
+	"time"
 )
 
 type Direction int
@@ -68,6 +69,10 @@ type Transfer struct {
 	session    uint32
 	direction  Direction
 	onProgress func(Progress)
+
+	startAccess sync.Mutex
+	started     bool
+	stopSent    bool
 
 	access     sync.Mutex
 	progress   Progress
@@ -143,7 +148,7 @@ func (t *Transfer) Cancel() error {
 	if !t.halt(ErrCanceled) {
 		return nil
 	}
-	return t.manager.conn.SendMessage(sessionStateMessage(commandStop, t.session))
+	return t.stopRemote()
 }
 
 func (t *Transfer) Wait(ctx context.Context) (Result, error) {
@@ -153,6 +158,49 @@ func (t *Transfer) Wait(ctx context.Context) (Result, error) {
 	case <-ctx.Done():
 		return Result{}, ctx.Err()
 	}
+}
+
+func (t *Transfer) start(message []byte) error {
+	t.startAccess.Lock()
+	defer t.startAccess.Unlock()
+	if t.stopped() {
+		return t.stopError
+	}
+	err := t.manager.addSender(t)
+	if err != nil {
+		return err
+	}
+	err = t.manager.conn.SendMessage(message)
+	if err != nil {
+		t.manager.removeSender(t)
+		return err
+	}
+	t.started = true
+	return nil
+}
+
+// screensharingd sends nothing back for Stop: it marks the session state 5 and shuts its tool
+// down, and a sender already waiting on the viewer lock still forwards one record before it exits
+// (screensharingd 756.36.5.2, macOS 27.0.1 26A434, ServerProcessFileCopyCmd 0x100061554,
+// FileCopy_SetSessionState 0x10006075c, ServerFileSenderThread 0x100062bac).
+const stopGrace = 500 * time.Millisecond
+
+func (t *Transfer) stopRemote() error {
+	t.startAccess.Lock()
+	defer t.startAccess.Unlock()
+	if !t.started || t.stopSent {
+		return nil
+	}
+	t.stopSent = true
+	err := t.manager.conn.SendMessage(sessionStateMessage(commandStop, t.session))
+	if err != nil {
+		t.manager.removeSender(t)
+		return err
+	}
+	time.AfterFunc(stopGrace, func() {
+		t.manager.removeSender(t)
+	})
+	return nil
 }
 
 func (t *Transfer) halt(err error) bool {

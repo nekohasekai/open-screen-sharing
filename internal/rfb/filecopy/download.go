@@ -97,8 +97,7 @@ func (d *download) run(ctx context.Context) {
 }
 
 func (d *download) receive() error {
-	conn := d.transfer.manager.conn
-	err := conn.SendMessage(startMessage(commandStartSend, d.transfer.session, startSendImmediately, d.source))
+	err := d.transfer.start(startMessage(commandStartSend, d.transfer.session, startSendImmediately, d.source))
 	if err != nil {
 		return err
 	}
@@ -112,7 +111,7 @@ func (d *download) receive() error {
 			}
 			if err != nil {
 				if d.transfer.halt(err) {
-					conn.SendMessage(sessionStateMessage(commandStop, d.transfer.session))
+					d.transfer.stopRemote()
 				}
 				return err
 			}

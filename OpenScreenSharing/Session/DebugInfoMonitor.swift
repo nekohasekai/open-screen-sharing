@@ -10,7 +10,7 @@ final class DebugInfoMonitor {
         var shownPerSecond: Double?
         var bitsPerSecond: Double?
         var encoding: String?
-        var networkMilliseconds: Double
+        var networkMilliseconds: Double?
         var remoteMilliseconds: Double?
         var deviceMilliseconds: Double?
         var lossy: Bool
@@ -190,7 +190,7 @@ final class DebugInfoMonitor {
             shownPerSecond: measured ? Double(shown) / elapsed : nil,
             bitsPerSecond: bitsPerSecond,
             encoding: statistics.encoding,
-            networkMilliseconds: statistics.roundTripMilliseconds / 2,
+            networkMilliseconds: statistics.roundTripMilliseconds.map { $0 / 2 },
             remoteMilliseconds: remoteMilliseconds,
             deviceMilliseconds: deviceMilliseconds,
             lossy: statistics.packets != nil,

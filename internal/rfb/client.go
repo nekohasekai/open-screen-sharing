@@ -480,14 +480,29 @@ func (c *Client) Run() error {
 	return err
 }
 
+const (
+	fileCopyDrainTimeout = 2 * time.Second
+	fileCopyStopTimeout  = time.Second
+)
+
 func (c *Client) Close() error {
 	c.closeOnce.Do(func() {
 		c.finishPaste()
-		c.access.Lock()
-		fileCopy := c.fileCopy
-		c.access.Unlock()
-		if fileCopy != nil {
-			fileCopy.Close(net.ErrClosed)
+		fileCopy := c.FileCopy()
+		// screensharingd's CloseThisConnection holds the viewer lock while FileCopy_StopAllSessions
+		// waits for every file copy thread to exit, and those threads take the same lock to forward
+		// each record up to End (104) or ReceiverDone (200), so a connection closed before then
+		// wedges the daemon (screensharingd 756.36.5.2, macOS 27.0.1 26A434,
+		// CloseThisConnection 0x100030a00, FileCopy_StopAllSessions 0x10005f820,
+		// ServerFileSenderThread 0x100062bac, FileReceiveToolListenerThread 0x100064760).
+		ctx, cancel := context.WithTimeout(c.ctx, fileCopyDrainTimeout)
+		drained := fileCopy.Quiesce(ctx) == nil
+		cancel()
+		fileCopy.Close(net.ErrClosed)
+		if !drained {
+			ctx, cancel = context.WithTimeout(c.ctx, fileCopyStopTimeout)
+			_ = fileCopy.Quiesce(ctx)
+			cancel()
 		}
 		if err := c.SetMediaStream(false); err != nil {
 			c.logger.Debug("stop media stream while closing", "error", err)
@@ -521,10 +536,6 @@ func (c *Client) send(message []byte) error {
 
 func (c *Client) SendMessage(message []byte) error {
 	return c.outbox.PushWait(message)
-}
-
-func (c *Client) QueueMessage(message []byte) error {
-	return c.outbox.Push(message, false)
 }
 
 func (c *Client) resizeLocked(width, height int) (bool, error) {

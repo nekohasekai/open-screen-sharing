@@ -85,7 +85,7 @@ type Client struct {
 	microphone   *microphoneChannel
 
 	processAccess sync.Mutex
-	roundTrip     atomic.Int64
+	roundTrip     atomic.Pointer[time.Duration]
 	tunnel        atomic.Pointer[tunnel]
 	tunnels       sync.WaitGroup
 
@@ -474,14 +474,18 @@ func (c *Client) Statistics() Statistics {
 		BytesWritten: c.transport.written + c.writer.Written(),
 		Frames:       c.graphics.frames.Load(),
 		Encoding:     encodingNames[c.graphics.encoding.Load()],
-		RoundTrip:    time.Duration(c.roundTrip.Load()),
+	}
+	if roundTrip := c.roundTrip.Load(); roundTrip != nil {
+		statistics.RoundTrip = *roundTrip
+		statistics.RoundTripKnown = true
 	}
 	if t := c.tunnel.Load(); t != nil {
 		statistics.BytesRead += t.read.Load()
 		statistics.BytesWritten += t.written.Load()
 		statistics.UDP = true
-		if statistics.RoundTrip == 0 {
-			statistics.RoundTrip = t.udp.RoundTrip()
+		if roundTrip := t.udp.RoundTrip(); !statistics.RoundTripKnown && roundTrip > 0 {
+			statistics.RoundTrip = roundTrip
+			statistics.RoundTripKnown = true
 		}
 		statistics.PacketsExpected, statistics.PacketsMissed = t.udp.Packets()
 	}

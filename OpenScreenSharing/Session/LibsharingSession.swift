@@ -392,7 +392,7 @@ nonisolated final class LibsharingRemoteSession: @unchecked Sendable {
     func statistics() -> SessionStatistics? {
         guard let statistics = session?.statistics() else { return nil }
         return SessionStatistics(
-            roundTripMilliseconds: statistics.roundTripMilliseconds,
+            roundTripMilliseconds: statistics.roundTripKnown ? statistics.roundTripMilliseconds : nil,
             receivedBytes: statistics.receivedBytes,
             encoding: statistics.encoding.isEmpty ? nil : statistics.encoding,
             packets: statistics.udp ? PacketStatistics(received: statistics.packets, expected: statistics.packetsExpected) : nil,

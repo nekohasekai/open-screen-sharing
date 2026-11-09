@@ -124,6 +124,7 @@ func (r *rdpRemote) statistics(statistics *Statistics) {
 	statistics.Encoding = clientStatistics.Encoding
 	statistics.ReceivedBytes = int64(clientStatistics.BytesRead)
 	statistics.RoundTripMilliseconds = float64(clientStatistics.RoundTrip.Microseconds()) / 1000
+	statistics.RoundTripKnown = clientStatistics.RoundTripKnown
 	statistics.UDP = clientStatistics.UDP
 	statistics.Packets = int64(clientStatistics.PacketsExpected - clientStatistics.PacketsMissed)
 	statistics.PacketsExpected = int64(clientStatistics.PacketsExpected)

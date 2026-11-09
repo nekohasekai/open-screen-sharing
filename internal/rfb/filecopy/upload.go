@@ -177,7 +177,7 @@ func (u *upload) run(ctx context.Context) {
 func (u *upload) send() (Result, error) {
 	conn := u.transfer.manager.conn
 	session := u.transfer.session
-	err := conn.SendMessage(startMessage(commandStartReceive, session, 0, u.destination))
+	err := u.transfer.start(startMessage(commandStartReceive, session, 0, u.destination))
 	if err != nil {
 		return Result{}, err
 	}

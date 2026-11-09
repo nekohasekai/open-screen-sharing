@@ -16,7 +16,7 @@ func (c *Client) FileCopy() *filecopy.Manager {
 
 func (c *Client) SetDownloading(active bool) error {
 	c.access.Lock()
-	changed := c.downloading != active && c.pushing
+	changed := c.downloading != active && c.pushing && !c.mediaStream
 	c.downloading = active
 	c.access.Unlock()
 	if !changed {

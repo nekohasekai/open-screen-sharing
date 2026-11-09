@@ -57,8 +57,6 @@ struct DebugInfoView: View {
             let stutters = monitor.stutters
             let dialect = controller.info.dialect
             let isVideo = controller.isVideo
-            let breaksDown = controller.usesHighPerformance
-            let indent = breaksDown ? "  " : ""
             VStack(spacing: 0) {
                 pair {
                     Text(verbatim: dialect == .rdp ? "RDP" : isVideo ? "Apple VNC" : "VNC")
@@ -73,19 +71,17 @@ struct DebugInfoView: View {
                         .foregroundStyle(dropsFrames(figures) ? Color.orange : .white)
                 }
                 VStack(spacing: 0) {
-                    if breaksDown {
-                        row(
-                            "Latency", latency.map(Self.milliseconds),
-                            color: Self.color(latency, warning: Self.latencyWarning, severe: Self.latencySevere))
-                        row(
-                            "  " + remoteName, remote.map(Self.milliseconds),
-                            color: Self.color(remote, warning: Self.remoteWarning, severe: Self.remoteSevere))
-                    }
                     row(
-                        indent + "Network", network.map(Self.milliseconds),
+                        "Latency", latency.map(Self.milliseconds),
+                        color: Self.color(latency, warning: Self.latencyWarning, severe: Self.latencySevere))
+                    row(
+                        "  " + remoteName, remote.map(Self.milliseconds),
+                        color: Self.color(remote, warning: Self.remoteWarning, severe: Self.remoteSevere))
+                    row(
+                        "  Network", network.map(Self.milliseconds),
                         color: Self.color(network, warning: Self.networkWarning, severe: Self.networkSevere))
                     row(
-                        indent + Self.deviceName, device.map(Self.milliseconds),
+                        "  " + Self.deviceName, device.map(Self.milliseconds),
                         color: Self.color(device, warning: Self.deviceWarning, severe: Self.deviceSevere))
                     row("Bitrate", figures?.bitsPerSecond.map(Self.bitrate))
                     if figures?.lossy == true {
