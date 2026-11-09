@@ -78,10 +78,17 @@ private struct ControlSettingsView: View {
                     }
                 }
                 #if os(iOS)
-                Section("Behavior") {
+                Section {
                     Toggle(isOn: Binding(get: { settings.pinchZooms }, set: { settings.pinchZooms = $0 })) {
                         Label("Pinch to Zoom", systemImage: "arrow.up.left.and.down.right.magnifyingglass")
                     }
+                    Toggle(isOn: Binding(get: { settings.showsKeyboardForTextFields }, set: { settings.showsKeyboardForTextFields = $0 })) {
+                        Label("Show Keyboard for Text Fields", systemImage: "keyboard")
+                    }
+                } header: {
+                    Text("Behavior")
+                } footer: {
+                    Text("Shows the keyboard when you tap a text field on the computer. While no text field has focus, the first tap only focuses one. Tapping text that can be selected may also show it.")
                 }
                 #endif
             }
