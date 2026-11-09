@@ -5,11 +5,11 @@ import SwiftUI
 @Perceptible
 final class ToolbarLayout {
     static let mac = ToolbarLayout(
-        platform: .mac, key: "SessionToolbar", defaultBar: [.displays, .audio, .pointerLock, .keyboard, .clipboard])
+        platform: .mac, key: "SessionToolbar", defaultBar: [.displays, .audio, .pointerLock, .keyboard, .trackpad, .clipboard])
     static let iOS = ToolbarLayout(
         platform: .iOS, key: "SessionToolbar.iOS", defaultBar: [.pointerLock, .keyboard, .home, .appSwitcher, .clipboard])
     static let pc = ToolbarLayout(
-        platform: .pc, key: "SessionToolbar.PC", defaultBar: [.displays, .audio, .pointerLock, .keyboard, .clipboard])
+        platform: .pc, key: "SessionToolbar.PC", defaultBar: [.displays, .audio, .pointerLock, .keyboard, .trackpad, .clipboard])
 
     static func layout(for controller: SessionController) -> ToolbarLayout {
         switch controller.platform {

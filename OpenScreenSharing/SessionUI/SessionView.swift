@@ -48,7 +48,7 @@ struct SessionView: View {
     }
 
     private var pointerLockPaused: Bool {
-        controller.isToolbarVisible || controller.isZoomModeOn || !controller.isControlling || controller.isKeyboardVisible
+        controller.isToolbarVisible || controller.isZoomModeOn || !controller.isControlling || controller.usesOnScreenInput
             || controller.picture == .none
             || controller.isShowingResolution
             || controller.isCustomizingToolbar || controller.isEditingQuickInputs
@@ -78,8 +78,9 @@ struct SessionView: View {
         WithPerceptionTracking {
             let dock = dock
             let plan = ToolbarLayout.layout(for: controller).plan(for: controller, slots: toolbarSlots)
-            screen
-                .ignoresSafeArea()
+            SessionInputLayout(controller: controller) {
+                screen
+            }
                 .background {
                     Color.black.ignoresSafeArea()
                     FullScreenReader(isFullScreen: $controller.isFullScreen)

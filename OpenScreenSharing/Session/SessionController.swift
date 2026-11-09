@@ -167,6 +167,10 @@ final class SessionController: Identifiable {
     }
     var isSystemPointerOverPicture = false
     private(set) var isKeyboardVisible = false
+    #if os(iOS)
+    private(set) var isMacKeyboardVisible = false
+    private(set) var isTrackpadVisible = false
+    #endif
     private(set) var usesHardwareKeyboard = false
     var stickyModifiers: Set<ModifierKey> = []
     private(set) var lockedModifiers: Set<ModifierKey> = []
@@ -1719,13 +1723,66 @@ final class SessionController: Identifiable {
 
     func setKeyboardVisible(_ visible: Bool) {
         #if os(iOS)
+        if AppSettings.shared.usesMacKeyboard {
+            screen?.setKeyboardVisible(false)
+            setMacKeyboardVisible(visible)
+            return
+        }
+        setMacKeyboardVisible(false)
         screen?.setKeyboardVisible(visible)
         #endif
     }
 
-    func toggleKeyboard() {
-        setKeyboardVisible(!isKeyboardVisible)
+    /// Whether a keyboard of the app's own is up, the system one or the Mac one.
+    var showsKeyboard: Bool {
+        #if os(iOS)
+        isKeyboardVisible || isMacKeyboardVisible
+        #else
+        isKeyboardVisible
+        #endif
     }
+
+    /// Whether input on the device's screen is up, which pointer lock gives way to.
+    var usesOnScreenInput: Bool {
+        #if os(iOS)
+        showsKeyboard || isTrackpadVisible
+        #else
+        showsKeyboard
+        #endif
+    }
+
+    func toggleKeyboard() {
+        setKeyboardVisible(!showsKeyboard)
+    }
+
+    #if os(iOS)
+    var isInputPanelVisible: Bool {
+        isMacKeyboardVisible || isTrackpadVisible
+    }
+
+    func setMacKeyboardVisible(_ visible: Bool) {
+        guard visible != isMacKeyboardVisible else { return }
+        if visible { screen?.setKeyboardVisible(false) }
+        withAnimation(.smoothCompat(duration: 0.25)) { isMacKeyboardVisible = visible }
+    }
+
+    func setTrackpadVisible(_ visible: Bool) {
+        guard visible != isTrackpadVisible else { return }
+        withAnimation(.smoothCompat(duration: 0.25)) { isTrackpadVisible = visible }
+    }
+
+    func hideInputPanel() {
+        setMacKeyboardVisible(false)
+        setTrackpadVisible(false)
+    }
+
+    /// Types text from the on-screen Mac keyboard, applying the modifiers that are on.
+    func enterText(_ text: String) {
+        guard isControlling else { return }
+        textCursorMayHaveMoved()
+        _ = insertText(text)
+    }
+    #endif
 
     func keyboardVisibilityDidChange(_ visible: Bool) {
         isKeyboardVisible = visible

@@ -13183,6 +13183,16 @@
         }
       }
     },
+    "Caps Lock" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Büyük Harf Kilidi"
+          }
+        }
+      }
+    },
     "Changing Resolution…" : {
       "localizations" : {
         "ar" : {
@@ -39704,6 +39714,16 @@
         }
       }
     },
+    "English (US)" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İngilizce (ABD)"
+          }
+        }
+      }
+    },
     "Enter a 4-digit or 6-digit passcode, or select the passcode type used by this device." : {
       "localizations" : {
         "en" : {
@@ -53428,6 +53448,16 @@
         }
       }
     },
+    "Keyboard Layout" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klavye Düzeni"
+          }
+        }
+      }
+    },
     "Keypad" : {
       "localizations" : {
         "ar" : {
@@ -61936,6 +61966,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "下移"
+          }
+        }
+      }
+    },
+    "Move Trackpad" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İzleme Dörtgenini Taşı"
           }
         }
       }
@@ -98464,6 +98504,16 @@
         }
       }
     },
+    "Shows a Mac keyboard with Command, Option and Control keys in place of the device’s keyboard. It sits under the picture with the trackpad, so it covers nothing." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aygıtın klavyesi yerine Command, Option ve Control tuşlarıyla bir Mac klavyesi gösterir. İzleme dörtgeniyle birlikte görüntünün altında durur, böylece hiçbir şeyi kapatmaz."
+          }
+        }
+      }
+    },
     "Sign In" : {
       "localizations" : {
         "ar" : {
@@ -110320,6 +110370,26 @@
         }
       }
     },
+    "Trackpad" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İzleme Dörtgeni"
+          }
+        }
+      }
+    },
+    "Turkish Q" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Türkçe Q"
+          }
+        }
+      }
+    },
     "Type Key" : {
       "localizations" : {
         "ar" : {
@@ -113356,6 +113426,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "更新項目"
+          }
+        }
+      }
+    },
+    "Use Mac Keyboard" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac Klavyesini Kullan"
           }
         }
       }

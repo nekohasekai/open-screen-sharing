@@ -12,6 +12,9 @@ final class AppSettings {
         static let showsDebugInfo = "showsDebugInfo"
         static let cursorStyle = "cursorStyle"
         static let pinchZooms = "pinchZooms"
+        static let usesMacKeyboard = "usesMacKeyboard"
+        static let macKeyboardLayout = "macKeyboardLayout"
+        static let inputPanel = "inputPanel"
         static let pictureFillsScreen = "pictureFillsScreen"
         static let computerLayout = "computerLayout"
         static let computerOrder = "computerOrder"
@@ -33,6 +36,18 @@ final class AppSettings {
 
     var pictureFillsScreen: Bool {
         didSet { store.set(pictureFillsScreen, for: Key.pictureFillsScreen) }
+    }
+
+    var usesMacKeyboard: Bool {
+        didSet { store.set(usesMacKeyboard, for: Key.usesMacKeyboard) }
+    }
+
+    var macKeyboardLayout: MacKeyboardLayoutID {
+        didSet { store.set(macKeyboardLayout, for: Key.macKeyboardLayout) }
+    }
+
+    var inputPanel: InputPanelPlacement {
+        didSet { store.set(inputPanel, for: Key.inputPanel) }
     }
 
     static var offersFullScreen: Bool {
@@ -68,6 +83,9 @@ final class AppSettings {
         #if os(iOS)
         pinchZooms = store.value(Bool.self, for: Key.pinchZooms) ?? (UIDevice.current.userInterfaceIdiom == .phone)
         pictureFillsScreen = store.value(Bool.self, for: Key.pictureFillsScreen) ?? true
+        usesMacKeyboard = store.value(Bool.self, for: Key.usesMacKeyboard) ?? false
+        macKeyboardLayout = store.value(MacKeyboardLayoutID.self, for: Key.macKeyboardLayout) ?? .preferred
+        inputPanel = store.value(InputPanelPlacement.self, for: Key.inputPanel) ?? InputPanelPlacement()
         #endif
         computerLayout = store.value(ComputerLayout.self, for: Key.computerLayout) ?? .grid
         computerOrder = store.value([UUID].self, for: Key.computerOrder) ?? []
