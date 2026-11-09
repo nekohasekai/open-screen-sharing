@@ -1,24 +1,31 @@
 package main
 
 import (
+	"archive/zip"
 	"debug/buildinfo"
 	"flag"
 	"go/build"
+	"io"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime/debug"
+	"strconv"
+	"strings"
 
 	_ "github.com/sagernet/gomobile"
 	"github.com/sagernet/sing/common"
 )
 
 const (
-	gomobileModule = "github.com/sagernet/gomobile"
-	iosVersion     = "15.0"
-	macOSVersion   = "14.0"
-	outputPath     = "Frameworks/Libsharing.xcframework"
+	gomobileModule    = "github.com/sagernet/gomobile"
+	iosVersion        = "15.0"
+	macOSVersion      = "14.0"
+	androidAPI        = 24
+	appleOutputPath   = "Frameworks/Libsharing.xcframework"
+	androidOutputPath = "OpenScreenSharingAndroid/libs/libsharing.aar"
+	androidProguard   = "-keep class go.** { *; }\n-keep class io.nekohasekai.libsharing.** { *; }\n"
 )
 
 func main() {
@@ -38,24 +45,77 @@ func main() {
 		run(install)
 	}
 
+	arguments := []string{"bind", "-v", "-target", *target}
+	outputPath := appleOutputPath
+	ldflags := "-s -w -buildid= -checklinkname=0"
+	android := strings.HasPrefix(*target, "android")
+	if android {
+		outputPath = androidOutputPath
+		ldflags += " -extldflags=-Wl,-z,max-page-size=16384"
+		arguments = append(arguments, "-androidapi", strconv.Itoa(androidAPI), "-javapkg", "io.nekohasekai")
+	} else {
+		arguments = append(arguments, "-iosversion", iosVersion, "-macosversion", macOSVersion)
+	}
 	err := os.MkdirAll(filepath.Dir(outputPath), 0o755)
 	if err != nil {
 		log.Fatal(err)
 	}
-	bind := exec.Command(filepath.Join(binDirectory, "gomobile"),
-		"bind",
-		"-v",
-		"-target", *target,
-		"-iosversion", iosVersion,
-		"-macosversion", macOSVersion,
+	arguments = append(arguments,
 		"-trimpath",
 		"-buildvcs=false",
-		"-ldflags", "-s -w -buildid= -checklinkname=0",
+		"-ldflags", ldflags,
 		"-o", outputPath,
 		"./libsharing",
 	)
+	bind := exec.Command(filepath.Join(binDirectory, "gomobile"), arguments...)
 	bind.Env = append(os.Environ(), "PATH="+binDirectory+string(os.PathListSeparator)+os.Getenv("PATH"))
 	run(bind)
+	if android {
+		replaceProguardRules(outputPath)
+	}
+}
+
+func replaceProguardRules(path string) {
+	reader, err := zip.OpenReader(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	temporaryPath := path + ".tmp"
+	file, err := os.Create(temporaryPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	writer := zip.NewWriter(file)
+	for _, entry := range reader.File {
+		if entry.Name != "proguard.txt" {
+			err = writer.Copy(entry)
+			if err != nil {
+				log.Fatal(err)
+			}
+			continue
+		}
+		rules, err := writer.Create(entry.Name)
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = io.WriteString(rules, androidProguard)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	err = writer.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = file.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+	reader.Close()
+	err = os.Rename(temporaryPath, path)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func pinnedGomobileVersion() string {

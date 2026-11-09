@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Base.V24.Theme.OpenScreenSharing" parent="android:Theme.DeviceDefault.Light" />
+
+    <style name="Base.Theme.OpenScreenSharing" parent="Base.V24.Theme.OpenScreenSharing" />
+
+    <style name="Theme.OpenScreenSharing" parent="Base.Theme.OpenScreenSharing">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.OpenScreenSharing.Session">
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+</resources>

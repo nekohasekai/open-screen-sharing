@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chrome_send_to_desktop">Send to desktop</string>
+    <string name="chrome_hide_toolbar">Hide toolbar</string>
+    <string name="chrome_show_toolbar">Show toolbar</string>
+
+    <string name="chrome_scaling">Scaling</string>
+    <string name="chrome_displays">Displays</string>
+    <string name="chrome_quality">Quality</string>
+    <string name="chrome_resolution">Resolution</string>
+    <string name="chrome_native_touch">Native touch</string>
+    <string name="chrome_clipboard">Clipboard</string>
+    <string name="chrome_hide_keyboard">Hide keyboard</string>
+    <string name="chrome_show_keyboard">Show keyboard</string>
+
+    <string name="chrome_zoom_to_actual_size">Zoom to actual size</string>
+    <string name="chrome_zoom_to_fit">Zoom to fit</string>
+    <string name="chrome_all">All</string>
+    <string name="chrome_adaptive">Adaptive</string>
+    <string name="chrome_full">Full</string>
+    <string name="chrome_native">Native</string>
+    <string name="chrome_scale">%1$s×</string>
+    <string name="chrome_resolution_footer">Raising the resolution by scaling reduces sharpness and increases bandwidth use and picture latency.</string>
+
+    <string name="chrome_reset_to_default">Reset to default</string>
+    <string name="chrome_reset_toolbar_confirm">Reset toolbar?</string>
+    <string name="chrome_reset_toolbar">Reset toolbar</string>
+    <string name="chrome_remove_from_toolbar">Remove from toolbar</string>
+    <string name="chrome_in_more">In More</string>
+
+    <string name="chrome_unlock">Unlock</string>
+    <string name="chrome_locked">Locked</string>
+
+    <string name="chrome_remember_password">Remember password</string>
+    <string name="chrome_ask_for_permission">Ask for permission instead</string>
+    <string name="chrome_someone_needs_to_accept">Someone at the Mac needs to accept.</string>
+    <string name="chrome_sign_in">Sign in</string>
+
+    <string name="chrome_preparing_cursors">Preparing remote cursors…</string>
+    <string name="chrome_waiting_for_permission">Waiting for permission…</string>
+    <string name="chrome_changing_resolution">Changing resolution…</string>
+    <string name="chrome_starting_high_performance">Starting High Performance…</string>
+    <string name="chrome_in_use">“%1$s” is in use</string>
+    <string name="chrome_log_in_own_session">Log in to your own session</string>
+    <string name="chrome_share_the_screen">Share the screen</string>
+    <string name="chrome_ask_to_share">Ask to share their screen</string>
+    <string name="chrome_account_logged_in">Your account is logged in at the Mac.</string>
+    <string name="chrome_user_using_it">“%1$s” is using it right now.</string>
+    <string name="chrome_disconnected">Disconnected</string>
+    <string name="chrome_certificate_renewed">This is expected after the computer is reinstalled or renews its certificate. If neither happened, another device may be pretending to be this computer.</string>
+    <string name="chrome_mac_reinstalled">This is expected after the Mac is reinstalled. If it wasn’t, another device may be pretending to be this Mac.</string>
+    <string name="chrome_unverified_server">This computer only offers an older sign-in method that can’t confirm its identity. If another device is pretending to be this computer, it could see your password.</string>
+    <string name="chrome_connect_anyway">Connect anyway</string>
+
+</resources>

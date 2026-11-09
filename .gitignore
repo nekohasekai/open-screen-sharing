@@ -8,3 +8,8 @@ AGENTS.md
 /.claude/
 /.mcp.json
 /screenshots/
+/.gradle/
+/.kotlin/
+/local.properties
+/OpenScreenSharingAndroid/build/
+/OpenScreenSharingAndroid/libs/

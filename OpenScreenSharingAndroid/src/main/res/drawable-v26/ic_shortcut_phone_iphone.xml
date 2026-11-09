@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <background android:drawable="@android:color/white" />
+    <foreground>
+        <aapt:attr name="android:drawable">
+            <vector
+                android:width="108dp"
+                android:height="108dp"
+                android:viewportWidth="108"
+                android:viewportHeight="108">
+                <group
+                    android:scaleX="1.75"
+                    android:scaleY="1.75"
+                    android:translateX="33"
+                    android:translateY="33">
+                    <path
+                        android:fillColor="#146BFA"
+                        android:pathData="M15.5 1h-8C6.12 1 5 2.12 5 3.5v17C5 21.88 6.12 23 7.5 23h8c1.38 0 2.5 -1.12 2.5 -2.5v-17C18 2.12 16.88 1 15.5 1ZM11.5 22c-0.83 0 -1.5 -0.67 -1.5 -1.5s0.67 -1.5 1.5 -1.5s1.5 0.67 1.5 1.5s-0.67 1.5 -1.5 1.5ZM16 18L7 18L7 4h9v14Z" />
+                </group>
+            </vector>
+        </aapt:attr>
+    </foreground>
+</adaptive-icon>

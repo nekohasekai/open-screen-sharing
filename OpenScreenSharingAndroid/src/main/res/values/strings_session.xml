@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="session_transfer_canceled">Canceled</string>
+    <string name="session_transfer_not_allowed">The Mac doesn’t allow file transfers</string>
+    <string name="session_transfer_not_found">The item isn’t available on the Mac</string>
+    <string name="session_transfer_not_writable">The Mac can’t write to the folder</string>
+    <string name="session_transfer_disk_full">The Mac’s disk is full</string>
+    <string name="session_transfer_permission">The Mac doesn’t have permission to read the item</string>
+    <string name="session_transfer_local">This device can’t read or write the file</string>
+    <string name="session_transfer_connection">Connection interrupted</string>
+    <string name="session_transfer_observe_only">Not available while observing</string>
+    <string name="session_transfer_unsupported">The Mac doesn’t support file transfers</string>
+    <string name="session_transfer_failed">File transfer failed</string>
+
+    <string name="session_couldnt_save">Couldn’t save “%1$s”</string>
+    <string name="session_couldnt_receive_clipboard">Couldn’t receive the clipboard</string>
+    <string name="session_couldnt_send_clipboard">Couldn’t send the clipboard</string>
+    <string name="session_item">Item</string>
+    <string name="session_couldnt_send">Couldn’t send “%1$s”</string>
+    <string name="session_couldnt_get">Couldn’t get “%1$s”</string>
+    <string name="session_couldnt_cancel_drag">Couldn’t cancel drag</string>
+    <string name="session_couldnt_finish_transferring_files">Couldn’t finish transferring files</string>
+    <string name="session_sending">Sending “%1$s”</string>
+    <string name="session_receiving">Receiving “%1$s”</string>
+    <string name="session_device_cant_show_hdr">This device can’t show HDR</string>
+    <string name="session_cant_use_microphone">Can’t use the microphone</string>
+    <string name="session_microphone_access_off">Microphone access is turned off in Settings.</string>
+    <string name="session_cant_play_mac_sound">Can’t play the Mac’s sound</string>
+    <string name="session_cant_play_computer_sound">Can’t play the computer’s sound</string>
+    <string name="session_some_characters_cant_be_typed">Some characters can’t be typed on “%1$s”</string>
+    <string name="session_password_fields_english_only">Password fields take only English characters</string>
+</resources>

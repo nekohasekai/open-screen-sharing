@@ -7,6 +7,9 @@ INSTALLER_SIGN_IDENTITY := 21E03A44ACC2B48753BABB3DAE9B5F9A9CFF0480
 lib:
 	go run ./cmd/internal/build_libsharing
 
+lib_android:
+	go run ./cmd/internal/build_libsharing -target android
+
 build_ios:
 	xcodebuild build -skipMacroValidation -scheme OpenScreenSharing -configuration Debug -destination 'generic/platform=iOS' | xcbeautify | grep -A 10 -e "Build Succeeded" -e "BUILD FAILED" -e "❌"
 
@@ -84,6 +87,26 @@ notarize_macos_pkg:
 	xcrun notarytool submit build/OpenScreenSharing.pkg --wait --keychain-profile "notarytool-password"
 	xcrun stapler staple build/OpenScreenSharing.pkg
 
+build_android:
+	./gradlew :OpenScreenSharingAndroid:assembleDebug --console=plain 2>&1 | grep -A 3 -e "^e: " -e "BUILD SUCCESSFUL" -e "BUILD FAILED" -e "What went wrong"
+
+install_android:
+	./gradlew :OpenScreenSharingAndroid:installDebug --console=plain 2>&1 | grep -A 3 -e "^e: " -e "BUILD SUCCESSFUL" -e "BUILD FAILED" -e "What went wrong"
+
+release_android: lib_android strings_android archive_android
+
+archive_android:
+	rm -f build/OpenScreenSharing-*.apk
+	./gradlew :OpenScreenSharingAndroid:assembleRelease --console=plain -q $(GRADLE_FLAGS)
+	mkdir -p build
+	for abi in arm64-v8a armeabi-v7a x86_64 universal; do \
+		cp OpenScreenSharingAndroid/build/outputs/apk/release/OpenScreenSharing-$$abi-release.apk build/OpenScreenSharing-$$abi.apk; \
+	done
+
+strings_android:
+	go run ./cmd/internal/build_android_strings
+
 fmt:
 	gofumpt -l -w cmd libsharing internal
-	go run ./cmd/internal/format_xcstrings $$(find OpenScreenSharing -name '*.xcstrings')
+	go run ./cmd/internal/format_xcstrings $$(find OpenScreenSharing -name '*.xcstrings') OpenScreenSharingAndroid/Localizable.xcstrings
+	./gradlew spotlessApply --console=plain -q

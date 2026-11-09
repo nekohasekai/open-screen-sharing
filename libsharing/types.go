@@ -63,6 +63,7 @@ const (
 	StateChoosingSession    int32 = 4
 	StateConnected          int32 = 5
 	StateDisconnected       int32 = 6
+	StateAwaitingDisplay    int32 = 7
 )
 
 const (

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="screen_screen_of">Screen of %1$s</string>
+    <string name="screen_controlling">Controlling</string>
+    <string name="screen_observing">Observing</string>
+    <string name="screen_click">Click</string>
+    <string name="screen_right_click">Right-click</string>
+    <string name="screen_show_or_hide_keyboard">Show or hide keyboard</string>
+    <string name="screen_press_gesture">Press gesture</string>
+    <string name="screen_press_gesture_detail">Touch and hold anywhere on the screen for a while to simulate a press.</string>
+    <string name="screen_custom_keys_and_text">Custom keys and text</string>
+    <string name="screen_custom_input_detail">Set up a keyboard shortcut in %1$s › %2$s, or add an item in %3$s › %4$s and choose it from the Quick Input menu, to send a custom sequence of keys and text to the connected device.</string>
+    <string name="screen_native_touch_for_mac">Native touch for Mac</string>
+    <string name="screen_native_touch_supported">Native touch is supported when you connect with Apple VNC to a Mac with macOS 27.3 or later.</string>
+    <string name="screen_native_touch_detail">When you connect with Apple VNC to a Mac with macOS 27.3 or later, you can turn on %1$s › %2$s.</string>
+    <string name="screen_next_tip">Next tip</string>
+    <string name="screen_tips">Tips</string>
+    <string name="screen_show_tips">Show tips</string>
+</resources>

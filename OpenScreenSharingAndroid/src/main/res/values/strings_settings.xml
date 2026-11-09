@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_app">App</string>
+    <string name="settings_picture">Picture</string>
+    <string name="settings_keyboard">Keyboard</string>
+    <string name="settings_quick_input">Quick Input</string>
+    <string name="settings_control">Control</string>
+    <string name="settings_about">About</string>
+    <string name="settings_source_code">Source code</string>
+    <string name="settings_couldnt_open_link">Couldn’t open the link</string>
+    <string name="settings_back">Back</string>
+    <string name="settings_more">More</string>
+
+    <string name="settings_language">Language</string>
+    <string name="settings_system_default">System default</string>
+    <string name="settings_on">On</string>
+    <string name="settings_off">Off</string>
+    <string name="settings_cache">Cache</string>
+    <string name="settings_cache_size">Cache size</string>
+    <string name="settings_clear_cache">Clear cache</string>
+    <string name="settings_couldnt_clear_cache">Couldn’t clear the cache</string>
+
+    <string name="settings_behavior">Behavior</string>
+    <string name="settings_full_screen">Full screen</string>
+    <string name="settings_full_screen_footer">Extends the picture to the edges of the screen, where parts of it may be hidden by the rounded corners or the camera. When the pointer moves into a hidden part, that part is also shown nearby.</string>
+    <string name="settings_customization">Customization</string>
+    <string name="settings_pinch_to_zoom">Pinch to zoom</string>
+
+    <string name="settings_cursor_style">Cursor style</string>
+    <string name="settings_system_style">System style</string>
+    <string name="settings_remote_style">Remote style</string>
+    <string name="settings_custom">Custom</string>
+    <string name="settings_import">Import</string>
+    <string name="settings_import_files">Files…</string>
+    <string name="settings_import_folder">Folder…</string>
+    <string name="settings_couldnt_import">Couldn’t import “%1$s”</string>
+    <string name="settings_couldnt_delete">Couldn’t delete “%1$s”</string>
+
+    <string name="settings_no_keyboard">No keyboard</string>
+    <string name="settings_connect_keyboard">Connect a keyboard to set up shortcuts.</string>
+    <string name="settings_shortcuts">Shortcuts</string>
+    <string name="settings_add_mapping">Add mapping</string>
+    <string name="settings_edit_mapping">Edit mapping</string>
+    <string name="settings_delete_mapping">Delete mapping</string>
+    <string name="settings_restore_defaults">Restore defaults</string>
+    <string name="settings_clear_shortcut">Clear shortcut</string>
+    <string name="settings_type_shortcut">Type shortcut</string>
+    <string name="settings_type_key">Type key</string>
+    <string name="settings_none">None</string>
+    <string name="settings_shortcut">Shortcut</string>
+    <string name="settings_key">Key</string>
+    <string name="settings_sends">Sends</string>
+    <string name="settings_text">Text</string>
+    <string name="settings_letters">Letters</string>
+    <string name="settings_numbers">Numbers</string>
+    <string name="settings_symbols">Symbols</string>
+    <string name="settings_modifier_keys">Modifier keys</string>
+    <string name="settings_move_up">Move up</string>
+    <string name="settings_move_down">Move down</string>
+    <string name="settings_replace">Replace</string>
+    <string name="settings_already_in_use">“%1$s” is already in use</string>
+    <string name="settings_assigned_to">It’s assigned to “%1$s”. Replacing it removes that shortcut.</string>
+    <string name="settings_mapped_to_mapping">It’s mapped to %1$s. Replacing it removes that mapping.</string>
+    <string name="settings_mapped_to_mappings">It’s mapped to %1$s. Replacing it removes those mappings.</string>
+
+    <string name="settings_apple_key">Apple key</string>
+    <string name="settings_pc_key">PC key</string>
+    <string name="settings_add_quick_input">Add Quick Input</string>
+    <string name="settings_edit_quick_input">Edit Quick Input</string>
+    <string name="settings_delete_quick_input">Delete Quick Input</string>
+    <string name="settings_name">Name</string>
+    <string name="settings_quick_input_footer">Configured Apple keys and PC keys take effect when connected to an Apple or PC device, respectively.</string>
+</resources>

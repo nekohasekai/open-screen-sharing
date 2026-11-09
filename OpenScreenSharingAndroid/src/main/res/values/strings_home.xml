@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_connections">Connections</string>
+    <string name="home_new_connection">New connection</string>
+    <string name="home_looking_for">Looking for “%1$s”…</string>
+    <string name="home_couldnt_open_link">Couldn’t open the link</string>
+    <string name="home_invalid_address">“%1$s” isn’t a valid address.</string>
+
+    <string name="home_icons">Icons</string>
+    <string name="home_list">List</string>
+    <string name="home_no_connections">No connections</string>
+    <string name="home_tap_to_add">Tap %1$s to add a connection.</string>
+    <string name="home_open_in_new_window">Open in new window</string>
+    <string name="home_couldnt_delete">Couldn’t delete “%1$s”</string>
+    <string name="home_delete_named">Delete “%1$s”?</string>
+    <string name="home_move_up">Move up</string>
+    <string name="home_move_down">Move down</string>
+
+    <string name="home_available">Available</string>
+    <string name="home_not_available">Not available</string>
+    <string name="home_last_connected">Last connected %1$s</string>
+
+    <string name="home_edit_connection">Edit connection</string>
+    <string name="home_name">Name</string>
+    <string name="home_server_address">Server address</string>
+    <string name="home_server_type">Server type</string>
+    <string name="home_vnc" translatable="false">VNC</string>
+    <string name="home_apple_vnc" translatable="false">Apple VNC</string>
+    <string name="home_rdp" translatable="false">RDP</string>
+    <string name="home_network_quality">Network quality</string>
+    <string name="home_local_network">Local network</string>
+    <string name="home_internet">Internet</string>
+    <string name="home_maximum_frame_rate">Maximum frame rate</string>
+    <string name="home_fps">%1$d FPS</string>
+    <string name="home_enter_name">Enter a name.</string>
+    <string name="home_enter_valid_address">Enter a valid server address.</string>
+    <string name="home_authentication">Authentication</string>
+    <string name="home_enabled">Enabled</string>
+    <string name="home_user_name">User name</string>
+    <string name="home_required">Required</string>
+    <string name="home_password">Password</string>
+    <string name="home_optional">Optional</string>
+    <string name="home_connection">Connection</string>
+    <string name="home_disable_udp">Disable UDP</string>
+    <string name="home_keep_alive">Keep alive</string>
+    <string name="home_couldnt_save">Couldn’t save “%1$s”</string>
+
+    <string name="home_port">Port</string>
+    <string name="home_looking_up">Looking up…</string>
+
+    <string name="home_next">Next</string>
+    <string name="home_back">Back</string>
+    <string name="home_signing_in">Signing in…</string>
+    <string name="home_sign_in_account">Enter the user name and password to sign in to “%1$s”.</string>
+    <string name="home_sign_in_password">Enter the password to sign in to “%1$s”.</string>
+    <string name="home_wrong_account">The user name or password is incorrect.</string>
+    <string name="home_wrong_password">The password is incorrect.</string>
+    <string name="home_cant_find">Can’t find “%1$s”.</string>
+    <string name="home_cant_connect">Can’t connect to “%1$s”.</string>
+
+    <string name="home_hostname">Hostname</string>
+    <string name="home_connecting">Connecting…</string>
+    <string name="home_network">Network</string>
+    <string name="home_view_details">View details</string>
+    <string name="home_cant_look_nearby">Can’t look for nearby computers</string>
+    <string name="home_no_computers_found">No computers found</string>
+    <string name="home_looking_for_computers">Looking for computers…</string>
+    <string name="home_no_sign_in_method">“%1$s” offers no sign-in method this app supports.</string>
+
+    <string name="home_other_connection">Use user name and password from another connection</string>
+
+    <string name="home_failure_sign_in">Couldn’t sign in to “%1$s”</string>
+    <string name="home_failure_declined">“%1$s” declined the request</string>
+    <string name="home_failure_find">Couldn’t find “%1$s”</string>
+    <string name="home_failure_connect">Couldn’t connect to “%1$s”</string>
+    <string name="home_failure_lost">Lost the connection to “%1$s”</string>
+    <string name="home_failure_disconnected">Disconnected from “%1$s”</string>
+    <string name="home_failure_ended_session">“%1$s” ended the session</string>
+    <string name="home_failure_ended_screen_sharing">“%1$s” ended Screen Sharing</string>
+    <string name="home_failure_unsupported">“%1$s” isn’t supported</string>
+    <string name="home_failure_new_certificate">“%1$s” has a new certificate</string>
+    <string name="home_failure_verify">Couldn’t verify “%1$s”</string>
+    <string name="home_failure_high_performance_busy">Another device is using High Performance on “%1$s”</string>
+    <string name="home_failure_high_performance_unsupported">“%1$s” doesn’t support High Performance</string>
+    <string name="home_failure_high_performance_undecodable">This device can’t play High Performance video</string>
+    <string name="home_failure_high_performance_refused">“%1$s” refused High Performance</string>
+    <string name="home_failure_high_performance_stopped">High Performance stopped</string>
+</resources>

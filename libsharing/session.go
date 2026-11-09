@@ -395,6 +395,7 @@ func (s *Session) waitForDisplay(ctx context.Context) error {
 	if !s.options.AwaitVirtualDisplay {
 		return nil
 	}
+	s.handler.OnStateChanged(StateAwaitingDisplay, ErrorNone, "")
 	select {
 	case <-s.displayRequested:
 		return nil

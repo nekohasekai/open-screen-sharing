@@ -21,7 +21,7 @@ jobs:
           cache: false
       - name: Release
         run: |-
-          gh release download nightly -D build -p OpenScreenSharing.ipa -p OpenScreenSharing.pkg -p 'OpenScreenSharing-*.dSYMs.zip' -p metadata.json -p icon.png
+          gh release download nightly -D build -p OpenScreenSharing.ipa -p OpenScreenSharing.pkg -p 'OpenScreenSharing-*.dSYMs.zip' -p 'OpenScreenSharing-*.apk' -p metadata.json -p icon.png
           if [ "$(jq .build build/metadata.json)" != "$(git tag -l --format='%(contents:subject)' nightly)" ]; then
             echo "nightly was updated during the release, run it again" >&2
             exit 1
@@ -37,8 +37,11 @@ jobs:
             NOTES=$(git log --format='* %s' nightly)
           fi
           go run ./cmd/internal/build_altstore_source -tag "$TAG"
+          ASSETS=(build/OpenScreenSharing.ipa build/OpenScreenSharing.pkg build/OpenScreenSharing-iOS.dSYMs.zip build/OpenScreenSharing-macOS.dSYMs.zip)
+          if [ -f build/OpenScreenSharing-universal.apk ]; then
+            ASSETS+=(build/OpenScreenSharing-arm64-v8a.apk build/OpenScreenSharing-armeabi-v7a.apk build/OpenScreenSharing-x86_64.apk build/OpenScreenSharing-universal.apk)
+          fi
           gh release create "$TAG" --draft --target "$(git rev-parse 'nightly^{commit}')" --notes "$NOTES" \
-            build/OpenScreenSharing.ipa build/OpenScreenSharing.pkg build/OpenScreenSharing-iOS.dSYMs.zip build/OpenScreenSharing-macOS.dSYMs.zip \
-            build/metadata.json build/icon.png build/altstore/altstore.json
+            "${ASSETS[@]}" build/metadata.json build/icon.png build/altstore/altstore.json
         env:
           GH_TOKEN: ${{ github.token }}

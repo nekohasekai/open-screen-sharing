@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="model_file">File</string>
+    <string name="model_edit_menu">Edit</string>
+    <string name="model_view">View</string>
+    <string name="model_sound">Sound</string>
+    <string name="model_control">Control</string>
+    <string name="model_debug">Debug</string>
+
+    <string name="model_new_connection">New connection</string>
+    <string name="model_sync_clipboard">Sync clipboard</string>
+    <string name="model_receive_clipboard">Receive clipboard</string>
+    <string name="model_send_clipboard">Send clipboard</string>
+    <string name="model_zoom_mode">Zoom mode</string>
+    <string name="model_zoom_to_fit_actual_size">Zoom to fit / actual size</string>
+    <string name="model_display_number">Display %1$d</string>
+    <string name="model_all_displays">All displays</string>
+    <string name="model_adaptive_quality">Adaptive quality</string>
+    <string name="model_full_quality">Full quality</string>
+    <string name="model_high_dynamic_range">High dynamic range</string>
+    <string name="model_show_hide_toolbar">Show/hide toolbar</string>
+    <string name="model_customize_toolbar">Customize toolbar</string>
+    <string name="model_show_hide_keyboard">Show/hide keyboard</string>
+    <string name="model_receive_audio">Receive audio</string>
+    <string name="model_send_audio">Send audio</string>
+    <string name="model_observe_mode">Observe mode</string>
+    <string name="model_pointer_lock">Pointer lock</string>
+    <string name="model_home_screen">Home screen</string>
+    <string name="model_app_switcher">App switcher</string>
+    <string name="model_lock">Lock</string>
+    <string name="model_mission_control">Mission Control</string>
+    <string name="model_app_windows">App windows</string>
+    <string name="model_desktop">Desktop</string>
+    <string name="model_apps">Apps</string>
+    <string name="model_debug_panel">Debug panel</string>
+
+    <string name="model_editing">Editing</string>
+    <string name="model_navigation">Navigation</string>
+    <string name="model_function_keys">Function keys</string>
+    <string name="model_keypad">Keypad</string>
+    <string name="model_system">System</string>
+
+    <string name="model_return">Return</string>
+    <string name="model_tab">Tab</string>
+    <string name="model_space">Space</string>
+    <string name="model_forward_delete">Forward Delete</string>
+    <string name="model_escape">Escape</string>
+    <string name="model_home">Home</string>
+    <string name="model_end">End</string>
+    <string name="model_page_up">Page Up</string>
+    <string name="model_page_down">Page Down</string>
+    <string name="model_up_arrow">Up Arrow</string>
+    <string name="model_down_arrow">Down Arrow</string>
+    <string name="model_left_arrow">Left Arrow</string>
+    <string name="model_right_arrow">Right Arrow</string>
+    <string name="model_clear">Clear</string>
+    <string name="model_keypad_key">Keypad %1$s</string>
+    <string name="model_keypad_enter">Keypad Enter</string>
+
+    <string name="model_apple_key_mappings">Apple key mappings</string>
+    <string name="model_pc_key_mappings">PC key mappings</string>
+
+    <string name="model_control_key">Control key</string>
+    <string name="model_option_key">Option key</string>
+    <string name="model_shift_key">Shift key</string>
+    <string name="model_command_key">Command key</string>
+    <string name="model_ctrl_key">Ctrl key</string>
+    <string name="model_alt_key">Alt key</string>
+    <string name="model_windows_key">Windows key</string>
+</resources>

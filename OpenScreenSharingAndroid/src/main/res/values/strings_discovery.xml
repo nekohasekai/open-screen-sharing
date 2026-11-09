@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="discovery_cant_find">Can’t find “%1$s”.</string>
+    <string name="discovery_local_network_denied">Screen Sharing isn’t allowed to use the local network.</string>
+</resources>

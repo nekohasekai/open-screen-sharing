@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_new_connection"
+        android:shortcutId="new_connection"
+        android:shortcutLongLabel="@string/home_new_connection"
+        android:shortcutShortLabel="@string/home_new_connection">
+        <intent
+            android:action="io.nekohasekai.screensharing.action.NEW_CONNECTION"
+            android:targetClass="io.nekohasekai.screensharing.app.MainActivity"
+            android:targetPackage="io.nekohasekai.screensharing" />
+    </shortcut>
+</shortcuts>

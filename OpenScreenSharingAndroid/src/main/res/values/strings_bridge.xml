@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="bridge_main_display">Main display</string>
+    <string name="bridge_virtual_display">Virtual display</string>
+    <string name="bridge_display_number">Display %1$d</string>
+    <string name="bridge_channel_sessions">Connections</string>
+    <string name="bridge_channel_transfers">File transfers</string>
+    <string name="bridge_return">Tap to return to Screen Sharing</string>
+    <string name="bridge_reconnecting">Reconnecting…</string>
+</resources>
