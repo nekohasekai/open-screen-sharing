@@ -83,6 +83,24 @@ private struct ControlSettingsView: View {
                         Label("Pinch to Zoom", systemImage: "arrow.up.left.and.down.right.magnifyingglass")
                     }
                 }
+                Section {
+                    Toggle(isOn: Binding(get: { settings.usesMacKeyboard }, set: { settings.usesMacKeyboard = $0 })) {
+                        Label("Use Mac Keyboard", systemImage: "keyboard")
+                    }
+                    if settings.usesMacKeyboard {
+                        Picker(selection: Binding(get: { settings.macKeyboardLayout }, set: { settings.macKeyboardLayout = $0 })) {
+                            ForEach(MacKeyboardLayoutID.allCases) { layout in
+                                Text(String(localized: layout.title)).tag(layout)
+                            }
+                        } label: {
+                            Label("Keyboard Layout", systemImage: "globe")
+                        }
+                    }
+                } header: {
+                    Text("Keyboard")
+                } footer: {
+                    Text("Shows a Mac keyboard with Command, Option and Control keys in place of the device’s keyboard. It sits under the picture with the trackpad, so it covers nothing.")
+                }
                 #endif
             }
             #if os(macOS)
