@@ -73,6 +73,9 @@ struct MacKeyboardView: View {
                                 .opacity(shiftOn ? 1 : 0.6)
                             Text(verbatim: base).opacity(shiftOn ? 0.6 : 1)
                         }
+                        // One element, read as the character the key types now.
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(Text(verbatim: shiftOn ? shifted : base))
                     }
                 }
             }
