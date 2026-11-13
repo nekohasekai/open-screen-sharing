@@ -166,8 +166,6 @@
     <string name="model_send_audio">Sesi Gönder</string>
     <string name="model_observe_mode">İzleme Modu</string>
     <string name="model_pointer_lock">İmleç Kilidi</string>
-    <string name="model_home_screen">Ana Ekran</string>
-    <string name="model_app_switcher">Uygulama Değiştirici</string>
     <string name="model_lock">Kilitle</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Uygulama Pencereleri</string>

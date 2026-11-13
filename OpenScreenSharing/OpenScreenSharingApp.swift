@@ -40,12 +40,6 @@ final class AppLaunch {
             return KeyShortcuts.shared.performAssigned(event) ? nil : event
         }
         #endif
-        #if os(iOS) && (DEBUG || SIDELOAD)
-        BadgeDots.install()
-        if ServerFeature.isAvailable {
-            ServerController.shared.resume()
-        }
-        #endif
     }
 }
 

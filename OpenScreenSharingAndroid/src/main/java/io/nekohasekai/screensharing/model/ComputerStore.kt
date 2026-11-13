@@ -19,7 +19,6 @@ data class StoredComputer(
     val networkConfiguration: NetworkConfiguration,
     val device: DeviceInfo?,
     val usesHighPerformance: Boolean,
-    val deviceType: DeviceType?,
     val keyboardSources: List<String>,
     val trustedFingerprint: String,
 )
@@ -81,7 +80,6 @@ object ComputerStore {
             networkConfiguration = computer.networkConfiguration,
             device = if (computer.model.isEmpty()) null else DeviceInfo(computer.model, computer.enclosureColor),
             usesHighPerformance = computer.usesHighPerformance,
-            deviceType = if (computer.usesHighPerformance) computer.deviceType else null,
             keyboardSources = computer.keyboardSources,
             trustedFingerprint = computer.trustedFingerprint,
         )

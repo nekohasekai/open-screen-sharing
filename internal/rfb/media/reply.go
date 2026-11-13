@@ -39,6 +39,11 @@ type Answer struct {
 	LTRPEnabled   bool
 }
 
+const (
+	ServerErrorBusy        uint32 = 1
+	ServerErrorBusySubCode uint32 = 1
+)
+
 type ServerError struct {
 	Type    uint32
 	SubCode uint32

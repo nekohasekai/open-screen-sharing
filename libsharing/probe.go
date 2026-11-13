@@ -24,8 +24,6 @@ type ServerProbe struct {
 
 	SupportsNoPassword bool
 
-	GrantsRequests bool
-
 	ErrorCode    int32
 	ErrorMessage string
 }
@@ -82,7 +80,6 @@ func (r *ProbeRequest) probeServer(ctx context.Context, host string, port int32)
 		SupportsRequestObserve: slices.Contains(offered, rfb.SecurityAskObserve),
 		SupportsVNCPassword:    slices.Contains(offered, rfb.SecurityVNCPassword),
 		SupportsNoPassword:     slices.Contains(offered, rfb.SecurityNone),
-		GrantsRequests:         rfb.GrantsAsking(offered),
 	}
 }
 

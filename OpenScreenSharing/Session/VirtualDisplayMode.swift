@@ -92,7 +92,9 @@ final class VirtualDisplayRequests {
         if sizedByConnection, let sent, framebufferSize == CGSize(width: sent.pixelWidth, height: sent.pixelHeight) {
             answered()
         } else if !offersVirtualDisplay {
-            stopWaiting()
+            awaitsAnswer = false
+            sent = nil
+            reportIdle()
         } else {
             reportIdle()
         }
@@ -123,12 +125,6 @@ final class VirtualDisplayRequests {
             displays.contains(where: { $0.isVirtual && $0.width == sent.width && $0.height == sent.height })
         else { return }
         answered()
-    }
-
-    func stopWaiting() {
-        awaitsAnswer = false
-        sent = nil
-        reportIdle()
     }
 
     private func answered() {

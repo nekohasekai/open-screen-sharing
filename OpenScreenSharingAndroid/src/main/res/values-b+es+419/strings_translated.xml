@@ -166,8 +166,6 @@
     <string name="model_send_audio">Enviar audio</string>
     <string name="model_observe_mode">Modo de observación</string>
     <string name="model_pointer_lock">Captura del puntero</string>
-    <string name="model_home_screen">Pantalla de inicio</string>
-    <string name="model_app_switcher">Selector de apps</string>
     <string name="model_lock">Bloquear</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Ventanas de la app</string>

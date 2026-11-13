@@ -29,7 +29,7 @@ import (
 const (
 	project     = "OpenScreenSharing.xcodeproj"
 	scheme      = "OpenScreenSharing"
-	derivedData = "build/DerivedData-screenshots-"
+	derivedData = "build/DerivedData-screenshots"
 	outputPath  = "screenshots"
 	resultsPath = "build/screenshots"
 	testsToRun  = "OpenScreenSharingUITests/ScreenshotTests"
@@ -101,30 +101,9 @@ var devices = []device{
 	},
 }
 
-type variant struct {
-	name     string
-	devices  []string
-	settings []string
-}
-
-var variants = []variant{
-	{
-		name:    "app-store",
-		devices: []string{"iphone", "duo-outer", "duo-inner", "ipad", "mac"},
-		settings: []string{
-			"SWIFT_ACTIVE_COMPILATION_CONDITIONS=DEMO",
-			"EXCLUDED_SOURCE_FILE_NAMES=$(SRCROOT)/OpenScreenSharing/Server/*",
-		},
-	},
-	{
-		name:    "sideload",
-		devices: []string{"iphone", "ipad"},
-		settings: []string{
-			"SWIFT_ACTIVE_COMPILATION_CONDITIONS=SIDELOAD DEMO",
-			"APP_INFOPLIST_FILE=OpenScreenSharing/Info-Server.plist",
-			"EXCLUDED_SOURCE_FILE_NAMES=",
-		},
-	},
+var buildSettings = []string{
+	"SWIFT_ACTIVE_COMPILATION_CONDITIONS=DEMO",
+	"EXCLUDED_SOURCE_FILE_NAMES=",
 }
 
 var simulatorPreferences = []preference{
@@ -142,7 +121,6 @@ var screenshotName = regexp.MustCompile(`^([A-Za-z-]+)_(\d\d-[A-Za-z]+)_`)
 func main() {
 	languages := flag.String("languages", "en", "the languages to take the screenshots in")
 	deviceNames := flag.String("devices", "iphone,duo-outer,duo-inner,ipad,mac", "the devices to take the screenshots on")
-	variantNames := flag.String("variants", "app-store,sideload", "the builds to take the screenshots of")
 	appearance := flag.String("appearance", "light", "light or dark")
 	skipBuild := flag.Bool("skip-build", false, "use the apps and tests as last built")
 	flag.Parse()
@@ -155,14 +133,6 @@ func main() {
 		}
 		chosenDevices = append(chosenDevices, devices[index])
 	}
-	var chosenVariants []variant
-	for _, name := range strings.Split(*variantNames, ",") {
-		index := slices.IndexFunc(variants, func(variant variant) bool { return variant.name == name })
-		if index < 0 {
-			log.Fatal("unknown variant: ", name)
-		}
-		chosenVariants = append(chosenVariants, variants[index])
-	}
 	chosenLanguages := strings.Split(*languages, ",")
 	for _, language := range chosenLanguages {
 		if regions[language] == "" {
@@ -170,59 +140,44 @@ func main() {
 		}
 	}
 	if !*skipBuild {
-		for _, variant := range chosenVariants {
-			var platforms []string
-			for _, device := range chosenDevices {
-				if slices.Contains(variant.devices, device.name) && !slices.Contains(platforms, device.platform) {
-					platforms = append(platforms, device.platform)
-				}
+		platforms := common.Uniq(common.Map(chosenDevices, func(device device) string { return device.platform }))
+		for _, platform := range platforms {
+			action := "build-for-testing"
+			if platform == "macOS" {
+				action = "build"
 			}
-			for _, platform := range platforms {
-				action := "build-for-testing"
-				if platform == "macOS" {
-					action = "build"
-				}
-				run(exec.Command("xcodebuild", append([]string{
-					action, "-quiet",
-					"-project", project,
-					"-scheme", scheme,
-					"-configuration", "Release",
-					"-destination", "generic/platform=" + platform,
-					"-derivedDataPath", derivedData + variant.name,
-					"ARCHS=$(NATIVE_ARCH_ACTUAL)",
-					"ENABLE_CODE_COVERAGE=NO",
-				}, variant.settings...)...))
-			}
+			run(exec.Command("xcodebuild", append([]string{
+				action, "-quiet",
+				"-project", project,
+				"-scheme", scheme,
+				"-configuration", "Release",
+				"-destination", "generic/platform=" + platform,
+				"-derivedDataPath", derivedData,
+				"ARCHS=$(NATIVE_ARCH_ACTUAL)",
+				"ENABLE_CODE_COVERAGE=NO",
+			}, buildSettings...)...))
 		}
 	}
 	for _, device := range chosenDevices {
-		deviceVariants := common.Filter(chosenVariants, func(variant variant) bool { return slices.Contains(variant.devices, device.name) })
-		if len(deviceVariants) == 0 {
-			continue
-		}
 		if device.platform == "macOS" {
-			for _, variant := range deviceVariants {
-				takeMacScreenshots(device, variant, chosenLanguages, *appearance)
-			}
+			takeMacScreenshots(device, chosenLanguages, *appearance)
 			continue
 		}
 		runtime := latestRuntime(device.deviceType)
 		log.Print(device.name, " on ", runtime)
 		simulator := startSimulator(device, runtime, *appearance)
-		for _, variant := range deviceVariants {
-			takeScreenshots(device, simulator, variant, chosenLanguages)
-		}
+		takeScreenshots(device, simulator, chosenLanguages)
 		run(exec.Command("xcrun", "simctl", "shutdown", simulator))
 	}
 }
 
-func latestTestRun(variant variant) string {
-	paths, err := filepath.Glob(filepath.Join(derivedData+variant.name, "Build/Products/*.xctestrun"))
+func latestTestRun() string {
+	paths, err := filepath.Glob(filepath.Join(derivedData, "Build/Products/*.xctestrun"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	if len(paths) == 0 {
-		log.Fatal("no .xctestrun in ", derivedData+variant.name, "; build for testing first")
+		log.Fatal("no .xctestrun in ", derivedData, "; build for testing first")
 	}
 	var latest string
 	var latestTime int64
@@ -424,14 +379,14 @@ func setPose(booted simulator, pose string) {
 	run(exec.CommandContext(ctx, "osascript", "-e", pressPose, booted.Name, pose))
 }
 
-func takeScreenshots(device device, simulator string, variant variant, languages []string) {
-	log.Print("taking ", variant.name, " ", device.name, " screenshots")
-	resultBundle := filepath.Join(resultsPath, variant.name, device.name+".xcresult")
-	attachments := filepath.Join(resultsPath, variant.name, device.name)
+func takeScreenshots(device device, simulator string, languages []string) {
+	log.Print("taking ", device.name, " screenshots")
+	resultBundle := filepath.Join(resultsPath, device.name+".xcresult")
+	attachments := filepath.Join(resultsPath, device.name)
 	paths := []string{resultBundle, attachments}
 	var locales []string
 	for _, language := range languages {
-		paths = append(paths, filepath.Join(outputPath, variant.name, language, device.name))
+		paths = append(paths, filepath.Join(outputPath, language, device.name))
 		locales = append(locales, language+"_"+regions[language])
 	}
 	for _, path := range paths {
@@ -441,7 +396,7 @@ func takeScreenshots(device device, simulator string, variant variant, languages
 		}
 	}
 	test := exec.Command("xcodebuild", "test-without-building", "-quiet",
-		"-xctestrun", latestTestRun(variant),
+		"-xctestrun", latestTestRun(),
 		"-destination", "id="+simulator,
 		"-only-testing:"+testsToRun,
 		"-parallel-testing-enabled", "NO",
@@ -473,28 +428,28 @@ func takeScreenshots(device device, simulator string, variant variant, languages
 			if err != nil {
 				log.Fatal(err)
 			}
-			save(data, device, variant, match[1], match[2])
+			save(data, device, match[1], match[2])
 		}
 	}
 }
 
-func takeMacScreenshots(device device, variant variant, languages []string, appearance string) {
+func takeMacScreenshots(device device, languages []string, appearance string) {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
-	log.Print("taking ", variant.name, " ", device.name, " screenshots")
-	executables, err := filepath.Glob(filepath.Join(derivedData+variant.name, "Build/Products/Release/*.app/Contents/MacOS/*"))
+	log.Print("taking ", device.name, " screenshots")
+	executables, err := filepath.Glob(filepath.Join(derivedData, "Build/Products/Release/*.app/Contents/MacOS/*"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	if len(executables) != 1 {
-		log.Fatal("no single macOS app in ", derivedData+variant.name, "; build it first")
+		log.Fatal("no single macOS app in ", derivedData, "; build it first")
 	}
 	style := "Light"
 	if appearance == "dark" {
 		style = "Dark"
 	}
 	for _, language := range languages {
-		err = os.RemoveAll(filepath.Join(outputPath, variant.name, language, device.name))
+		err = os.RemoveAll(filepath.Join(outputPath, language, device.name))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -528,7 +483,7 @@ func takeMacScreenshots(device device, variant variant, languages []string, appe
 		if err != nil {
 			log.Fatal(err)
 		}
-		save(data, device, variant, language, macPage)
+		save(data, device, language, macPage)
 		err = os.Remove(captured)
 		if err != nil {
 			log.Fatal(err)
@@ -536,13 +491,13 @@ func takeMacScreenshots(device device, variant variant, languages []string, appe
 	}
 }
 
-func save(data []byte, device device, variant variant, language string, name string) {
+func save(data []byte, device device, language string, name string) {
 	data = padScreenshot(data, device.sizes)
 	err := checkScreenshot(data, device.sizes)
 	if err != nil {
 		log.Fatal(name, ": ", err)
 	}
-	destination := filepath.Join(outputPath, variant.name, language, device.name)
+	destination := filepath.Join(outputPath, language, device.name)
 	err = os.MkdirAll(destination, 0o755)
 	if err != nil {
 		log.Fatal(err)

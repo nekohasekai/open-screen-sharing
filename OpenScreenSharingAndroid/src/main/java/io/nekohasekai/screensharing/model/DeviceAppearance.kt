@@ -8,8 +8,6 @@ data class DeviceAppearance(val kind: Kind, val color: RGB?) {
         data object MacMini : Kind
         data object MacStudio : Kind
         data class MacPro(val generation: Int) : Kind
-        data object IPhone : Kind
-        data object IPad : Kind
     }
 
     data class RGB(val red: Double, val green: Double, val blue: Double)
@@ -32,8 +30,6 @@ data class DeviceAppearance(val kind: Kind, val color: RGB?) {
         private fun kind(model: String): Kind {
             val trimmed = model.trim()
             return when {
-                trimmed.startsWith("iPhone") -> Kind.IPhone
-                trimmed.startsWith("iPad") -> Kind.IPad
                 trimmed.startsWith("MacBook") -> Kind.Laptop
                 trimmed.startsWith("iMac") -> Kind.IMac
                 trimmed.startsWith("Macmini") -> Kind.MacMini

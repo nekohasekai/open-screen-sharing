@@ -10,9 +10,6 @@ final class HomeRequest {
     enum Pending: Equatable {
         case newConnection
         case settings
-        #if os(iOS) && (DEBUG || SIDELOAD)
-        case server
-        #endif
     }
 
     static let shared = HomeRequest()
@@ -21,7 +18,6 @@ final class HomeRequest {
 
 enum HomeTab: Hashable {
     case connections
-    case server
     case settings
 }
 
@@ -47,9 +43,6 @@ struct HomeView: View {
     @State private var linkLookup: LinkLookup?
     #if os(iOS)
     @State private var tutorials = SessionTutorial.unseen
-    #endif
-    #if os(iOS) && (DEBUG || SIDELOAD)
-    private let server = ServerController.shared
     #endif
     private let homeRequest = HomeRequest.shared
 
@@ -135,9 +128,6 @@ struct HomeView: View {
                 switch pending {
                 case .newConnection: newConnection()
                 case .settings: selection = .settings
-                #if os(iOS) && (DEBUG || SIDELOAD)
-                case .server: selection = .server
-                #endif
                 }
             }
     }
@@ -153,15 +143,6 @@ struct HomeView: View {
                             computersView
                         }
                     }
-                    #if DEBUG || SIDELOAD
-                    Tab("Server", systemImage: ServerFeature.systemImage, value: HomeTab.server) {
-                        NavigationStackCompat {
-                            serverView
-                        }
-                    }
-                    .badge(isServerRunning ? Text(verbatim: "") : nil)
-                    .accessibilityValue(Text("Running"), isEnabled: isServerRunning)
-                    #endif
                     Tab("Settings", systemImage: "gearshape", value: HomeTab.settings) {
                         NavigationStackCompat {
                             SettingsView()
@@ -176,15 +157,6 @@ struct HomeView: View {
                     }
                     .tabItem { Label("Connections", systemImage: "desktopcomputer") }
                     .tag(HomeTab.connections)
-                    #if DEBUG || SIDELOAD
-                    NavigationStackCompat {
-                        serverView
-                    }
-                    .tabItem { Label("Server", systemImage: ServerFeature.systemImage) }
-                    .tag(HomeTab.server)
-                    .badge(isServerRunning ? Text(verbatim: "") : nil)
-                    .accessibilityValue(isServerRunning ? Text("Running") : Text(verbatim: ""))
-                    #endif
                     NavigationStackCompat {
                         SettingsView()
                     }
@@ -214,23 +186,6 @@ struct HomeView: View {
         }
         #endif
     }
-
-    #if os(iOS) && (DEBUG || SIDELOAD)
-    @ViewBuilder
-    private var serverView: some View {
-        if ServerFeature.isAvailable {
-            ServerView()
-        } else {
-            ServerUnavailableView()
-        }
-    }
-    #endif
-
-    #if os(iOS) && (DEBUG || SIDELOAD)
-    private var isServerRunning: Bool {
-        server.phase.isRunning
-    }
-    #endif
 
     private var computersView: ComputersView {
         #if os(iOS)

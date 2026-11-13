@@ -166,8 +166,6 @@
     <string name="model_send_audio">ऑडिओ पाठवा</string>
     <string name="model_observe_mode">निरीक्षण मोड</string>
     <string name="model_pointer_lock">पॉइंटर लॉक</string>
-    <string name="model_home_screen">होम स्क्रीन</string>
-    <string name="model_app_switcher">ॲप स्विचर</string>
     <string name="model_lock">लॉक करा</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">ॲप विंडो</string>

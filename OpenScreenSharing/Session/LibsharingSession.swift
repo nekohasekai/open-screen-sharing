@@ -26,7 +26,7 @@ nonisolated final class LibsharingRemoteSession: @unchecked Sendable {
         options.protocol = configuration.remoteProtocol == .rdp ? LibsharingProtocolRDP : LibsharingProtocolRFB
         options.platform =
             switch configuration.platform {
-            case .mac, .iOS: LibsharingPlatformMac
+            case .mac: LibsharingPlatformMac
             case .pc: LibsharingPlatformPC
             case nil: LibsharingPlatformUnknown
             }
@@ -841,7 +841,6 @@ nonisolated private final class LibsharingHandler: NSObject, LibsharingSessionHa
                 frameEnd: unit.frameEnd,
                 changedBands: Int(unit.changedBands),
                 discontinuity: unit.discontinuity,
-                turns: PictureTurns(Int(unit.turns)),
                 arrival: now - Double(max(unit.holdNanoseconds, 0)) / 1_000_000_000,
                 composed: unit.composed ? now - Double(unit.composeNanoseconds) / 1_000_000_000 : nil
             ))

@@ -166,8 +166,6 @@
     <string name="model_send_audio">Gửi âm thanh</string>
     <string name="model_observe_mode">Chế độ quan sát</string>
     <string name="model_pointer_lock">Khóa con trỏ</string>
-    <string name="model_home_screen">Màn hình chính</string>
-    <string name="model_app_switcher">Bộ chuyển đổi ứng dụng</string>
     <string name="model_lock">Khóa</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Cửa sổ ứng dụng</string>

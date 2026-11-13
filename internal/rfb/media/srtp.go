@@ -243,17 +243,3 @@ func (s *srtcpSender) appendProtected(out []byte, packet []byte) []byte {
 	s.index = (s.index + 1) & 0x7fffffff
 	return out
 }
-
-type srtpSender struct {
-	keys *sessionKeys
-}
-
-func newSRTPSender(master []byte) *srtpSender {
-	return &srtpSender{keys: deriveSessionKeys(master, 0)}
-}
-
-func (s *srtpSender) protect(packet []byte, payloadOffset int, index uint64) []byte {
-	ssrc := binary.BigEndian.Uint32(packet[8:])
-	s.keys.xorKeyStream(ssrc, index, packet[payloadOffset:])
-	return append(packet, s.keys.rtpTag(packet, uint32(index>>16))...)
-}

@@ -166,8 +166,6 @@
     <string name="model_send_audio">ఆడియోను పంపడం</string>
     <string name="model_observe_mode">పరిశీలన మోడ్</string>
     <string name="model_pointer_lock">పాయింటర్ లాక్</string>
-    <string name="model_home_screen">హోమ్ స్క్రీన్</string>
-    <string name="model_app_switcher">యాప్ స్విచర్</string>
     <string name="model_lock">లాక్ చేయండి</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">యాప్ విండోలు</string>

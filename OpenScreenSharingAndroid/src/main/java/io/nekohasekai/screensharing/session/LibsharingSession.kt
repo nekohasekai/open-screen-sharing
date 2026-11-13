@@ -51,7 +51,7 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         val options = Libsharing.newSessionOptions()
         options.protocol = if (configuration.remoteProtocol == RemoteProtocol.Rdp) Libsharing.ProtocolRDP else Libsharing.ProtocolRFB
         options.platform = when (configuration.platform) {
-            RemotePlatform.Mac, RemotePlatform.IOS -> Libsharing.PlatformMac
+            RemotePlatform.Mac -> Libsharing.PlatformMac
             RemotePlatform.Pc -> Libsharing.PlatformPC
             null -> Libsharing.PlatformUnknown
         }
@@ -836,7 +836,6 @@ private class LibsharingHandler(
                 frameEnd = unit.frameEnd,
                 changedBands = unit.changedBands,
                 discontinuity = unit.discontinuity,
-                turns = PictureTurns(unit.turns),
                 arrivalNanos = now - max(unit.holdNanoseconds, 0L),
                 composedNanos = if (unit.composed) now - unit.composeNanoseconds else null,
             ),

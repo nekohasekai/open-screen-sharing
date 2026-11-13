@@ -166,8 +166,6 @@
     <string name="model_send_audio">ஆடியோவை அனுப்பு</string>
     <string name="model_observe_mode">பார்வையிடல் பயன்முறை</string>
     <string name="model_pointer_lock">பாயிண்டர் பூட்டு</string>
-    <string name="model_home_screen">முகப்புத் திரை</string>
-    <string name="model_app_switcher">ஆப் ஸ்விட்சர்</string>
     <string name="model_lock">பூட்டு</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">ஆப் சாளரங்கள்</string>

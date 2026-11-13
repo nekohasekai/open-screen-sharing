@@ -166,8 +166,6 @@
     <string name="model_send_audio">Wysyłanie dźwięku</string>
     <string name="model_observe_mode">Tryb obserwacji</string>
     <string name="model_pointer_lock">Blokada wskaźnika</string>
-    <string name="model_home_screen">Ekran początkowy</string>
-    <string name="model_app_switcher">Ekran zmiany aplikacji</string>
     <string name="model_lock">Zablokuj</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Okna aplikacji</string>

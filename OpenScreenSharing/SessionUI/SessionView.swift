@@ -66,14 +66,6 @@ struct SessionView: View {
     }
 
     #if os(iOS)
-    private var deviceScreen: CGSize? {
-        guard let screen = controller.touchScreenSize else { return nil }
-        let picture = controller.imageSize
-        guard picture.width > 0, picture.height > 0, (picture.width > picture.height) != (screen.width > screen.height)
-        else { return screen }
-        return CGSize(width: screen.height, height: screen.width)
-    }
-
     var body: some View {
         WithPerceptionTracking {
             let dock = dock
@@ -84,9 +76,6 @@ struct SessionView: View {
                     Color.black.ignoresSafeArea()
                     FullScreenReader(isFullScreen: $controller.isFullScreen)
                         .ignoresSafeArea()
-                    if #available(iOS 26, *), controller.platform == .iOS, hasOwnWindow {
-                        DeviceWindowShaper(screen: deviceScreen, isFullScreen: controller.isFullScreen)
-                    }
                 }
                 .overlay(alignment: .topTrailing) {
                     if settings.showsDebugInfo, controller.phase.isActive {
@@ -286,119 +275,6 @@ struct SessionView: View {
 }
 
 #if os(iOS)
-@available(iOS 26, *)
-private struct DeviceWindowShaper: UIViewRepresentable {
-    let screen: CGSize?
-    let isFullScreen: Bool
-
-    func makeUIView(context: Context) -> ShaperView {
-        ShaperView()
-    }
-
-    func updateUIView(_ view: ShaperView, context: Context) {
-        view.screen = screen
-        view.isFullScreen = isFullScreen
-        view.shape()
-    }
-
-    final class ShaperView: UIView {
-        var screen: CGSize?
-        var isFullScreen = false
-        private weak var scene: UIWindowScene?
-        private var observation: NSKeyValueObservation?
-        private var hasShaped = false
-        private var requested: CGSize?
-        private var minimumSize: CGSize?
-
-        override init(frame: CGRect) {
-            super.init(frame: frame)
-            isUserInteractionEnabled = false
-        }
-
-        required init?(coder: NSCoder) {
-            fatalError()
-        }
-
-        deinit {
-            MainActor.assumeIsolated { restoreMinimumSize() }
-        }
-
-        override func didMoveToWindow() {
-            super.didMoveToWindow()
-            let newScene = window?.windowScene
-            if newScene !== scene {
-                observation = nil
-                restoreMinimumSize()
-                scene = newScene
-                requested = nil
-                hasShaped = false
-                observation = newScene?.observe(\.effectiveGeometry) { [weak self] _, _ in
-                    DispatchQueue.main.async { self?.shape() }
-                }
-            }
-            shape()
-        }
-
-        func shape() {
-            guard let scene, let restrictions = scene.sizeRestrictions else { return }
-            guard let screen, screen.width > 0, screen.height > 0, !isFullScreen else {
-                restoreMinimumSize()
-                requested = nil
-                return
-            }
-            if scene.effectiveGeometry.isInteractivelyResizing {
-                restoreMinimumSize()
-                requested = nil
-                return
-            }
-            if let requested {
-                let current = scene.effectiveGeometry.coordinateSpace.bounds.size
-                if current.width >= requested.width - 2, current.height >= requested.height - 2 {
-                    restoreMinimumSize()
-                }
-            }
-            let target = target(for: scene, screen: screen, atLeastScreen: !hasShaped)
-            hasShaped = true
-            guard let target, !Self.isClose(target, requested) else { return }
-            if minimumSize == nil || restrictions.minimumSize != requested {
-                minimumSize = restrictions.minimumSize
-            }
-            requested = target
-            restrictions.minimumSize = target
-        }
-
-        private func restoreMinimumSize() {
-            if let minimum = minimumSize, let restrictions = scene?.sizeRestrictions,
-                restrictions.minimumSize == requested
-            {
-                restrictions.minimumSize = minimum
-            }
-            minimumSize = nil
-        }
-
-        private func target(for scene: UIWindowScene, screen: CGSize, atLeastScreen: Bool) -> CGSize? {
-            let current = scene.effectiveGeometry.coordinateSpace.bounds.size
-            guard current.width > 0, current.height > 0 else { return nil }
-            var target =
-                current.width / current.height < screen.width / screen.height
-                ? CGSize(width: current.height * screen.width / screen.height, height: current.height)
-                : CGSize(width: current.width, height: current.width * screen.height / screen.width)
-            if atLeastScreen, target.width < screen.width {
-                target = screen
-            }
-            let available = scene.screen.bounds.size
-            let fit = min(1, available.width / target.width, available.height / target.height)
-            target = CGSize(width: target.width * fit, height: target.height * fit)
-            return target.width > current.width + 2 || target.height > current.height + 2 ? target : nil
-        }
-
-        private static func isClose(_ size: CGSize, _ other: CGSize?) -> Bool {
-            guard let other else { return false }
-            return abs(size.width - other.width) <= 2 && abs(size.height - other.height) <= 2
-        }
-    }
-}
-
 private struct FullScreenReader: UIViewRepresentable {
     @Binding var isFullScreen: Bool
 

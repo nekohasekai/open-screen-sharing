@@ -260,7 +260,6 @@ nonisolated enum ServerDialect: Sendable {
 
 nonisolated enum RemotePlatform: Sendable {
     case mac
-    case iOS
     case pc
 }
 
@@ -353,7 +352,6 @@ nonisolated struct VideoAccessUnit: @unchecked Sendable {
     var frameEnd: Bool
     var changedBands: Int
     var discontinuity: Bool
-    var turns: PictureTurns
     var arrival: CFTimeInterval
     var composed: CFTimeInterval?
 }
@@ -368,7 +366,6 @@ nonisolated struct DecodedVideoFrame: @unchecked Sendable {
     var pixelBuffer: CVPixelBuffer?
     var strips: [CVPixelBuffer]
     var canvasHeight: Int
-    var turns: PictureTurns
     var timing: FrameTiming
 }
 

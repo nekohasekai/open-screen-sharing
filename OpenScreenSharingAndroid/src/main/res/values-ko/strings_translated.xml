@@ -166,8 +166,6 @@
     <string name="model_send_audio">오디오 전송</string>
     <string name="model_observe_mode">감시 모드</string>
     <string name="model_pointer_lock">포인터 잠금</string>
-    <string name="model_home_screen">홈 화면</string>
-    <string name="model_app_switcher">앱 전환기</string>
     <string name="model_lock">잠금</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">앱 윈도우</string>

@@ -166,8 +166,6 @@
     <string name="model_send_audio">Kirim Audio</string>
     <string name="model_observe_mode">Mode Amati</string>
     <string name="model_pointer_lock">Kunci Penunjuk</string>
-    <string name="model_home_screen">Layar Utama</string>
-    <string name="model_app_switcher">Pengalih App</string>
     <string name="model_lock">Kunci</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Jendela App</string>

@@ -166,8 +166,6 @@
     <string name="model_send_audio">Slanje zvuka</string>
     <string name="model_observe_mode">Način promatranja</string>
     <string name="model_pointer_lock">Zaključavanje pokazivača</string>
-    <string name="model_home_screen">Početni zaslon</string>
-    <string name="model_app_switcher">Izmjenjivač aplikacija</string>
     <string name="model_lock">Zaključaj</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Prozori aplikacija</string>

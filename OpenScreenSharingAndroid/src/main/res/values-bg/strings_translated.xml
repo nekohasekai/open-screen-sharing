@@ -166,8 +166,6 @@
     <string name="model_send_audio">Изпращане на звук</string>
     <string name="model_observe_mode">Режим на наблюдение</string>
     <string name="model_pointer_lock">Заключване на показалеца</string>
-    <string name="model_home_screen">Начален екран</string>
-    <string name="model_app_switcher">Превключвател на приложения</string>
     <string name="model_lock">Заключи</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Прозорци на приложението</string>

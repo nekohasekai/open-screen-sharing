@@ -166,8 +166,6 @@
     <string name="model_send_audio">Envia l’àudio</string>
     <string name="model_observe_mode">Mode d’observació</string>
     <string name="model_pointer_lock">Bloqueig del punter</string>
-    <string name="model_home_screen">Pantalla d’inici</string>
-    <string name="model_app_switcher">Selector d’apps</string>
     <string name="model_lock">Bloqueja</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Finestres de l’app</string>

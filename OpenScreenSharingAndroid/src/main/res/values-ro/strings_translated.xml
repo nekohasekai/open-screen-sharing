@@ -166,8 +166,6 @@
     <string name="model_send_audio">Trimitere audio</string>
     <string name="model_observe_mode">Mod observare</string>
     <string name="model_pointer_lock">Blocare cursor</string>
-    <string name="model_home_screen">Ecran principal</string>
-    <string name="model_app_switcher">Comutator aplicații</string>
     <string name="model_lock">Blocare</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Ferestre aplicație</string>

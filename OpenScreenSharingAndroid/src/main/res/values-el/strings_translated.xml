@@ -166,8 +166,6 @@
     <string name="model_send_audio">Αποστολή ήχου</string>
     <string name="model_observe_mode">Λειτουργία παρατήρησης</string>
     <string name="model_pointer_lock">Κλείδωμα δείκτη</string>
-    <string name="model_home_screen">Οθόνη Αφετηρίας</string>
-    <string name="model_app_switcher">Εναλλαγή εφαρμογών</string>
     <string name="model_lock">Κλείδωμα</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Παράθυρα εφαρμογής</string>

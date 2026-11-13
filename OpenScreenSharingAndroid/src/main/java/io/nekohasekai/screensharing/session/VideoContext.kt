@@ -179,10 +179,10 @@ class VideoContext {
         }
     }
 
-    internal suspend fun compose(pixelBuffer: VideoImage?, strips: List<VideoImage?>, stripHeight: Int, canvasHeight: Int, turns: PictureTurns): Bitmap? = suspendCancellableCoroutine { continuation ->
+    internal suspend fun compose(pixelBuffer: VideoImage?, strips: List<VideoImage?>, stripHeight: Int, canvasHeight: Int): Bitmap? = suspendCancellableCoroutine { continuation ->
         val posted = handler.post {
             val composed = try {
-                composed(pixelBuffer, strips, stripHeight, canvasHeight, turns)
+                composed(pixelBuffer, strips, stripHeight, canvasHeight)
             } catch (e: Exception) {
                 null
             }
@@ -191,7 +191,7 @@ class VideoContext {
         if (!posted) continuation.resume(null)
     }
 
-    private fun composed(pixelBuffer: VideoImage?, strips: List<VideoImage?>, stripHeight: Int, canvasHeight: Int, turns: PictureTurns): Bitmap? {
+    private fun composed(pixelBuffer: VideoImage?, strips: List<VideoImage?>, stripHeight: Int, canvasHeight: Int): Bitmap? {
         if (closed || context == EGL14.EGL_NO_CONTEXT) return null
         val first = pixelBuffer ?: strips.firstNotNullOfOrNull { it } ?: return null
         val width = first.width
@@ -203,7 +203,7 @@ class VideoContext {
             GLES30.glGenVertexArrays(1, names, 0)
             vertexArray = names[0]
         }
-        val scale = PixelBufferImage.thumbnailScale(width, height, turns)
+        val scale = PixelBufferImage.thumbnailScale(width)
         val thumbnailWidth = max(1, (width * scale).roundToInt())
         val thumbnailHeight = max(1, (height * scale).roundToInt())
         val canvas = Gl.texture(width, height, GLES30.GL_RGBA8, levels = 32 - Integer.numberOfLeadingZeros(max(width, height)))

@@ -8,8 +8,6 @@ nonisolated struct DeviceAppearance: Hashable, Sendable {
         case macMini
         case macStudio
         case macPro(generation: Int)
-        case iPhone
-        case iPad
     }
 
     var kind: Kind
@@ -33,8 +31,6 @@ nonisolated struct DeviceAppearance: Hashable, Sendable {
         case .macMini: "macmini"
         case .macStudio: if #available(iOS 16, *) { "macstudio" } else { "macmini" }
         case .macPro(let generation): generation <= 1 ? "macpro.gen1" : generation == 2 ? "macpro.gen2" : "macpro.gen3"
-        case .iPhone: "iphone"
-        case .iPad: "ipad"
         }
     }
 
@@ -56,8 +52,6 @@ nonisolated struct DeviceAppearance: Hashable, Sendable {
 
     private static func kind(of model: String) -> Kind {
         let model = model.trimmingCharacters(in: .whitespaces)
-        if model.hasPrefix("iPhone") { return .iPhone }
-        if model.hasPrefix("iPad") { return .iPad }
         if model.hasPrefix("MacBook") { return .laptop }
         if model.hasPrefix("iMac") { return .iMac }
         if model.hasPrefix("Macmini") { return .macMini }

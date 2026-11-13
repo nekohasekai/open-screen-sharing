@@ -7,14 +7,13 @@ import (
 )
 
 type rtpPacket struct {
-	marker           bool
-	payloadType      uint8
-	sequence         uint16
-	timestamp        uint32
-	ssrc             uint32
-	extensionProfile uint16
-	payloadOffset    int
-	payload          []byte
+	marker        bool
+	payloadType   uint8
+	sequence      uint16
+	timestamp     uint32
+	ssrc          uint32
+	payloadOffset int
+	payload       []byte
 }
 
 func isRTCP(datagram []byte) bool {
@@ -43,7 +42,6 @@ func parseRTPHeader(data []byte) (rtpPacket, error) {
 		if len(data) < offset+4 {
 			return rtpPacket{}, E.New("media: RTP header extension at offset ", offset, " exceeds the ", len(data), "-byte packet")
 		}
-		packet.extensionProfile = binary.BigEndian.Uint16(data[offset:])
 		offset += 4 + 4*int(binary.BigEndian.Uint16(data[offset+2:]))
 	}
 	if offset > len(data) {

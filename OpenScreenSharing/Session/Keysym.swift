@@ -43,8 +43,6 @@ nonisolated enum Keysym {
     static let commandLeft: UInt32 = 0xffeb
     static let commandRight: UInt32 = 0xffec
 
-    static let powerOff: UInt32 = 0x1008_ff2a
-
     static func function(_ number: Int) -> UInt32 {
         0xffbe + UInt32(max(1, min(number, 35)) - 1)
     }
@@ -243,8 +241,6 @@ nonisolated struct KeyChord: Hashable, Sendable {
 
 extension KeyChord {
     static let previousInputSource = KeyChord(modifiers: [.control], key: .space)
-
-    static let sideButton = KeyChord(modifiers: [], key: MacKey(keyCode: nil, keysym: Keysym.powerOff))
 }
 
 extension SystemCommand {

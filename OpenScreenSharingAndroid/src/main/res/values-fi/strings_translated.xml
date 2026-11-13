@@ -166,8 +166,6 @@
     <string name="model_send_audio">Lähetä ääni</string>
     <string name="model_observe_mode">Tarkkailutila</string>
     <string name="model_pointer_lock">Osoittimen lukitus</string>
-    <string name="model_home_screen">Koti-valikko</string>
-    <string name="model_app_switcher">Apinvaihtaja</string>
     <string name="model_lock">Lukitse</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Appi-ikkunat</string>

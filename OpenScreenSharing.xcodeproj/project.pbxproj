@@ -37,7 +37,6 @@
 				distribution.xml,
 				Export.plist,
 				ExportDeveloperID.plist,
-				"Info-Server.plist",
 				Info.plist,
 				PackageScripts/postinstall,
 				Upload.plist,
@@ -422,8 +421,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				"APP_GROUP_IDENTIFIER[sdk=macosx*]" = "$(TeamIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)";
-				APP_INFOPLIST_FILE = "OpenScreenSharing/Info-Server.plist";
-				"APP_INFOPLIST_FILE[sdk=macosx*]" = OpenScreenSharing/Info.plist;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = OpenScreenSharing/OpenScreenSharing.entitlements;
@@ -433,16 +430,14 @@
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				ENABLE_PREVIEWS = YES;
 				"ENABLE_RESOURCE_ACCESS_AUDIO_INPUT[sdk=macosx*]" = YES;
-				"EXCLUDED_SOURCE_FILE_NAMES[sdk=macosx*]" = "$(SRCROOT)/OpenScreenSharing/Server/*";
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "$(APP_INFOPLIST_FILE)";
+				INFOPLIST_FILE = OpenScreenSharing/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Screen Sharing";
 				"INFOPLIST_KEY_CFBundleDisplayName[sdk=macosx*]" = "Open Screen Sharing";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				"INFOPLIST_KEY_LSApplicationCategoryType[sdk=macosx*]" = "public.app-category.utilities";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Screen Sharing finds and connects to Macs on your local network.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Screen Sharing gets your approximate location only to keep sharing this device’s screen while you use other apps or the device is locked. It doesn’t keep your location or send it anywhere.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Screen Sharing sends your voice to the computer you’re connected to.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -474,7 +469,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				"APP_GROUP_IDENTIFIER[sdk=macosx*]" = "$(TeamIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)";
-				APP_INFOPLIST_FILE = OpenScreenSharing/Info.plist;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = OpenScreenSharing/OpenScreenSharing.entitlements;
@@ -484,23 +478,15 @@
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				ENABLE_PREVIEWS = YES;
 				"ENABLE_RESOURCE_ACCESS_AUDIO_INPUT[sdk=macosx*]" = YES;
-				EXCLUDED_SOURCE_FILE_NAMES = (
-					"$(SRCROOT)/OpenScreenSharing/Server/*",
-					"$(SRCROOT)/OpenScreenSharing/Demo/*.jpg",
-				);
-				"EXCLUDED_SOURCE_FILE_NAMES[sdk=macosx*]" = (
-					"$(SRCROOT)/OpenScreenSharing/Server/*",
-					"$(SRCROOT)/OpenScreenSharing/Demo/*.jpg",
-				);
+				EXCLUDED_SOURCE_FILE_NAMES = "$(SRCROOT)/OpenScreenSharing/Demo/*.jpg";
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "$(APP_INFOPLIST_FILE)";
+				INFOPLIST_FILE = OpenScreenSharing/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Screen Sharing";
 				"INFOPLIST_KEY_CFBundleDisplayName[sdk=macosx*]" = "Open Screen Sharing";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				"INFOPLIST_KEY_LSApplicationCategoryType[sdk=macosx*]" = "public.app-category.utilities";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Screen Sharing finds and connects to Macs on your local network.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Screen Sharing gets your approximate location only to keep sharing this device’s screen while you use other apps or the device is locked. It doesn’t keep your location or send it anywhere.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Screen Sharing sends your voice to the computer you’re connected to.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

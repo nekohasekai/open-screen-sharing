@@ -6,15 +6,12 @@ import SwiftUI
 final class ToolbarLayout {
     static let mac = ToolbarLayout(
         platform: .mac, key: "SessionToolbar", defaultBar: [.displays, .audio, .pointerLock, .keyboard, .clipboard])
-    static let iOS = ToolbarLayout(
-        platform: .iOS, key: "SessionToolbar.iOS", defaultBar: [.pointerLock, .keyboard, .home, .appSwitcher, .clipboard])
     static let pc = ToolbarLayout(
         platform: .pc, key: "SessionToolbar.PC", defaultBar: [.displays, .audio, .pointerLock, .keyboard, .clipboard])
 
     static func layout(for controller: SessionController) -> ToolbarLayout {
-        switch controller.platform {
+        switch controller.info.platform {
         case .mac: mac
-        case .iOS: iOS
         case .pc: pc
         }
     }

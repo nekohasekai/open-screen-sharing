@@ -166,8 +166,6 @@
     <string name="model_send_audio">ส่งเสียง</string>
     <string name="model_observe_mode">โหมดสังเกตการณ์</string>
     <string name="model_pointer_lock">ล็อคตัวชี้</string>
-    <string name="model_home_screen">หน้าจอโฮม</string>
-    <string name="model_app_switcher">แถบสลับแอป</string>
     <string name="model_lock">ล็อค</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">หน้าต่างแอป</string>

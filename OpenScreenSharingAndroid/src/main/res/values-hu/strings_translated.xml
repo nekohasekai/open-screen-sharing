@@ -166,8 +166,6 @@
     <string name="model_send_audio">Hang küldése</string>
     <string name="model_observe_mode">Megfigyelő mód</string>
     <string name="model_pointer_lock">Mutató rögzítése</string>
-    <string name="model_home_screen">Főképernyő</string>
-    <string name="model_app_switcher">Appváltó</string>
     <string name="model_lock">Zárolás</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Appablakok</string>

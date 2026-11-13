@@ -4,7 +4,6 @@ import android.os.Parcel
 import android.os.Parcelable
 import io.nekohasekai.screensharing.model.Computer
 import io.nekohasekai.screensharing.model.ComputerAddress
-import io.nekohasekai.screensharing.model.DeviceType
 import io.nekohasekai.screensharing.model.RemoteProtocol
 import io.nekohasekai.screensharing.model.UUIDSerializer
 import kotlinx.parcelize.Parceler
@@ -27,7 +26,6 @@ data class SessionRoute(
     val model: String? = null,
     val remoteProtocol: RemoteProtocol,
     val usesHighPerformance: Boolean = false,
-    val deviceType: DeviceType? = null,
     val server: ServerAuthentication? = null,
 ) : Parcelable {
     constructor(computer: Computer) : this(
@@ -39,7 +37,6 @@ data class SessionRoute(
         model = computer.model.ifEmpty { null },
         remoteProtocol = computer.remoteProtocol,
         usesHighPerformance = computer.usesHighPerformance,
-        deviceType = if (computer.usesHighPerformance) computer.deviceType else null,
     )
 
     val address: ComputerAddress get() = ComputerAddress(host, port)
@@ -47,8 +44,8 @@ data class SessionRoute(
     val knownPlatform: RemotePlatform?
         get() {
             if (remoteProtocol == RemoteProtocol.Rdp) return RemotePlatform.Pc
-            val type = deviceType ?: model?.let { DeviceType.of(it) } ?: return null
-            return if (type.isIOS) RemotePlatform.IOS else RemotePlatform.Mac
+            val model = model?.trim().orEmpty()
+            return if (usesHighPerformance || model.startsWith("Mac") || model.startsWith("iMac")) RemotePlatform.Mac else null
         }
 }
 

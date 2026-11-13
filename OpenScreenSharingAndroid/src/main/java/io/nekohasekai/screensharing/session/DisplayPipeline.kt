@@ -27,7 +27,6 @@ data class ShownPicture(
     val picture: ScreenPicture = ScreenPicture.None,
     val width: Int = 0,
     val height: Int = 0,
-    val turns: PictureTurns = PictureTurns.None,
 )
 
 class DisplayPipeline {
@@ -44,7 +43,6 @@ class DisplayPipeline {
         val cursorVisible: Boolean,
         val pictureGeneration: Int?,
         val presentationEpoch: Int,
-        val turns: PictureTurns,
     ) {
         fun retain(): Snapshot {
             pixelBuffer?.retain()
@@ -67,7 +65,6 @@ class DisplayPipeline {
         val canvasHeight: Int,
         val width: Int,
         val height: Int,
-        val turns: PictureTurns,
         val change: PictureChange,
     ) {
         fun release() {
@@ -101,7 +98,6 @@ class DisplayPipeline {
     private var videoFrame: VideoImage? = null
     private var strips: List<VideoImage?> = emptyList()
     private var canvasHeight = 0
-    private var videoTurns = PictureTurns.None
     private var isVideo = false
     private var width = 0
     private var height = 0
@@ -178,7 +174,6 @@ class DisplayPipeline {
             hold(PictureChange.VideoStart)
             isVideo = true
             clearVideoFrame()
-            videoTurns = PictureTurns.None
         }
     }
 
@@ -287,7 +282,6 @@ class DisplayPipeline {
             videoFrame = frame.pixelBuffer
             strips = frame.strips
             canvasHeight = frame.canvasHeight
-            videoTurns = frame.turns
         }
         for ((item, picture) in promoted) {
             item.ready(picture)
@@ -405,10 +399,10 @@ class DisplayPipeline {
             val framebuffer = snapshot.framebuffer
             if (framebuffer != null) {
                 val image = copyLock.withLock { framebuffer.bitmap() }
-                return withContext(Dispatchers.Default) { PixelBufferImage.makeThumbnail(image, snapshot.turns, bgra = true) }
+                return withContext(Dispatchers.Default) { PixelBufferImage.makeThumbnail(image, bgra = true) }
             }
-            val image = videoContext.compose(snapshot.pixelBuffer, snapshot.strips, snapshot.stripHeight, snapshot.canvasHeight, snapshot.turns) ?: return null
-            return withContext(Dispatchers.Default) { PixelBufferImage.makeThumbnail(image, snapshot.turns) }
+            val image = videoContext.compose(snapshot.pixelBuffer, snapshot.strips, snapshot.stripHeight, snapshot.canvasHeight) ?: return null
+            return withContext(Dispatchers.Default) { PixelBufferImage.makeThumbnail(image) }
         } finally {
             snapshot.release()
         }
@@ -443,8 +437,6 @@ class DisplayPipeline {
             }
         }
 
-    private val turns: PictureTurns get() = if (isVideo) videoTurns else PictureTurns.None
-
     private fun hold(change: PictureChange) {
         if (!hasPicture) return
         val picture = Held(
@@ -454,7 +446,6 @@ class DisplayPipeline {
             canvasHeight = canvasHeight,
             width = width,
             height = height,
-            turns = turns,
             change = change,
         )
         held?.release()
@@ -464,9 +455,9 @@ class DisplayPipeline {
     private fun shownLocked(): ShownPicture {
         val held = held
         return when {
-            hasPicture -> ShownPicture(ScreenPicture.Current, width, height, turns)
-            held != null -> ShownPicture(ScreenPicture.Previous(held.change), held.width, held.height, held.turns)
-            else -> ShownPicture(ScreenPicture.None, width, height, turns)
+            hasPicture -> ShownPicture(ScreenPicture.Current, width, height)
+            held != null -> ShownPicture(ScreenPicture.Previous(held.change), held.width, held.height)
+            else -> ShownPicture(ScreenPicture.None, width, height)
         }
     }
 
@@ -486,7 +477,6 @@ class DisplayPipeline {
                 cursorVisible = cursorVisible,
                 pictureGeneration = null,
                 presentationEpoch = presentationEpoch,
-                turns = held.turns,
             )
         }
         if (!hasPicture) {
@@ -503,7 +493,6 @@ class DisplayPipeline {
                 cursorVisible = cursorVisible,
                 pictureGeneration = null,
                 presentationEpoch = presentationEpoch,
-                turns = turns,
             )
         }
         return Snapshot(
@@ -519,7 +508,6 @@ class DisplayPipeline {
             cursorVisible = cursorVisible,
             pictureGeneration = pictureGeneration,
             presentationEpoch = presentationEpoch,
-            turns = turns,
         )
     }
 

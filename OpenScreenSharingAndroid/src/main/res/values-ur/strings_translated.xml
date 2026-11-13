@@ -166,8 +166,6 @@
     <string name="model_send_audio">آڈیو بھیجیں</string>
     <string name="model_observe_mode">مشاہداتی موڈ</string>
     <string name="model_pointer_lock">پوائنٹر لاک</string>
-    <string name="model_home_screen">ہوم اسکرین</string>
-    <string name="model_app_switcher">ایپ سوئچر</string>
     <string name="model_lock">لاک کریں</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">ایپ ونڈو</string>

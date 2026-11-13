@@ -93,10 +93,9 @@ fun DebugInfoView(controller: SessionController, modifier: Modifier = Modifier) 
     val stutters = monitor.stutters
     val dialect = controller.info.dialect
     val isVideo = controller.isVideo
-    val remoteName = when (controller.platform) {
+    val remoteName = when (controller.info.platform) {
         RemotePlatform.Mac -> "Mac"
         RemotePlatform.Pc -> "PC"
-        RemotePlatform.IOS -> "Remote"
     }
     val imageSize = controller.imageSize.let { if (it.width > 0 && it.height > 0) "${it.width.toInt()}x${it.height.toInt()}" else "—" }
     val dropsFrames = run {

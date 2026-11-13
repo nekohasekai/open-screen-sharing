@@ -166,8 +166,6 @@
     <string name="model_send_audio">Надсилати звук</string>
     <string name="model_observe_mode">Режим спостереження</string>
     <string name="model_pointer_lock">Захоплення вказівника</string>
-    <string name="model_home_screen">Початковий екран</string>
-    <string name="model_app_switcher">Перемикач програм</string>
     <string name="model_lock">Замкнути</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Вікна програм</string>

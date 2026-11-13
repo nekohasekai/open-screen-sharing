@@ -27,17 +27,12 @@ final class ScreenRenderer {
         commonShaderSource + """
 
         vertex QuadVertex quadVertex(
-            uint vertexID [[vertex_id]], constant float4 &rect [[buffer(0)]], constant float4 &textureRect [[buffer(1)]],
-            constant uint &turns [[buffer(2)]]
+            uint vertexID [[vertex_id]], constant float4 &rect [[buffer(0)]], constant float4 &textureRect [[buffer(1)]]
         ) {
             float2 corner = float2(vertexID & 1, vertexID >> 1);
-            float2 source = corner;
-            for (uint turn = 0; turn < turns; turn++) {
-                source = float2(source.y, 1 - source.x);
-            }
             QuadVertex out;
             out.position = float4(mix(rect.xy, rect.zw, corner), 0, 1);
-            out.textureCoordinate = mix(textureRect.xy, textureRect.zw, source);
+            out.textureCoordinate = mix(textureRect.xy, textureRect.zw, corner);
             return out;
         }
 
@@ -226,7 +221,6 @@ final class ScreenRenderer {
         var stripHeight: Int
         var canvasHeight: Int
         var imageRect: CGRect
-        var turns: PictureTurns
         var cursor: CursorShape?
         var cursorRect: CGRect?
         var cursorShownBySystem: Bool
@@ -257,12 +251,11 @@ final class ScreenRenderer {
                 let top = CGFloat(band * frame.stripHeight)
                 let visible = min(CGFloat(frame.stripHeight), canvasHeight - top)
                 guard visible > 0 else { continue }
-                let unit = frame.turns.shownRect(ofUnit: CGRect(x: 0, y: top / canvasHeight, width: 1, height: visible / canvasHeight))
                 let rect = CGRect(
-                    x: frame.imageRect.minX + frame.imageRect.width * unit.minX,
-                    y: frame.imageRect.minY + frame.imageRect.height * unit.minY,
-                    width: frame.imageRect.width * unit.width,
-                    height: frame.imageRect.height * unit.height
+                    x: frame.imageRect.minX,
+                    y: frame.imageRect.minY + frame.imageRect.height * top / canvasHeight,
+                    width: frame.imageRect.width,
+                    height: frame.imageRect.height * visible / canvasHeight
                 )
                 images.append((texture, rect, SIMD4<Float>(0, 0, 1, Float(visible / CGFloat(frame.stripHeight)))))
             }
@@ -293,22 +286,20 @@ final class ScreenRenderer {
         pass.colorAttachments[0].clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 1)
         guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: pass) else { return false }
         let sampler = self.sampler(pixelsPerTexel: frame.pixelsPerImagePixel)
-        func setUnturnedQuad(_ rect: CGRect) {
+        func setQuad(_ rect: CGRect) {
             var position = ndc(rect, in: frame.viewSize)
             var textureRect = SIMD4<Float>(0, 0, 1, 1)
-            var turns: UInt32 = 0
             encoder.setVertexBytes(&position, length: MemoryLayout<SIMD4<Float>>.size, index: 0)
             encoder.setVertexBytes(&textureRect, length: MemoryLayout<SIMD4<Float>>.size, index: 1)
-            encoder.setVertexBytes(&turns, length: MemoryLayout<UInt32>.size, index: 2)
         }
         func drawContent(dx: CGFloat, dy: CGFloat, drawsCursor: Bool) {
             for image in images {
                 draw(
-                    image.texture, in: image.rect.offsetBy(dx: dx, dy: dy), textureRect: image.textureRect, turns: frame.turns,
-                    viewSize: frame.viewSize, sampler: sampler, pipeline: pipelines.screen, encoder: encoder)
+                    image.texture, in: image.rect.offsetBy(dx: dx, dy: dy), textureRect: image.textureRect, viewSize: frame.viewSize,
+                    sampler: sampler, pipeline: pipelines.screen, encoder: encoder)
             }
             guard drawsCursor, let drawnCursor else { return }
-            setUnturnedQuad(drawnCursor.rect.offsetBy(dx: dx, dy: dy))
+            setQuad(drawnCursor.rect.offsetBy(dx: dx, dy: dy))
             encoder.setFragmentTexture(drawnCursor.texture, index: 0)
             encoder.setFragmentSamplerState(drawnCursor.sampler, index: 0)
             if let material = drawnCursor.material {
@@ -335,7 +326,7 @@ final class ScreenRenderer {
                 MTLScissorRect(
                     x: Int((loupe.frame.minX * pixelsPerPoint).rounded()), y: Int((loupe.frame.minY * pixelsPerPoint).rounded()),
                     width: Int((loupe.frame.width * pixelsPerPoint).rounded()), height: Int((loupe.frame.height * pixelsPerPoint).rounded())))
-            setUnturnedQuad(loupe.frame)
+            setQuad(loupe.frame)
             encoder.setRenderPipelineState(pipelines.black)
             encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
             drawContent(dx: loupe.frame.minX - loupe.source.minX, dy: loupe.frame.minY - loupe.source.minY, drawsCursor: true)
@@ -412,16 +403,14 @@ final class ScreenRenderer {
     }
 
     private func draw(
-        _ texture: MTLTexture, in rect: CGRect, textureRect: SIMD4<Float>, turns: PictureTurns, viewSize: CGSize, sampler: MTLSamplerState,
+        _ texture: MTLTexture, in rect: CGRect, textureRect: SIMD4<Float>, viewSize: CGSize, sampler: MTLSamplerState,
         pipeline: MTLRenderPipelineState, encoder: MTLRenderCommandEncoder
     ) {
         encoder.setRenderPipelineState(pipeline)
         var position = ndc(rect, in: viewSize)
         var coordinates = textureRect
-        var turnCount = UInt32(turns.count)
         encoder.setVertexBytes(&position, length: MemoryLayout<SIMD4<Float>>.size, index: 0)
         encoder.setVertexBytes(&coordinates, length: MemoryLayout<SIMD4<Float>>.size, index: 1)
-        encoder.setVertexBytes(&turnCount, length: MemoryLayout<UInt32>.size, index: 2)
         encoder.setFragmentTexture(texture, index: 0)
         encoder.setFragmentSamplerState(sampler, index: 0)
         encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
@@ -698,14 +687,13 @@ final class ScreenPresenter {
         let epoch = snapshot.presentationEpoch
         let generation = snapshot.pictureGeneration
         let run = controller.debugInfo.presentationRun
-        guard snapshot.turns.shownSize(of: CGSize(width: snapshot.width, height: snapshot.height)) == controller.imageSize,
-            pipeline.isCurrentPresentation(epoch: epoch)
+        guard CGSize(width: snapshot.width, height: snapshot.height) == controller.imageSize, pipeline.isCurrentPresentation(epoch: epoch)
         else { return false }
         let imageRect = screen.imageRect
         let scale = screen.displayScale
         let resolutionScale = controller.pictureMatchesWindow ? controller.resolutionScale : 1
         let cursorScale = max(
-            scale * controller.info.framebufferPixelsPerCursorPixel, 1 / (controller.cursorPixelsPerPoint * resolutionScale))
+            scale * controller.info.framebufferPixelsPerCursorPixel, 1 / (controller.info.cursorPixelsPerPoint * resolutionScale))
         let cursor = screen.drawnCursor(snapshot.cursor, visible: snapshot.cursorVisible, scale: cursorScale)
         var cursorRect: CGRect?
         if let cursor = cursor?.shape, snapshot.cursorVisible, controller.phase == .connected {
@@ -755,7 +743,6 @@ final class ScreenPresenter {
                 stripHeight: snapshot.stripHeight,
                 canvasHeight: snapshot.canvasHeight,
                 imageRect: imageRect,
-                turns: snapshot.turns,
                 cursor: cursor?.shape,
                 cursorRect: cursorRect,
                 cursorShownBySystem: cursor?.shownBySystem ?? false,
@@ -795,7 +782,6 @@ final class ScreenPresenter {
 #if os(iOS)
 extension ScreenPresenter {
     fileprivate static func brightness(of snapshot: DisplayPipeline.Snapshot, around center: CGPoint, radius: CGFloat) -> CGFloat? {
-        let pictureSize = CGSize(width: snapshot.width, height: snapshot.height)
         var locked: [CVPixelBuffer] = []
         defer {
             for buffer in locked { CVPixelBufferUnlockBaseAddress(buffer, .readOnly) }
@@ -804,8 +790,7 @@ extension ScreenPresenter {
         var count = 0
         for row in 0..<7 {
             for column in 0..<7 {
-                let shown = CGPoint(x: center.x + radius * (CGFloat(column) / 3 - 1), y: center.y + radius * (CGFloat(row) / 3 - 1))
-                let point = snapshot.turns.picturePoint(shown, inPictureOf: pictureSize)
+                let point = CGPoint(x: center.x + radius * (CGFloat(column) / 3 - 1), y: center.y + radius * (CGFloat(row) / 3 - 1))
                 let x = Int(point.x.rounded(.down))
                 var y = Int(point.y.rounded(.down))
                 guard x >= 0, y >= 0, x < snapshot.width, y < snapshot.height else { continue }

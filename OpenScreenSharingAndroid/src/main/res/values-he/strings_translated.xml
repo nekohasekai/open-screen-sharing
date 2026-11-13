@@ -166,8 +166,6 @@
     <string name="model_send_audio">שליחת שמע</string>
     <string name="model_observe_mode">מצב צפייה</string>
     <string name="model_pointer_lock">נעילת מצביע</string>
-    <string name="model_home_screen">מסך הבית</string>
-    <string name="model_app_switcher">מחליף היישומים</string>
     <string name="model_lock">נעילה</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">חלונות של יישומים</string>

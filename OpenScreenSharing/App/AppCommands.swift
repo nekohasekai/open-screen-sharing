@@ -242,13 +242,7 @@ private struct ControlCommandItems: View {
                 }
                 .disabled(!controlling)
             }
-            if session?.platform == .iOS {
-                Section {
-                    deviceButton(.home, shortcut: .home) { $0.perform(.showDesktop) }
-                    deviceButton(.appSwitcher, shortcut: .appSwitcher) { $0.perform(.missionControl) }
-                    deviceButton(.lock, shortcut: .lock) { $0.sendChord(.sideButton) }
-                }
-            } else if session?.platform != .pc {
+            if session?.info.platform != .pc {
                 Section {
                     ForEach(SystemCommand.allCases) { command in
                         WithPerceptionTracking {
@@ -260,14 +254,6 @@ private struct ControlCommandItems: View {
                 }
             }
         }
-    }
-
-    private func deviceButton(_ command: SessionCommand, shortcut: ShortcutAction, action: @escaping (SessionController) -> Void) -> some View {
-        Button(String(localized: command.title)) {
-            if let session { action(session) }
-        }
-        .modifier(ActionShortcut(action: shortcut))
-        .disabled(session.map { !command.isOffered(by: $0) || !command.isEnabled(in: $0) } ?? true)
     }
 }
 

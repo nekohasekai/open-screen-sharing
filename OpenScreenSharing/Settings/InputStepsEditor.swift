@@ -240,11 +240,11 @@ struct KeyGroupChoice: Identifiable {
     }
 
     let title: String
-    let sections: [(title: String?, keys: [Key])]
+    let keys: [Key]
 
     var id: String { title }
 
-    var hasSymbols: Bool { sections.contains { $0.keys.contains { $0.symbol != nil } } }
+    var hasSymbols: Bool { keys.contains { $0.symbol != nil } }
 
     static func all(for target: MappingTarget) -> [KeyGroupChoice] {
         let characters = [
@@ -255,23 +255,18 @@ struct KeyGroupChoice: Identifiable {
         .map { title, characters in
             KeyGroupChoice(
                 title: title,
-                sections: [(nil, characters.map { Key(name: String($0), symbol: nil, label: String($0).uppercased(), isCommand: false) })])
+                keys: characters.map { Key(name: String($0), symbol: nil, label: String($0).uppercased(), isCommand: false) })
         }
         let named = KeyShortcut.KeyGroup.allCases.compactMap { group -> KeyGroupChoice? in
-            let sections = group.sections(for: target)
-            guard !sections.isEmpty else { return nil }
+            let keys = group.keys(for: target)
+            guard !keys.isEmpty else { return nil }
             return KeyGroupChoice(
                 title: group.title,
-                sections: sections.map { section in
-                    (
-                        section.title,
-                        section.keys.map { key in
-                            let label = key.label(for: target)
-                            return Key(
-                                name: key.name, symbol: target == .apple && key.symbol != label ? key.symbol : nil, label: label,
-                                isCommand: key.command != nil)
-                        }
-                    )
+                keys: keys.map { key in
+                    let label = key.label(for: target)
+                    return Key(
+                        name: key.name, symbol: target == .apple && key.symbol != label ? key.symbol : nil, label: label,
+                        isCommand: key.command != nil)
                 })
         }
         return characters + named
@@ -296,23 +291,15 @@ struct KeyControl: View {
             }
             ForEach(KeyGroupChoice.all(for: target)) { group in
                 Menu(group.title) {
-                    ForEach(group.sections, id: \.title) { section in
-                        Section {
-                            ForEach(section.keys) { key in
-                                Toggle(isOn: Binding(
-                                    get: { keys.contains(key.name) },
-                                    set: { _ in
-                                        recording = nil
-                                        step.toggle(key)
-                                    }
-                                )) {
-                                    Text(verbatim: key.label)
-                                }
+                    ForEach(group.keys) { key in
+                        Toggle(isOn: Binding(
+                            get: { keys.contains(key.name) },
+                            set: { _ in
+                                recording = nil
+                                step.toggle(key)
                             }
-                        } header: {
-                            if let title = section.title {
-                                Text(verbatim: title)
-                            }
+                        )) {
+                            Text(verbatim: key.label)
                         }
                     }
                 }
@@ -368,7 +355,7 @@ private struct KeyStepView: View {
                 .disabled(step.combo.command != nil)
                 Section("Key") {
                     ForEach(KeyGroupChoice.all(for: target)) { group in
-                        let selected = group.sections.flatMap(\.keys).filter { step.combo.keys.contains($0.name) }
+                        let selected = group.keys.filter { step.combo.keys.contains($0.name) }
                         NavigationLink {
                             KeyListView(step: $step, group: group, recording: $recording)
                         } label: {
@@ -398,18 +385,10 @@ private struct KeyListView: View {
 
     var body: some View {
         Form {
-            ForEach(group.sections, id: \.title) { section in
-                Section {
-                    ForEach(section.keys) { key in
-                        CheckmarkRow(symbol: key.symbol, showsSymbol: group.hasSymbols, title: key.label, isOn: step.combo.keys.contains(key.name)) {
-                            recording = nil
-                            step.toggle(key)
-                        }
-                    }
-                } header: {
-                    if let title = section.title {
-                        Text(verbatim: title)
-                    }
+            ForEach(group.keys) { key in
+                CheckmarkRow(symbol: key.symbol, showsSymbol: group.hasSymbols, title: key.label, isOn: step.combo.keys.contains(key.name)) {
+                    recording = nil
+                    step.toggle(key)
                 }
             }
         }

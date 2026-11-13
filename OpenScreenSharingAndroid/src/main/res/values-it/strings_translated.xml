@@ -166,8 +166,6 @@
     <string name="model_send_audio">Invia audio</string>
     <string name="model_observe_mode">Modalità osservazione</string>
     <string name="model_pointer_lock">Blocco puntatore</string>
-    <string name="model_home_screen">Schermata Home</string>
-    <string name="model_app_switcher">Elenco applicazioni</string>
     <string name="model_lock">Blocca</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Finestre app</string>

@@ -166,8 +166,6 @@
     <string name="model_send_audio">发送音频</string>
     <string name="model_observe_mode">观察模式</string>
     <string name="model_pointer_lock">独占鼠标</string>
-    <string name="model_home_screen">主屏幕</string>
-    <string name="model_app_switcher">App 切换器</string>
     <string name="model_lock">锁定</string>
     <string name="model_mission_control">调度中心</string>
     <string name="model_app_windows">App 窗口</string>

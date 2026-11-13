@@ -120,10 +120,9 @@ struct DebugInfoView: View {
     }
 
     private var remoteName: String {
-        switch controller.platform {
+        switch controller.info.platform {
         case .mac: "Mac"
         case .pc: "PC"
-        case .iOS: "Remote"
         }
     }
 

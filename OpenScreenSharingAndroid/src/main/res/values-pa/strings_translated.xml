@@ -166,8 +166,6 @@
     <string name="model_send_audio">ਆਡੀਓ ਭੇਜੋ</string>
     <string name="model_observe_mode">ਨਿਰੀਖਣ ਮੋਡ</string>
     <string name="model_pointer_lock">ਪੁਆਇੰਟਰ ਲਾਕ</string>
-    <string name="model_home_screen">ਹੋਮ ਸਕਰੀਨ</string>
-    <string name="model_app_switcher">ਐਪ ਸਵਿੱਚਰ</string>
     <string name="model_lock">ਲਾਕ ਕਰੋ</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">ਐਪ ਵਿੰਡੋਆਂ</string>

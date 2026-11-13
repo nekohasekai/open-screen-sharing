@@ -166,8 +166,6 @@
     <string name="model_send_audio">Передача звука</string>
     <string name="model_observe_mode">Режим наблюдения</string>
     <string name="model_pointer_lock">Захват указателя</string>
-    <string name="model_home_screen">Экран «Домой»</string>
-    <string name="model_app_switcher">Переключатель приложений</string>
     <string name="model_lock">Заблокировать</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Окна приложения</string>

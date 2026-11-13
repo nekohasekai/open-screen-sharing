@@ -166,8 +166,6 @@
     <string name="model_send_audio">إرسال الصوت</string>
     <string name="model_observe_mode">وضع المراقبة</string>
     <string name="model_pointer_lock">قفل المؤشر</string>
-    <string name="model_home_screen">الشاشة الرئيسية</string>
-    <string name="model_app_switcher">مُبدِّل التطبيقات</string>
     <string name="model_lock">قفل</string>
     <string name="model_mission_control">إدارة المهام</string>
     <string name="model_app_windows">نوافذ التطبيقات</string>

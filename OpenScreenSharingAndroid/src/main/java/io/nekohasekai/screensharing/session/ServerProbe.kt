@@ -20,14 +20,8 @@ data class ServerAuthentication(
     val requestPermission: Boolean,
     val vncPassword: Boolean,
     val noPassword: Boolean,
-    val grantsRequests: Boolean,
 ) : Parcelable {
-    val openCredentials: SessionCredentials?
-        get() = when {
-            noPassword -> SessionCredentials.NoAuthentication
-            grantsRequests -> SessionCredentials.AskForPermission("")
-            else -> null
-        }
+    val openCredentials: SessionCredentials? get() = if (noPassword) SessionCredentials.NoAuthentication else null
 }
 
 data class ProbedServer(
@@ -63,7 +57,6 @@ object ServerProber {
                     requestPermission = probe.supportsRequestControl || probe.supportsRequestObserve,
                     vncPassword = probe.supportsVNCPassword,
                     noPassword = probe.supportsNoPassword,
-                    grantsRequests = probe.grantsRequests,
                 ),
                 fingerprint = probe.fingerprint.orEmpty(),
             ),

@@ -166,8 +166,6 @@
     <string name="model_send_audio">オーディオを送信</string>
     <string name="model_observe_mode">監視モード</string>
     <string name="model_pointer_lock">ポインタロック</string>
-    <string name="model_home_screen">ホーム画面</string>
-    <string name="model_app_switcher">アプリスイッチャー</string>
     <string name="model_lock">ロック</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">アプリウインドウ</string>

@@ -21,10 +21,4 @@ extension URL {
         }
         return try result.get()
     }
-
-    func pickedFileContents() async throws -> Data {
-        try await Task.detached(priority: .userInitiated) { [self] in
-            try withPickedFile { try Data(contentsOf: $0) }
-        }.value
-    }
 }

@@ -34,7 +34,6 @@ type accessUnit struct {
 	parameterSets [][]byte
 	receivedAt    int64
 	completedAt   int64
-	turns         int
 }
 
 func hevcNALType(nal []byte) int {
@@ -287,9 +286,6 @@ func (d *ssrcDepacketizer) process(packet rtpPacket, arrival int64) {
 		}
 	}
 	d.unit.completedAt = max(d.unit.completedAt, arrival)
-	if packet.extensionProfile != 0 {
-		d.unit.turns = pictureTurns(packet.extensionProfile)
-	}
 	var ok bool
 	switch d.codec {
 	case CodecHEVC:

@@ -8,8 +8,6 @@ import androidx.compose.material.icons.outlined.Computer
 import androidx.compose.material.icons.outlined.DesktopMac
 import androidx.compose.material.icons.outlined.DesktopWindows
 import androidx.compose.material.icons.outlined.LaptopMac
-import androidx.compose.material.icons.outlined.PhoneIphone
-import androidx.compose.material.icons.outlined.TabletMac
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -44,6 +42,4 @@ fun DeviceAppearance.imageVector(isPC: Boolean): ImageVector = when (kind) {
     DeviceAppearance.Kind.Generic -> if (isPC) Icons.Outlined.DesktopWindows else Icons.Outlined.Computer
     DeviceAppearance.Kind.Laptop -> Icons.Outlined.LaptopMac
     DeviceAppearance.Kind.IMac, DeviceAppearance.Kind.MacMini, DeviceAppearance.Kind.MacStudio, is DeviceAppearance.Kind.MacPro -> Icons.Outlined.DesktopMac
-    DeviceAppearance.Kind.IPhone -> Icons.Outlined.PhoneIphone
-    DeviceAppearance.Kind.IPad -> Icons.Outlined.TabletMac
 }

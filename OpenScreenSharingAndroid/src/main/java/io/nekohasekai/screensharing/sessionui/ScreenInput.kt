@@ -122,9 +122,6 @@ class ScreenInput(
             if (value == null) pressIndicator.dismiss()
         }
     private var holdTask: Runnable? = null
-    private var fingersTouchDirectly = false
-    private var touchFinger: Int? = null
-    private var touchPressed = false
     private val nativeTouches = HashMap<Int, Long>()
     private var nextNativeTouchID = 0L
     private var twoFinger: TwoFinger? = null
@@ -196,8 +193,6 @@ class ScreenInput(
     }
 
     private val isPointerLocked: Boolean get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && view.hasPointerCapture()
-
-    private val isTransforming: Boolean get() = twoFinger?.state == TwoFinger.State.Transform || touchpadPinchState == true
 
     fun windowDidChange() {
         if (detached) return
@@ -314,7 +309,7 @@ class ScreenInput(
                 nativeTouches[id] = nextNativeTouchID
                 controller.sendTouches(listOf(nativeTouch(id, TouchPhase.Began, location)))
             }
-            isStylus(event, index) && !controller.touchesDirectly -> pointerBegan(event, index)
+            isStylus(event, index) -> pointerBegan(event, index)
             else -> fingerBegan(id, location, event)
         }
     }
@@ -357,10 +352,6 @@ class ScreenInput(
         if (cancelled && drag.takenTouch == ScreenDrag.TouchKey(event.downTime, id)) {
             fingers.remove(id)
             pointerTouches.remove(id)
-            if (id == touchFinger) {
-                touchFinger = null
-                touchPressed = false
-            }
             if (id == finger?.id) finger = null
             twoFingerLifted(event, id, cancelled = true)
             return
@@ -437,13 +428,8 @@ class ScreenInput(
     private fun spread(points: Collection<Offset>, center: Offset): Float = points.sumOf { (it - center).getDistance().toDouble() }.toFloat() / points.size
 
     private fun fingerBegan(id: Int, location: Offset, event: MotionEvent) {
-        if (fingers.isEmpty()) fingersTouchDirectly = controller.touchesDirectly
         fingers.add(id)
         twoFingerBegan(event)
-        if (fingersTouchDirectly) {
-            touchBegan(id, location)
-            return
-        }
         if (fingers.size != 1) {
             finger?.let { end(it, null) }
             return
@@ -460,10 +446,6 @@ class ScreenInput(
     private fun fingerMoved(event: MotionEvent, index: Int) {
         val id = event.getPointerId(index)
         val location = point(event, index)
-        if (fingersTouchDirectly) {
-            touchMoved(event, id, location)
-            return
-        }
         val finger = finger?.takeIf { it.id == id } ?: return
         val time = event.eventTime
         val delta = location - finger.last
@@ -473,15 +455,11 @@ class ScreenInput(
             pressIndicator.dismiss()
         }
         movePointer(delta, finger.velocity(time).getDistance())
-        if (finger.phase == Phase.Dragging) drag.begin(ScreenDrag.TouchKey(event.downTime, id), location, relative = true, movesTouch = true)
+        if (finger.phase == Phase.Dragging) drag.begin(ScreenDrag.TouchKey(event.downTime, id), location, relative = true)
     }
 
     private fun fingerEnded(id: Int, location: Offset, time: Long, cancelled: Boolean) {
         fingers.remove(id)
-        if (fingersTouchDirectly) {
-            touchEnded(id, location, cancelled)
-            return
-        }
         val finger = finger?.takeIf { it.id == id } ?: return
         end(finger, if (cancelled) null else time)
     }
@@ -521,52 +499,10 @@ class ScreenInput(
         view.surface.keepPointerVisible()
     }
 
-    private fun touchBegan(id: Int, location: Offset) {
-        if (fingers.size != 1) return
-        if (!view.surface.imageRect.inflate(touchMargin).contains(location)) return
-        touchFinger = id
-        touchPressed = true
-        controller.moveTouch(view.surface.imagePoint(location))
-        controller.press(PointerButtons.Primary)
-    }
-
-    private fun touchMoved(event: MotionEvent, id: Int, location: Offset) {
-        if (id != touchFinger) return
-        controller.moveTouch(view.surface.imagePoint(location))
-        drag.begin(ScreenDrag.TouchKey(event.downTime, id), location, relative = false, movesTouch = true)
-    }
-
-    private fun touchEnded(id: Int, location: Offset, cancelled: Boolean) {
-        if (id != touchFinger) return
-        touchFinger = null
-        if (cancelled && isTransforming) return
-        if (!cancelled) controller.moveTouch(view.surface.imagePoint(location))
-        liftTouch()
-    }
-
-    private fun liftTouch() {
-        if (!touchPressed) return
-        touchPressed = false
-        controller.release(PointerButtons.Primary)
-    }
-
-    private fun touchGestureBegan(touches: Int) {
-        if (touches == 0 || !fingersTouchDirectly) return
-        touchFinger = null
-    }
-
-    private fun touchGestureEnded() {
-        if (touchFinger != null || isTransforming) return
-        liftTouch()
-    }
-
-    private fun gestureCenter(touches: Int, location: Offset): Offset = if (touches == 0 || !fingersTouchDirectly) controller.pointerPosition else view.surface.imagePoint(location)
-
     private fun allows(gesture: TouchGesture): Boolean {
         if (controller.isToolbarVisible || drag.isDragging || controller.isZoomModeOn) return false
         if (controller.touchesNatively || nativeTouches.isNotEmpty()) return false
         val transforms = gesture == TouchGesture.Pinch || gesture == TouchGesture.Rotation
-        if (fingersTouchDirectly) return transforms && controller.sendsGesturesToMac
         if (transforms && !AppSettings.pinchZooms) return controller.sendsGesturesToMac
         return when (gesture) {
             TouchGesture.Rotation -> false
@@ -613,7 +549,7 @@ class ScreenInput(
                     gesture.pinches = pinches
                     gesture.rotates = rotates
                     if (pinches) handlePinch(GesturePhase.Began, scale, centroid, 2)
-                    if (rotates) handleRotation(GesturePhase.Began, rotation, centroid, 2)
+                    if (rotates) handleRotation(GesturePhase.Began, rotation)
                     claim(gesture, event.eventTime)
                 } else if (allows(TouchGesture.Pan) && translation.getDistance() > touchSlop) {
                     gesture.state = TwoFinger.State.Pan
@@ -624,7 +560,7 @@ class ScreenInput(
             TwoFinger.State.Pan -> handleTwoFingerPan(GesturePhase.Changed, translation, Offset.Zero)
             TwoFinger.State.Transform -> {
                 if (gesture.pinches) handlePinch(GesturePhase.Changed, scale, centroid, 2)
-                if (gesture.rotates) handleRotation(GesturePhase.Changed, rotation, centroid, 2)
+                if (gesture.rotates) handleRotation(GesturePhase.Changed, rotation)
             }
             TwoFinger.State.Ended -> Unit
         }
@@ -672,7 +608,7 @@ class ScreenInput(
                 gesture.state = TwoFinger.State.Ended
                 val phase = if (cancelled) GesturePhase.Cancelled else GesturePhase.Ended
                 if (gesture.pinches) handlePinch(phase, 1f, Offset.Zero, 2)
-                if (gesture.rotates) handleRotation(phase, 0f, Offset.Zero, 2)
+                if (gesture.rotates) handleRotation(phase, 0f)
             }
             TwoFinger.State.Ended -> Unit
         }
@@ -728,11 +664,10 @@ class ScreenInput(
     private fun handlePinch(phase: GesturePhase, scale: Float, location: Offset, touches: Int) {
         if (phase == GesturePhase.Began) {
             pinchGoesToMac = controller.sendsGesturesToMac && !controller.isZoomModeOn &&
-                (touches == 0 || fingersTouchDirectly || !AppSettings.pinchZooms)
-            touchGestureBegan(touches)
+                (touches == 0 || !AppSettings.pinchZooms)
         }
         if (pinchGoesToMac) {
-            handleMacPinch(phase, scale, location, touches)
+            handleMacPinch(phase, scale)
             return
         }
         when (phase) {
@@ -754,7 +689,7 @@ class ScreenInput(
         }
     }
 
-    private fun handleMacPinch(phase: GesturePhase, scale: Float, location: Offset, touches: Int) {
+    private fun handleMacPinch(phase: GesturePhase, scale: Float) {
         when (phase) {
             GesturePhase.Began -> {
                 macPinchStarted = false
@@ -763,28 +698,26 @@ class ScreenInput(
             GesturePhase.Changed -> {
                 if (!macPinchStarted) {
                     macPinchStarted = true
-                    controller.magnify(gestureCenter(touches, location), (scale - 1).toDouble(), GesturePhase.Began)
+                    controller.magnify((scale - 1).toDouble(), GesturePhase.Began)
                 } else {
-                    controller.magnify(gestureCenter(touches, location), (scale / previousPinchScale - 1).toDouble(), GesturePhase.Changed)
+                    controller.magnify((scale / previousPinchScale - 1).toDouble(), GesturePhase.Changed)
                 }
                 previousPinchScale = scale
             }
             else -> {
                 if (macPinchStarted) {
-                    controller.magnify(controller.pointerPosition, 0.0, if (phase == GesturePhase.Ended) GesturePhase.Ended else GesturePhase.Cancelled)
+                    controller.magnify(0.0, if (phase == GesturePhase.Ended) GesturePhase.Ended else GesturePhase.Cancelled)
                 }
                 macPinchStarted = false
-                touchGestureEnded()
             }
         }
     }
 
-    private fun handleRotation(phase: GesturePhase, rotation: Float, location: Offset, touches: Int) {
+    private fun handleRotation(phase: GesturePhase, rotation: Float) {
         when (phase) {
             GesturePhase.Began -> {
                 macRotationStarted = false
                 previousRotation = 0f
-                touchGestureBegan(touches)
             }
             GesturePhase.Changed -> {
                 val sent = if (!macRotationStarted) {
@@ -794,15 +727,14 @@ class ScreenInput(
                 } else {
                     GesturePhase.Changed
                 }
-                controller.rotate(gestureCenter(touches, location), -(rotation - previousRotation) * 180.0 / PI, sent)
+                controller.rotate(-(rotation - previousRotation) * 180.0 / PI, sent)
                 previousRotation = rotation
             }
             else -> {
                 if (macRotationStarted) {
-                    controller.rotate(controller.pointerPosition, 0.0, if (phase == GesturePhase.Ended) GesturePhase.Ended else GesturePhase.Cancelled)
+                    controller.rotate(0.0, if (phase == GesturePhase.Ended) GesturePhase.Ended else GesturePhase.Cancelled)
                 }
                 macRotationStarted = false
-                touchGestureEnded()
             }
         }
     }
@@ -1027,7 +959,7 @@ class ScreenInput(
         controller.movePointer(view.surface.imagePoint(location))
         val buttons = buttons(event, index)
         if (!buttons.isEmpty && buttons != controller.pointerButtons) controller.setPressedButtons(buttons)
-        drag.begin(ScreenDrag.TouchKey(event.downTime, id), location, relative = false, movesTouch = false)
+        drag.begin(ScreenDrag.TouchKey(event.downTime, id), location, relative = false)
     }
 
     private fun pointerEnded(id: Int) {

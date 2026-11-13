@@ -166,8 +166,6 @@
     <string name="model_send_audio">Hantar Audio</string>
     <string name="model_observe_mode">Mod Pemerhatian</string>
     <string name="model_pointer_lock">Kunci Penuding</string>
-    <string name="model_home_screen">Skrin Utama</string>
-    <string name="model_app_switcher">Penukar App</string>
     <string name="model_lock">Kunci</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Tetingkap App</string>

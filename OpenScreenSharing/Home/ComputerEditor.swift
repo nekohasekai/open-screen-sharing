@@ -111,8 +111,7 @@ struct ComputerEditor: View {
                             Text("Internet").tag(NetworkQuality.internet)
                         }
                         .pickerStyle(.menu)
-                        // The iPad negotiated 60 fps in the mode-5 capture (observed on iPad17,1, iPadOS 27.2 24B5099f).
-                        if networkConfiguration.quality == .internet, computer.deviceType == .mac {
+                        if networkConfiguration.quality == .internet {
                             Picker("Maximum Frame Rate", selection: $networkConfiguration.internetMaximumFrameRate) {
                                 ForEach(MaximumFrameRate.allCases) { rate in
                                     Text("\(rate.rawValue) FPS").tag(rate)

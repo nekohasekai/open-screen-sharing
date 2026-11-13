@@ -166,8 +166,6 @@
     <string name="model_send_audio">Audio senden</string>
     <string name="model_observe_mode">Beobachtungsmodus</string>
     <string name="model_pointer_lock">Zeigersperre</string>
-    <string name="model_home_screen">Home-Bildschirm</string>
-    <string name="model_app_switcher">App-Umschalter</string>
     <string name="model_lock">Sperren</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">App-Fenster</string>

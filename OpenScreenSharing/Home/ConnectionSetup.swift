@@ -241,8 +241,6 @@ extension SetupProblem {
                 ? String(localized: "The user name or password is incorrect.") : String(localized: "The password is incorrect.")
         case .hostNotFound:
             summary = String(localized: "Can’t find “\(host)”.")
-        case .ownScreen:
-            summary = String(localized: "You can’t control your own screen.")
         default:
             summary = String(localized: "Can’t connect to “\(host)”.")
         }

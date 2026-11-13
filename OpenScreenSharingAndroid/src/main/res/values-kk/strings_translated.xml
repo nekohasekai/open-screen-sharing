@@ -166,8 +166,6 @@
     <string name="model_send_audio">Дыбысты жіберу</string>
     <string name="model_observe_mode">Бақылау режимі</string>
     <string name="model_pointer_lock">Меңзерді бекіту</string>
-    <string name="model_home_screen">Басты экран</string>
-    <string name="model_app_switcher">Қолданба ауыстырғыш</string>
     <string name="model_lock">Құлыптау</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Қолданба терезелері</string>

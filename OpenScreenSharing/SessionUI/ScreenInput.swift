@@ -34,9 +34,6 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
         }
     }
     private var holdTask: Task<Void, Never>?
-    private var fingersTouchDirectly = false
-    private var touchFinger: UITouch?
-    private var touchPressed = false
     private var nativeTouches: [UITouch: Int64] = [:]
     private var nextNativeTouchID: Int64 = 0
 
@@ -155,12 +152,6 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
         if gestureRecognizer.numberOfTouches > 0, controller.touchesNatively || !nativeTouches.isEmpty {
             return false
         }
-        if gestureRecognizer.numberOfTouches > 0, fingersTouchDirectly {
-            if gestureRecognizer === pinchGesture || gestureRecognizer === rotationGesture {
-                return controller.sendsGesturesToMac
-            }
-            if gestureRecognizer === secondaryTapGesture || gestureRecognizer === twoFingerPanGesture { return false }
-        }
         if gestureRecognizer === pinchGesture || gestureRecognizer === rotationGesture, gestureRecognizer.numberOfTouches > 0,
             !AppSettings.shared.pinchZooms
         {
@@ -256,10 +247,6 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
             if touch === drag.takenTouch {
                 fingers.remove(touch)
                 pointerTouches.remove(touch)
-                if touch === touchFinger {
-                    touchFinger = nil
-                    touchPressed = false
-                }
                 if touch === finger?.touch { finger = nil }
                 continue
             }
@@ -393,12 +380,7 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
     }
 
     private func fingerBegan(_ touch: UITouch) {
-        if fingers.isEmpty { fingersTouchDirectly = controller.touchesDirectly }
         fingers.insert(touch)
-        guard !fingersTouchDirectly else {
-            touchBegan(touch)
-            return
-        }
         guard fingers.count == 1 else {
             if let finger { end(finger, liftedAt: nil) }
             return
@@ -415,10 +397,6 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
     }
 
     private func fingerMoved(_ touch: UITouch) {
-        guard !fingersTouchDirectly else {
-            touchMoved(touch)
-            return
-        }
         guard let finger, finger.touch === touch else { return }
         let location = touch.location(in: view)
         let delta = CGPoint(x: location.x - finger.last.x, y: location.y - finger.last.y)
@@ -434,10 +412,6 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
 
     private func fingerEnded(_ touch: UITouch, cancelled: Bool) {
         fingers.remove(touch)
-        guard !fingersTouchDirectly else {
-            touchEnded(touch, cancelled: cancelled)
-            return
-        }
         guard let finger, finger.touch === touch else { return }
         end(finger, liftedAt: cancelled ? nil : touch.timestamp)
     }
@@ -481,57 +455,6 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
                 y: controller.pointerPosition.y + delta.y * gain / scale
             ))
         view.keepPointerVisible()
-    }
-
-
-    private func touchBegan(_ touch: UITouch) {
-        guard fingers.count == 1 else { return }
-        let location = touch.location(in: view)
-        guard view.imageRect.insetBy(dx: -Self.touchMargin, dy: -Self.touchMargin).contains(location) else { return }
-        touchFinger = touch
-        touchPressed = true
-        controller.moveTouch(to: view.imagePoint(for: location))
-        controller.press(.primary)
-    }
-
-    private func touchMoved(_ touch: UITouch) {
-        guard touch === touchFinger else { return }
-        controller.moveTouch(to: view.imagePoint(for: touch.location(in: view)))
-        drag.begin(with: touch, relative: false)
-    }
-
-    private func touchEnded(_ touch: UITouch, cancelled: Bool) {
-        guard touch === touchFinger else { return }
-        touchFinger = nil
-        if cancelled, isTransforming { return }
-        if !cancelled { controller.moveTouch(to: view.imagePoint(for: touch.location(in: view))) }
-        liftTouch()
-    }
-
-    private func liftTouch() {
-        guard touchPressed else { return }
-        touchPressed = false
-        controller.release(.primary)
-    }
-
-    private var isTransforming: Bool {
-        let recognizers: [UIGestureRecognizer] = [pinchGesture, rotationGesture]
-        return recognizers.contains { [.began, .changed].contains($0.state) }
-    }
-
-    private func touchGestureBegan(_ gesture: UIGestureRecognizer) {
-        guard gesture.numberOfTouches > 0, fingersTouchDirectly else { return }
-        touchFinger = nil
-    }
-
-    private func touchGestureEnded() {
-        guard touchFinger == nil, !isTransforming else { return }
-        liftTouch()
-    }
-
-    private func gestureCenter(_ gesture: UIGestureRecognizer) -> CGPoint {
-        guard gesture.numberOfTouches > 0, fingersTouchDirectly else { return controller.pointerPosition }
-        return view.imagePoint(for: gesture.location(in: view))
     }
 
 
@@ -599,8 +522,7 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
         if gesture.state == .began {
             pinchGoesToMac =
                 controller.sendsGesturesToMac && !controller.isZoomModeOn
-                && (gesture.numberOfTouches == 0 || fingersTouchDirectly || !AppSettings.shared.pinchZooms)
-            touchGestureBegan(gesture)
+                && (gesture.numberOfTouches == 0 || !AppSettings.shared.pinchZooms)
         }
         if pinchGoesToMac {
             handleMacPinch(gesture)
@@ -632,17 +554,16 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
         case .changed:
             if !macPinchStarted {
                 macPinchStarted = true
-                controller.magnify(at: gestureCenter(gesture), by: gesture.scale - 1, phase: .began)
+                controller.magnify(by: gesture.scale - 1, phase: .began)
             } else {
-                controller.magnify(at: gestureCenter(gesture), by: gesture.scale / previousPinchScale - 1, phase: .changed)
+                controller.magnify(by: gesture.scale / previousPinchScale - 1, phase: .changed)
             }
             previousPinchScale = gesture.scale
         default:
             if macPinchStarted {
-                controller.magnify(at: controller.pointerPosition, by: 0, phase: gesture.state == .ended ? .ended : .cancelled)
+                controller.magnify(by: 0, phase: gesture.state == .ended ? .ended : .cancelled)
             }
             macPinchStarted = false
-            touchGestureEnded()
         }
     }
 
@@ -651,7 +572,6 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
         case .began:
             macRotationStarted = false
             previousRotation = 0
-            touchGestureBegan(gesture)
         case .changed:
             let phase: GesturePhase
             if !macRotationStarted {
@@ -661,14 +581,13 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
             } else {
                 phase = .changed
             }
-            controller.rotate(at: gestureCenter(gesture), degrees: -(gesture.rotation - previousRotation) * 180 / .pi, phase: phase)
+            controller.rotate(degrees: -(gesture.rotation - previousRotation) * 180 / .pi, phase: phase)
             previousRotation = gesture.rotation
         default:
             if macRotationStarted {
-                controller.rotate(at: controller.pointerPosition, degrees: 0, phase: gesture.state == .ended ? .ended : .cancelled)
+                controller.rotate(degrees: 0, phase: gesture.state == .ended ? .ended : .cancelled)
             }
             macRotationStarted = false
-            touchGestureEnded()
         }
     }
 
@@ -846,7 +765,7 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
 
     func showsCursorAsPointer(_ shape: CursorShape?, visible: Bool, scale: CGFloat) -> Bool {
         let cursor = visible && AppSettings.shared.cursorStyle == .system ? shape?.kind : nil
-        let beamLength = Self.iBeamPoints * scale * controller.cursorPixelsPerPoint
+        let beamLength = Self.iBeamPoints * scale * controller.info.cursorPixelsPerPoint
         if cursor != pointerCursor || (cursor == .iBeam || cursor == .verticalIBeam) && beamLength != pointerBeamLength {
             pointerCursor = cursor
             pointerBeamLength = beamLength

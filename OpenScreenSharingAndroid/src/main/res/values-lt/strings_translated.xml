@@ -166,8 +166,6 @@
     <string name="model_send_audio">Siųsti garsą</string>
     <string name="model_observe_mode">Stebėjimo režimas</string>
     <string name="model_pointer_lock">Žymeklio fiksavimas</string>
-    <string name="model_home_screen">Pradžios ekranas</string>
-    <string name="model_app_switcher">Programų perjungiklis</string>
     <string name="model_lock">Užrakinti</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Programos langai</string>

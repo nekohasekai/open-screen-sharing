@@ -26,33 +26,6 @@ enum class RemoteProtocol(val rawValue: String, val defaultPort: Int) {
 }
 
 @Serializable
-enum class DeviceType(val rawValue: String) {
-    @SerialName("mac")
-    Mac("mac"),
-
-    @SerialName("iPhone")
-    IPhone("iPhone"),
-
-    @SerialName("iPad")
-    IPad("iPad"),
-    ;
-
-    val isIOS: Boolean get() = this != Mac
-
-    companion object {
-        fun of(model: String): DeviceType? {
-            val trimmed = model.trim()
-            return when {
-                trimmed.startsWith("iPhone") -> IPhone
-                trimmed.startsWith("iPad") -> IPad
-                trimmed.startsWith("Mac") || trimmed.startsWith("iMac") -> Mac
-                else -> null
-            }
-        }
-    }
-}
-
-@Serializable
 enum class SessionQuality(val rawValue: String) {
     @SerialName("adaptive")
     Adaptive("adaptive"),
@@ -103,8 +76,6 @@ data class Computer(
         remoteProtocol = remoteProtocol,
         username = username,
     )
-
-    val deviceType: DeviceType get() = DeviceType.of(model) ?: DeviceType.Mac
 
     val networkConfiguration: NetworkConfiguration get() = NetworkConfiguration(networkQuality, internetMaximumFrameRate)
 

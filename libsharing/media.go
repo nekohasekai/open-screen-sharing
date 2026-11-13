@@ -121,8 +121,6 @@ type VideoAccessUnit struct {
 	ChangedBands  int32
 	Discontinuity bool
 
-	Turns int32
-
 	HoldNanoseconds    int64
 	Composed           bool
 	ComposeNanoseconds int64
@@ -293,7 +291,6 @@ func (e *mediaEvents) VideoAccessUnit(unit media.VideoAccessUnit) {
 		FrameEnd:           unit.FrameEnd,
 		ChangedBands:       int32(unit.ChangedBands),
 		Discontinuity:      unit.Discontinuity,
-		Turns:              int32(unit.Turns),
 		HoldNanoseconds:    int64(hold),
 		Composed:           !unit.ComposedAt.IsZero(),
 		ComposeNanoseconds: int64(composed),

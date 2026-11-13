@@ -4,7 +4,6 @@ import io.nekohasekai.screensharing.model.AppSettings
 import io.nekohasekai.screensharing.model.SessionQuality
 import io.nekohasekai.screensharing.model.ShortcutAction
 import io.nekohasekai.screensharing.session.DisplaySelection
-import io.nekohasekai.screensharing.session.KeyChord
 import io.nekohasekai.screensharing.session.RemotePlatform
 import io.nekohasekai.screensharing.session.ScaleMode
 import io.nekohasekai.screensharing.session.SessionController
@@ -67,17 +66,8 @@ object AppCommands {
             ShortcutAction.Keyboard -> {
                 session.isControlling
             }
-            ShortcutAction.Home, ShortcutAction.AppSwitcher, ShortcutAction.Lock -> {
-                val command =
-                    when (action) {
-                        ShortcutAction.Home -> SessionCommand.Home
-                        ShortcutAction.AppSwitcher -> SessionCommand.AppSwitcher
-                        else -> SessionCommand.Lock
-                    }
-                session.platform == RemotePlatform.IOS && command.isOffered(session) && command.isEnabled(session)
-            }
             ShortcutAction.MissionControl, ShortcutAction.AppWindows, ShortcutAction.ShowDesktop, ShortcutAction.Launchpad -> {
-                session.platform == RemotePlatform.Mac && session.isControlling && session.canPerform(systemCommand(action))
+                session.info.platform == RemotePlatform.Mac && session.isControlling && session.canPerform(systemCommand(action))
             }
         }
     }
@@ -145,15 +135,6 @@ object AppCommands {
             }
             ShortcutAction.Keyboard -> {
                 session.toggleKeyboard()
-            }
-            ShortcutAction.Home -> {
-                session.perform(SystemCommand.ShowDesktop)
-            }
-            ShortcutAction.AppSwitcher -> {
-                session.perform(SystemCommand.MissionControl)
-            }
-            ShortcutAction.Lock -> {
-                session.sendChord(KeyChord.sideButton)
             }
             ShortcutAction.MissionControl, ShortcutAction.AppWindows, ShortcutAction.ShowDesktop, ShortcutAction.Launchpad -> {
                 session.perform(systemCommand(action))

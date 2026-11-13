@@ -45,7 +45,6 @@ import io.nekohasekai.screensharing.model.Computer
 import io.nekohasekai.screensharing.model.ComputerAddress
 import io.nekohasekai.screensharing.model.ComputerStore
 import io.nekohasekai.screensharing.model.ConnectionTarget
-import io.nekohasekai.screensharing.model.DeviceType
 import io.nekohasekai.screensharing.model.MaximumFrameRate
 import io.nekohasekai.screensharing.model.NetworkQuality
 import io.nekohasekai.screensharing.model.RemoteProtocol
@@ -234,8 +233,7 @@ fun ComputerEditor(computer: Computer, setup: ComputerEditorSetup?, dismiss: () 
                 },
                 onSelect = { networkConfiguration = networkConfiguration.copy(quality = it) },
             )
-            // The iPad negotiated 60 fps in the mode-5 capture (observed on iPad17,1, iPadOS 27.2 24B5099f).
-            if (networkConfiguration.quality == NetworkQuality.Internet && computer.deviceType == DeviceType.Mac) {
+            if (networkConfiguration.quality == NetworkQuality.Internet) {
                 DropdownField(
                     label = stringResource(R.string.home_maximum_frame_rate),
                     selected = networkConfiguration.internetMaximumFrameRate,

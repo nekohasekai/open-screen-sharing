@@ -166,8 +166,6 @@
     <string name="model_send_audio">অডিও প্রেরণ</string>
     <string name="model_observe_mode">পর্যবেক্ষণ মোড</string>
     <string name="model_pointer_lock">পয়েন্টার লক</string>
-    <string name="model_home_screen">হোম স্ক্রিন</string>
-    <string name="model_app_switcher">অ্যাপ সুইচার</string>
     <string name="model_lock">লক করুন</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">অ্যাপ উইন্ডো</string>

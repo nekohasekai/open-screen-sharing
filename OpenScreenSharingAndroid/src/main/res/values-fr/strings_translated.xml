@@ -166,8 +166,6 @@
     <string name="model_send_audio">Envoyer l’audio</string>
     <string name="model_observe_mode">Mode observation</string>
     <string name="model_pointer_lock">Verrouillage du pointeur</string>
-    <string name="model_home_screen">Écran d’accueil</string>
-    <string name="model_app_switcher">Sélecteur d’app</string>
     <string name="model_lock">Verrouiller</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Fenêtres de l’app</string>

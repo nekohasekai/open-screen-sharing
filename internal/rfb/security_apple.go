@@ -295,6 +295,20 @@ func srpIdentityMessage(username string) []byte {
 	return append(binary.BigEndian.AppendUint32(nil, uint32(len(body))), body...)
 }
 
+func srpEnvelope(fields []byte) []byte {
+	message := binary.BigEndian.AppendUint32(nil, uint32(4+len(fields)))
+	message = binary.BigEndian.AppendUint32(message, uint32(len(fields)))
+	return append(message, fields...)
+}
+
+func srpHash(parts ...[]byte) []byte {
+	digest := sha512.New()
+	for _, part := range parts {
+		digest.Write(part)
+	}
+	return digest.Sum(nil)
+}
+
 type fieldReader struct {
 	data []byte
 	err  error

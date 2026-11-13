@@ -506,7 +506,6 @@ func (a *videoAssembler) deliver(unit *accessUnit) {
 		Sync:          unit.isSync(a.codec),
 		Band:          band,
 		Bands:         a.bands,
-		Turns:         unit.turns,
 		ReceivedAt:    time.Unix(0, unit.receivedAt),
 		CompletedAt:   time.Unix(0, unit.completedAt),
 		ComposedAt:    composedAt,

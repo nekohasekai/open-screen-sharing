@@ -15,7 +15,7 @@ struct KeyboardAccessoryBar: View {
                             if !controller.usesHardwareKeyboard {
                                 key("Tab", systemImage: "arrow.right.to.line") { controller.typeKey(.tab) }
                             }
-                            ForEach(controller.platform == .pc ? ModifierKey.pcOrder : ModifierKey.allCases, id: \.self) { modifier in
+                            ForEach(controller.info.platform == .pc ? ModifierKey.pcOrder : ModifierKey.allCases, id: \.self) { modifier in
                                 ModifierKeyButton(controller: controller, modifier: modifier)
                             }
                         }
@@ -115,7 +115,7 @@ struct ModifierKeyButton: View {
     }
 
     private var pcLabel: (text: String, title: String.LocalizationValue)? {
-        guard controller.platform == .pc else { return nil }
+        guard controller.info.platform == .pc else { return nil }
         return modifier.pcLabel
     }
 

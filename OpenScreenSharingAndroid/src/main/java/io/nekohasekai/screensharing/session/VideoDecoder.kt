@@ -20,7 +20,6 @@ class DecodedVideoFrame(
     val pixelBuffer: VideoImage?,
     val strips: List<VideoImage>,
     val canvasHeight: Int,
-    val turns: PictureTurns,
     val timing: FrameTiming,
 ) {
     fun release() {
@@ -42,7 +41,6 @@ class VideoDecoder(
         var arrival: Long,
         val capture: Long,
         val composed: Long?,
-        val turns: PictureTurns,
         bands: Int,
     ) {
         var submittedMask = 0
@@ -232,7 +230,7 @@ class VideoDecoder(
                 recover()
                 return
             }
-            pending.addLast(PendingFrame(unit.frameID, unit.arrivalNanos, unit.presentationTimeNanos, unit.composedNanos, unit.turns, bands))
+            pending.addLast(PendingFrame(unit.frameID, unit.arrivalNanos, unit.presentationTimeNanos, unit.composedNanos, bands))
             lastSubmittedFrameID = unit.frameID
             lastSubmissionEnded = false
         }
@@ -449,7 +447,6 @@ class VideoDecoder(
                     pixelBuffer = if (bands == 1) strips[0].retain() else null,
                     strips = if (bands == 1) emptyList() else strips.map { it.retain() },
                     canvasHeight = canvasHeight,
-                    turns = first.turns,
                     timing = FrameTiming(first.arrival, first.capture, first.composed),
                 )
                 output(frame)

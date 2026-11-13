@@ -166,8 +166,6 @@
     <string name="model_send_audio">Send lyd</string>
     <string name="model_observe_mode">Observasjonsmodus</string>
     <string name="model_pointer_lock">Pekerlås</string>
-    <string name="model_home_screen">Hjem-skjerm</string>
-    <string name="model_app_switcher">Appveksler</string>
     <string name="model_lock">Lås</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Appvinduer</string>

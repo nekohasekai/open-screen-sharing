@@ -205,7 +205,6 @@ enum class ServerDialect {
 
 enum class RemotePlatform {
     Mac,
-    IOS,
     Pc,
 }
 
@@ -290,7 +289,6 @@ class VideoAccessUnit(
     val frameEnd: Boolean,
     val changedBands: Int,
     val discontinuity: Boolean,
-    val turns: PictureTurns,
     val arrivalNanos: Long,
     val composedNanos: Long?,
 )

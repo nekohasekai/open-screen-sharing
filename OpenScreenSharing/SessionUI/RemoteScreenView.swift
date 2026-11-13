@@ -5,7 +5,6 @@ import UIKit
 struct RemoteScreenView: UIViewRepresentable {
     let controller: SessionController
     let matchesWindow: Bool
-    let turnsLandscape: Bool
     let preferredOrientation: UIInterfaceOrientationMask?
     let fillsScreen: Bool
     let mode: SessionMode
@@ -13,7 +12,6 @@ struct RemoteScreenView: UIViewRepresentable {
     init(controller: SessionController) {
         self.controller = controller
         matchesWindow = controller.wantsVirtualDisplay
-        turnsLandscape = controller.platform != .iOS
         preferredOrientation = controller.preferredOrientation
         fillsScreen = AppSettings.shared.pictureFillsScreen
         mode = controller.mode
@@ -25,7 +23,6 @@ struct RemoteScreenView: UIViewRepresentable {
 
     func updateUIView(_ view: RemoteScreenUIView, context: Context) {
         view.windowTracker.setMatchesWindow(matchesWindow)
-        view.windowTracker.setTurnsLandscape(turnsLandscape)
         view.windowTracker.setPreferredOrientation(preferredOrientation)
         view.windowTracker.setFillsScreen(fillsScreen)
         view.accessibilityValue = String(localized: mode == .control ? "Controlling" : "Observing")
@@ -151,7 +148,7 @@ final class RemoteScreenUIView: UIView, RemoteScreen {
 
     func drawnCursor(_ shape: CursorShape?, visible: Bool, scale: CGFloat) -> (shape: CursorShape, shownBySystem: Bool)? {
         let shownBySystem = input.showsCursorAsPointer(shape, visible: visible, scale: scale)
-        guard !controller.hidesPointerForTouch, let cursor = input.localPointer(for: shape, scale: scale) ?? shape else { return nil }
+        guard let cursor = input.localPointer(for: shape, scale: scale) ?? shape else { return nil }
         return (cursor, shownBySystem)
     }
 

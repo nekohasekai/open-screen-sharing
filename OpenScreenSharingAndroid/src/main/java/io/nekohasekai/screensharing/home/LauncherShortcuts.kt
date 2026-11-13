@@ -92,8 +92,6 @@ object LauncherShortcuts {
             DeviceAppearance.Kind.Generic -> if (computer.remoteProtocol == RemoteProtocol.Rdp) R.drawable.ic_shortcut_desktop_windows else R.drawable.ic_shortcut_computer
             DeviceAppearance.Kind.Laptop -> R.drawable.ic_shortcut_laptop_mac
             DeviceAppearance.Kind.IMac, DeviceAppearance.Kind.MacMini, DeviceAppearance.Kind.MacStudio, is DeviceAppearance.Kind.MacPro -> R.drawable.ic_shortcut_desktop_mac
-            DeviceAppearance.Kind.IPhone -> R.drawable.ic_shortcut_phone_iphone
-            DeviceAppearance.Kind.IPad -> R.drawable.ic_shortcut_tablet_mac
         }
         return ShortcutInfoCompat.Builder(context, computer.id.toString())
             .setShortLabel(computer.displayName)

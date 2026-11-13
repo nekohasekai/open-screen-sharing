@@ -34,7 +34,6 @@ import io.nekohasekai.screensharing.model.ComputerStore
 import io.nekohasekai.screensharing.model.ConnectionRecord
 import io.nekohasekai.screensharing.model.CursorStyle
 import io.nekohasekai.screensharing.model.DeviceModel
-import io.nekohasekai.screensharing.model.DeviceType
 import io.nekohasekai.screensharing.model.KeyMapping
 import io.nekohasekai.screensharing.model.KeyShortcut
 import io.nekohasekai.screensharing.model.KeyShortcuts
@@ -336,8 +335,6 @@ class SessionController(
     private var keyboardType = MacKeyboardType.Ansi
     final override var pointerPosition: Offset = Offset.Zero
         private set
-    private var pictureSize = Size.Zero
-    private var pictureTurns = PictureTurns.None
     var pointerButtons: PointerButtons = PointerButtons.None
         private set
     private var clickCount = 0
@@ -345,7 +342,6 @@ class SessionController(
     private var pointerModifiers: Set<ModifierKey> = emptySet()
     private val nativeTouchIDs = HashSet<Long>()
     private var lastPointerMoveTime = 0L
-    private var pointerMovedSinceTouch = false
     private var displayArea = Size.Zero
     var windowSize: Size? =
         route.computerID
@@ -402,28 +398,13 @@ class SessionController(
     private var passwordUpdate: PasswordUpdate = PasswordUpdate.Keep
     private var usedSavedPassword = false
     private var device: DeviceInfo? = route.model?.let { DeviceInfo(it, "") }
-    private var deviceTypeState: DeviceType? by mutableStateOf(route.deviceType ?: route.model?.let { DeviceType.of(it) })
-    private var deviceType: DeviceType?
-        get() = deviceTypeState
-        set(value) {
-            deviceTypeState = value
-            if (isIOS) {
-                virtualDisplayRequests.stopWaiting()
-            }
-        }
-
-    private val isIOS: Boolean get() = deviceType?.isIOS ?: false
-    private val isPhone: Boolean get() = deviceType == DeviceType.IPhone
-
-    val platform: RemotePlatform
-        get() = if (isIOS) RemotePlatform.IOS else info.platform
 
     init {
         virtualDisplayRequests.onIdle = { virtualDisplayDidSettle() }
         pipeline.setShownHandler {
             mainHandler.post {
                 val shown = pipeline.currentPicture
-                handle(picture = shown.picture, width = shown.width, height = shown.height, turns = shown.turns)
+                handle(picture = shown.picture, width = shown.width, height = shown.height)
             }
         }
     }
@@ -441,7 +422,6 @@ class SessionController(
                     restore(stored.memory)
                     device = device ?: stored.device
                     usesHighPerformance = stored.usesHighPerformance
-                    deviceType = stored.deviceType
                     keyboardSources = stored.keyboardSources.map { MacInputSource(it) }
                     trustedFingerprint = stored.trustedFingerprint
                 }
@@ -620,29 +600,9 @@ class SessionController(
 
     internal fun handle(device: DeviceInfo) {
         this.device = device
-        DeviceType.of(device.model)?.let { deviceType = it }
         val computerID = computerID ?: return
         save { ComputerStore.setDevice(device, computerID) }
     }
-
-    val touchScreenSize: Size?
-        get() {
-            val density = touchScreenDensity ?: return null
-            if (info.framebufferWidth <= 0 || info.framebufferHeight <= 0) return null
-            return Size((info.framebufferWidth / density).toFloat(), (info.framebufferHeight / density).toFloat())
-        }
-
-    private val touchScreenDensity: Double?
-        get() {
-            if (!isIOS) return null
-            return if (isPhone && min(info.framebufferWidth, info.framebufferHeight) >= 1000) 3.0 else 2.0
-        }
-
-    override val cursorPixelsPerPoint: Double
-        get() {
-            val density = touchScreenDensity ?: return info.cursorPixelsPerPoint
-            return density / info.framebufferPixelsPerCursorPixel
-        }
 
     private fun connect(credentials: SessionCredentials) {
         this.credentials = credentials
@@ -945,11 +905,6 @@ class SessionController(
         when (newPhase) {
             SessionPhase.Connected -> {
                 reconnectAttempts = 0
-                if (info.dialect != ServerDialect.Apple) {
-                    deviceType = null
-                } else if (deviceType == null) {
-                    deviceType = DeviceType.Mac
-                }
                 if (!hasConnected || passwordUpdate.isPending) {
                     hasConnected = true
                     recordConnection()
@@ -1067,23 +1022,15 @@ class SessionController(
         picture: ScreenPicture,
         width: Int,
         height: Int,
-        turns: PictureTurns,
     ) {
         this.picture = picture
         if (picture == ScreenPicture.Current) {
             hasPicture = true
         }
-        val newPictureSize = Size(width.toFloat(), height.toFloat())
-        if (newPictureSize == pictureSize && turns == pictureTurns) return
-        val serverPointer = if (newPictureSize == pictureSize) pictureTurns.picturePoint(pointerPosition, pictureSize) else null
-        pictureSize = newPictureSize
-        pictureTurns = turns
-        val size = turns.shownSize(newPictureSize)
+        val size = Size(width.toFloat(), height.toFloat())
+        if (size == imageSize) return
         imageSize = size
-        if (serverPointer != null) {
-            pointerPosition = pictureTurns.shownPoint(serverPointer, pictureSize)
-            pipeline.setCursorPosition(pointerPosition, remotePointerVisible)
-        } else if (pointerPosition == Offset.Zero || pointerPosition.x >= size.width || pointerPosition.y >= size.height) {
+        if (pointerPosition == Offset.Zero || pointerPosition.x >= size.width || pointerPosition.y >= size.height) {
             pointerPosition = Offset(size.width / 2, size.height / 2)
             pipeline.setCursorPosition(pointerPosition, remotePointerVisible)
         }
@@ -1164,7 +1111,7 @@ class SessionController(
 
     internal fun handle(cursorMovedTo: Offset) {
         if (isControlling && System.nanoTime() - lastPointerMoveTime < POINTER_ECHO_INTERVAL) return
-        pointerPosition = pictureTurns.shownPoint(cursorMovedTo, pictureSize)
+        pointerPosition = cursorMovedTo
         pipeline.setCursorPosition(pointerPosition, remotePointerVisible)
     }
 
@@ -1280,7 +1227,7 @@ class SessionController(
 
     fun dropMoved(point: Offset) {
         if (dragID == null) return
-        moveTouch(point)
+        movePointer(point)
         if (PointerButtons.Primary !in pointerButtons) {
             press(PointerButtons.Primary)
         }
@@ -1796,7 +1743,7 @@ class SessionController(
     }
 
     val wantsVirtualDisplay: Boolean
-        get() = !isIOS && (usesHighPerformance || route.remoteProtocol == RemoteProtocol.Rdp)
+        get() = usesHighPerformance || route.remoteProtocol == RemoteProtocol.Rdp
 
     override val pictureMatchesWindow: Boolean
         get() = wantsVirtualDisplay && SessionCapabilities.VirtualDisplay in capabilities
@@ -1820,13 +1767,7 @@ class SessionController(
                     ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
                 }
             }
-            return if (platform ==
-                RemotePlatform.IOS
-            ) {
-                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-            } else {
-                ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
-            }
+            return ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
         }
 
     fun displayAreaDidChange(
@@ -1943,11 +1884,11 @@ class SessionController(
     }
 
     internal fun audioFailed(error: Throwable) {
-        val failure = if (platform != RemotePlatform.Pc) R.string.session_cant_play_mac_sound else R.string.session_cant_play_computer_sound
+        val failure = if (info.platform != RemotePlatform.Pc) R.string.session_cant_play_mac_sound else R.string.session_cant_play_computer_sound
         alert = AlertState.failure(App.instance.getString(failure), error)
     }
 
-    fun sendChord(chord: KeyChord) {
+    private fun sendChord(chord: KeyChord) {
         if (!isControlling) return
         screen?.forgetTypedText()
         tap(chord.key, chord.modifiers.toSet())
@@ -2014,7 +1955,6 @@ class SessionController(
         }
 
     fun movePointer(point: Offset) {
-        pointerMovedSinceTouch = true
         val clamped = clampToImage(point)
         pointerPosition = clamped
         lastPointerMoveTime = System.nanoTime()
@@ -2026,8 +1966,6 @@ class SessionController(
         sendPointer(pointerButtons)
     }
 
-    val touchesDirectly: Boolean get() = isIOS && isControlling
-
     val touchesNatively: Boolean get() = isNativeTouchOn && SessionCapabilities.Touch in capabilities && isControlling
 
     fun sendTouches(touches: List<RemoteTouch>) {
@@ -2037,23 +1975,11 @@ class SessionController(
             beginPointerInput()
             nativeTouchIDs.add(touch.id)
         }
-        session?.sendTouches(touches.map { it.copy(location = pictureTurns.picturePoint(clampToImage(it.location), pictureSize)) })
+        session?.sendTouches(touches.map { it.copy(location = clampToImage(it.location)) })
         for (touch in touches) {
             if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Cancelled) nativeTouchIDs.remove(touch.id)
         }
         endPointerInput()
-    }
-
-    val hidesPointerForTouch: Boolean get() = isIOS && !pointerMovedSinceTouch
-
-    fun moveTouch(point: Offset) {
-        pointerMovedSinceTouch = false
-        val clamped = clampToImage(point)
-        pointerPosition = clamped
-        lastPointerMoveTime = System.nanoTime()
-        pipeline.setCursorPosition(clamped, true)
-        if (!isControlling || pointerButtons.isEmpty) return
-        sendPointer(pointerButtons)
     }
 
     fun pointerLeftScreen() {
@@ -2066,8 +1992,7 @@ class SessionController(
         val wanted = SessionCapabilities.AssistCursor in capabilities && !mode.controls && phase == SessionPhase.Connected
         if (wanted) {
             assistCursorShown = true
-            val point = pictureTurns.picturePoint(pointerPosition, pictureSize)
-            session?.setAssistCursor(point.x.toInt(), point.y.toInt(), !pointerButtons.isEmpty)
+            session?.setAssistCursor(pointerPosition.x.toInt(), pointerPosition.y.toInt(), !pointerButtons.isEmpty)
         } else {
             pointerLeftScreen()
         }
@@ -2085,8 +2010,7 @@ class SessionController(
 
     private fun sendPointer(buttons: PointerButtons) {
         if (holdsPointer) return
-        val point = pictureTurns.picturePoint(pointerPosition, pictureSize)
-        session?.sendPointer(floor(point.x).toInt(), floor(point.y).toInt(), buttons, clickCount)
+        session?.sendPointer(floor(pointerPosition.x).toInt(), floor(pointerPosition.y).toInt(), buttons, clickCount)
     }
 
     fun press(
@@ -2118,7 +2042,7 @@ class SessionController(
         if (!isControlling) return
         screen?.forgetTypedText()
         if (!pointerButtons.isEmpty || nativeTouchIDs.isNotEmpty()) return
-        if (platform == RemotePlatform.Pc && pressedKeys.values.any { ModifierKey.of(it.keysym) == ModifierKey.Command }) {
+        if (info.platform == RemotePlatform.Pc && pressedKeys.values.any { ModifierKey.of(it.keysym) == ModifierKey.Command }) {
             commandTapPending = false
             val modifiers = pressedKeys.values.mapNotNull { ModifierKey.of(it.keysym) }.toMutableSet()
             modifiers.remove(ModifierKey.Command)
@@ -2160,23 +2084,19 @@ class SessionController(
     val sendsGesturesToMac: Boolean get() = SessionCapabilities.Gestures in capabilities && isControlling
 
     fun magnify(
-        point: Offset,
         magnification: Double,
         phase: GesturePhase,
     ) {
         if (!sendsGesturesToMac) return
-        val server = pictureTurns.picturePoint(point, pictureSize)
-        session?.sendMagnify(server.x.toInt(), server.y.toInt(), magnification, phase)
+        session?.sendMagnify(pointerPosition.x.toInt(), pointerPosition.y.toInt(), magnification, phase)
     }
 
     fun rotate(
-        point: Offset,
         degrees: Double,
         phase: GesturePhase,
     ) {
         if (!sendsGesturesToMac) return
-        val server = pictureTurns.picturePoint(point, pictureSize)
-        session?.sendRotate(server.x.toInt(), server.y.toInt(), degrees, phase)
+        session?.sendRotate(pointerPosition.x.toInt(), pointerPosition.y.toInt(), degrees, phase)
     }
 
     fun scroll(
@@ -2185,17 +2105,13 @@ class SessionController(
     ) {
         if (!sendsGesturesToMac) return
         isScrollGliding = false
-        val point = pictureTurns.picturePoint(pointerPosition, pictureSize)
-        val vector = pictureTurns.pictureVector(delta)
-        session?.sendScrollPhase(point.x.toInt(), point.y.toInt(), vector.x.toDouble(), vector.y.toDouble(), phase)
+        session?.sendScrollPhase(pointerPosition.x.toInt(), pointerPosition.y.toInt(), delta.x.toDouble(), delta.y.toDouble(), phase)
     }
 
     fun startScrollMomentum(velocity: Offset) {
         if (!sendsGesturesToMac || hypot(velocity.x, velocity.y) <= 50) return
         isScrollGliding = true
-        val point = pictureTurns.picturePoint(pointerPosition, pictureSize)
-        val vector = pictureTurns.pictureVector(velocity)
-        session?.startScrollMomentum(point.x.toInt(), point.y.toInt(), vector.x.toDouble(), vector.y.toDouble())
+        session?.startScrollMomentum(pointerPosition.x.toInt(), pointerPosition.y.toInt(), velocity.x.toDouble(), velocity.y.toDouble())
     }
 
     fun stopScrollMomentum() {
@@ -2204,7 +2120,7 @@ class SessionController(
         session?.stopScrollMomentum()
     }
 
-    fun canPerform(command: SystemCommand): Boolean = command.capability in capabilities || (platform != RemotePlatform.Pc && command.fallbackChord != null)
+    fun canPerform(command: SystemCommand): Boolean = command.capability in capabilities || (info.platform != RemotePlatform.Pc && command.fallbackChord != null)
 
     fun perform(command: SystemCommand) {
         if (!isControlling) return
@@ -2212,16 +2128,14 @@ class SessionController(
         val chord = command.fallbackChord
         if (command.capability in capabilities) {
             session?.sendSystemCommand(command)
-        } else if (platform != RemotePlatform.Pc && chord != null) {
+        } else if (info.platform != RemotePlatform.Pc && chord != null) {
             sendChord(chord)
         }
     }
 
     fun scroll(delta: Offset) {
         if (!isControlling) return
-        val point = pictureTurns.picturePoint(pointerPosition, pictureSize)
-        val vector = pictureTurns.pictureVector(delta)
-        session?.sendScroll(point.x.toInt(), point.y.toInt(), vector.x.toDouble(), vector.y.toDouble())
+        session?.sendScroll(pointerPosition.x.toInt(), pointerPosition.y.toInt(), delta.x.toDouble(), delta.y.toDouble())
     }
 
     private fun clampToImage(point: Offset): Offset {
@@ -2266,7 +2180,7 @@ class SessionController(
                 return true
             }
         }
-        return handleKey(id, down, held, shortcut) { MacKey.of(event, keyboardType, platform, capsLockEngaged) }
+        return handleKey(id, down, held, shortcut) { MacKey.of(event, keyboardType, info.platform, capsLockEngaged) }
     }
 
     private fun handleKey(
@@ -2298,7 +2212,7 @@ class SessionController(
             return true
         }
         var key = mapped
-        if (platform == RemotePlatform.Pc) {
+        if (info.platform == RemotePlatform.Pc) {
             commandTapPending = false
             var modifiers = held
             val output = shortcut?.let { KeyTranslations.output(it) }
@@ -2321,7 +2235,7 @@ class SessionController(
     }
 
     val mappingTarget: MappingTarget
-        get() = if (platform == RemotePlatform.Pc) MappingTarget.Pc else MappingTarget.Apple
+        get() = if (info.platform == RemotePlatform.Pc) MappingTarget.Pc else MappingTarget.Apple
 
     private fun pressModifier(
         key: MacKey,
@@ -2330,7 +2244,7 @@ class SessionController(
     ) {
         pressedKeys[id] = key
         val modifier = ModifierKey.of(key.keysym)
-        if (platform != RemotePlatform.Pc || modifier == null) {
+        if (info.platform != RemotePlatform.Pc || modifier == null) {
             send(key, true)
             return
         }
@@ -2342,7 +2256,7 @@ class SessionController(
 
     private fun release(key: MacKey) {
         val modifier = ModifierKey.of(key.keysym)
-        if (platform != RemotePlatform.Pc || modifier == null) {
+        if (info.platform != RemotePlatform.Pc || modifier == null) {
             send(key, false)
             return
         }
@@ -2531,7 +2445,7 @@ class SessionController(
         screen?.forgetTypedText()
         val latched = (lockedModifiers + pressedModifiers).toMutableSet()
         val down = mutableSetOf<MacKey>()
-        if (platform == RemotePlatform.Pc) {
+        if (info.platform == RemotePlatform.Pc) {
             commandTapPending = false
             setSentModifiers(emptySet())
         } else {
@@ -2747,7 +2661,7 @@ class SessionController(
         val keys = pressedKeys.values.sortedBy { it.isModifier }
         pressedKeys.clear()
         for (key in keys) {
-            if (platform != RemotePlatform.Pc || ModifierKey.of(key.keysym) == null) send(key, false)
+            if (info.platform != RemotePlatform.Pc || ModifierKey.of(key.keysym) == null) send(key, false)
         }
         for (key in sentModifiers.values) {
             send(key, false)

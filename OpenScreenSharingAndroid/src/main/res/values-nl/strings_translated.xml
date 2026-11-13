@@ -166,8 +166,6 @@
     <string name="model_send_audio">Verstuur audio</string>
     <string name="model_observe_mode">Observeermodus</string>
     <string name="model_pointer_lock">Aanwijzervergrendeling</string>
-    <string name="model_home_screen">Beginscherm</string>
-    <string name="model_app_switcher">Appkiezer</string>
     <string name="model_lock">Vergrendel</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Appvensters</string>

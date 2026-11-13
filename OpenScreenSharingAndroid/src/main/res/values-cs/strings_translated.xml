@@ -166,8 +166,6 @@
     <string name="model_send_audio">Odesílat zvuk</string>
     <string name="model_observe_mode">Režim sledování</string>
     <string name="model_pointer_lock">Uzamčení ukazatele</string>
-    <string name="model_home_screen">Plocha</string>
-    <string name="model_app_switcher">Přepínač aplikací</string>
     <string name="model_lock">Zamknout</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Okna aplikací</string>

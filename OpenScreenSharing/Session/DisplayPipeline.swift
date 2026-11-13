@@ -29,7 +29,6 @@ nonisolated final class DisplayPipeline: @unchecked Sendable {
         var cursorVisible: Bool
         var pictureGeneration: Int?
         var presentationEpoch: Int
-        var turns = PictureTurns.none
     }
 
     private struct Held {
@@ -39,7 +38,6 @@ nonisolated final class DisplayPipeline: @unchecked Sendable {
         var canvasHeight: Int
         var width: Int
         var height: Int
-        var turns: PictureTurns
         var change: PictureChange
     }
 
@@ -58,7 +56,6 @@ nonisolated final class DisplayPipeline: @unchecked Sendable {
         var picture = ScreenPicture.none
         var width = 0
         var height = 0
-        var turns = PictureTurns.none
     }
 
     private static let presentationWindow: CFTimeInterval = 2
@@ -81,7 +78,6 @@ nonisolated final class DisplayPipeline: @unchecked Sendable {
     private var videoFrame: CVPixelBuffer?
     private var strips: [CVPixelBuffer?] = []
     private var canvasHeight = 0
-    private var videoTurns = PictureTurns.none
     private var isVideo = false
     private var width = 0
     private var height = 0
@@ -120,10 +116,10 @@ nonisolated final class DisplayPipeline: @unchecked Sendable {
         return (width, height)
     }
 
-    var currentPicture: (picture: ScreenPicture, width: Int, height: Int, turns: PictureTurns) {
+    var currentPicture: (picture: ScreenPicture, width: Int, height: Int) {
         lock.lock()
         defer { lock.unlock() }
-        return (shown.picture, shown.width, shown.height, shown.turns)
+        return (shown.picture, shown.width, shown.height)
     }
 
     func isCurrentPresentation(epoch: Int) -> Bool {
@@ -172,7 +168,6 @@ nonisolated final class DisplayPipeline: @unchecked Sendable {
             isVideo = true
             videoFrame = nil
             strips = []
-            videoTurns = .none
         }
     }
 
@@ -276,7 +271,6 @@ nonisolated final class DisplayPipeline: @unchecked Sendable {
             videoFrame = frame.pixelBuffer
             strips = frame.strips.map { Optional($0) }
             canvasHeight = frame.canvasHeight
-            videoTurns = frame.turns
         }
         for (item, picture) in promoted {
             item.ready(picture)
@@ -380,10 +374,10 @@ nonisolated final class DisplayPipeline: @unchecked Sendable {
         guard let snapshot else { return nil }
         return withExtendedLifetime(snapshot.framebuffer) {
             if let pixelBuffer = snapshot.pixelBuffer {
-                return PixelBufferImage.makeThumbnail(pixelBuffer, turns: snapshot.turns)
+                return PixelBufferImage.makeThumbnail(pixelBuffer)
             }
             return PixelBufferImage.makeThumbnail(
-                strips: snapshot.strips, stripHeight: snapshot.stripHeight, canvasHeight: snapshot.canvasHeight, turns: snapshot.turns)
+                strips: snapshot.strips, stripHeight: snapshot.stripHeight, canvasHeight: snapshot.canvasHeight)
         }
     }
 
@@ -393,24 +387,20 @@ nonisolated final class DisplayPipeline: @unchecked Sendable {
             ? !holdsVideo && (videoFrame != nil || !strips.isEmpty && strips.allSatisfy { $0 != nil }) : framebufferHasPicture
     }
 
-    private var turns: PictureTurns {
-        isVideo ? videoTurns : .none
-    }
-
     private func hold(_ change: PictureChange) {
         guard hasPicture else { return }
         held = Held(
             pixelBuffer: isVideo ? videoFrame : presented?.pixelBuffer, framebuffer: isVideo ? nil : presented, strips: isVideo ? strips : [],
-            canvasHeight: canvasHeight, width: width, height: height, turns: turns, change: change)
+            canvasHeight: canvasHeight, width: width, height: height, change: change)
     }
 
     private func shownLocked() -> Shown {
         if hasPicture {
-            Shown(picture: .current, width: width, height: height, turns: turns)
+            Shown(picture: .current, width: width, height: height)
         } else if let held {
-            Shown(picture: .previous(held.change), width: held.width, height: held.height, turns: held.turns)
+            Shown(picture: .previous(held.change), width: held.width, height: held.height)
         } else {
-            Shown(picture: .none, width: width, height: height, turns: turns)
+            Shown(picture: .none, width: width, height: height)
         }
     }
 
@@ -427,14 +417,13 @@ nonisolated final class DisplayPipeline: @unchecked Sendable {
                 stripHeight: Self.stripHeight(held.strips),
                 canvasHeight: held.canvasHeight,
                 width: held.width, height: held.height, cursor: cursor, cursorPosition: cursorPosition,
-                cursorVisible: cursorVisible, pictureGeneration: nil, presentationEpoch: presentationEpoch,
-                turns: held.turns
+                cursorVisible: cursorVisible, pictureGeneration: nil, presentationEpoch: presentationEpoch
             )
         }
         guard hasPicture else {
             return Snapshot(
                 width: width, height: height, cursor: cursor, cursorPosition: cursorPosition, cursorVisible: cursorVisible,
-                pictureGeneration: nil, presentationEpoch: presentationEpoch, turns: turns
+                pictureGeneration: nil, presentationEpoch: presentationEpoch
             )
         }
         let stripHeight = Self.stripHeight(strips)
@@ -446,7 +435,7 @@ nonisolated final class DisplayPipeline: @unchecked Sendable {
             canvasHeight: canvasHeight,
             width: width, height: height, cursor: cursor, cursorPosition: cursorPosition,
             cursorVisible: cursorVisible, pictureGeneration: pictureGeneration,
-            presentationEpoch: presentationEpoch, turns: turns
+            presentationEpoch: presentationEpoch
         )
     }
 
