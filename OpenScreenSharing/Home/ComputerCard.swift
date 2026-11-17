@@ -193,7 +193,15 @@ private struct ComputerThumbnail: View {
 
 extension Computer {
     var detailText: String {
+        detailText(in: .current)
+    }
+
+    func detailText(in locale: Locale) -> String {
         guard let lastConnected else { return addressDescription }
+        if #available(iOS 16, macOS 13, *) {
+            let date = lastConnected.formatted(Date.RelativeFormatStyle(presentation: .named, locale: locale))
+            return String(localized: LocalizedStringResource("Last connected \(date)", locale: locale))
+        }
         let date = lastConnected.formatted(.relative(presentation: .named))
         return String(localized: "Last connected \(date)")
     }

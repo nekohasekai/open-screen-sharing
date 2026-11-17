@@ -105,6 +105,8 @@
     <string name="home_connection">Подключение</string>
     <string name="home_disable_udp">Отключить UDP</string>
     <string name="home_keep_alive">Поддержание активности</string>
+    <string name="home_control">Управление</string>
+    <string name="home_reverse_scroll_direction">Инвертировать направление прокрутки</string>
     <string name="home_couldnt_save">Не удалось сохранить «%1$s»</string>
     <string name="home_port">Порт</string>
     <string name="home_looking_up">Поиск…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">Передача звука</string>
     <string name="model_observe_mode">Режим наблюдения</string>
     <string name="model_pointer_lock">Захват указателя</string>
-    <string name="model_home_screen">Экран «Домой»</string>
-    <string name="model_app_switcher">Переключатель приложений</string>
     <string name="model_lock">Заблокировать</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Окна приложения</string>

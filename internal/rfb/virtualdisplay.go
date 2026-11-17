@@ -50,19 +50,22 @@ func (c *Client) SetHDR(enabled bool) error {
 		return E.New("rfb: HDR needs a Mac that offers virtual displays")
 	}
 	c.access.Lock()
-	changed := c.hdr != enabled
-	c.hdr = enabled
-	request := c.virtualDisplay
-	c.access.Unlock()
-	if !changed || request == nil {
+	defer c.access.Unlock()
+	if c.hdr == enabled {
 		return nil
 	}
-	message, err := c.displayConfiguration(*request, enabled)
+	c.hdr = enabled
+	return c.reconfigureVirtualDisplayLocked()
+}
+
+func (c *Client) reconfigureVirtualDisplayLocked() error {
+	if c.virtualDisplay == nil {
+		return nil
+	}
+	message, err := c.displayConfiguration(*c.virtualDisplay, c.hdr)
 	if err != nil {
 		return err
 	}
-	c.access.Lock()
-	defer c.access.Unlock()
 	return c.sendDisplayChangeLocked(message, false)
 }
 

@@ -105,6 +105,8 @@
     <string name="home_connection">ਕਨੈਕਸ਼ਨ</string>
     <string name="home_disable_udp">UDP ਬੰਦ ਕਰੋ</string>
     <string name="home_keep_alive">ਸਰਗਰਮ ਰੱਖੋ</string>
+    <string name="home_control">ਕੰਟਰੋਲ</string>
+    <string name="home_reverse_scroll_direction">ਸਕ੍ਰੋਲ ਦੀ ਦਿਸ਼ਾ ਉਲਟਾਓ</string>
     <string name="home_couldnt_save">“%1$s” ਨੂੰ ਰੱਖਿਅਤ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਿਆ</string>
     <string name="home_port">ਪੋਰਟ</string>
     <string name="home_looking_up">ਖੋਜਿਆ ਜਾ ਰਿਹਾ ਹੈ…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">ਆਡੀਓ ਭੇਜੋ</string>
     <string name="model_observe_mode">ਨਿਰੀਖਣ ਮੋਡ</string>
     <string name="model_pointer_lock">ਪੁਆਇੰਟਰ ਲਾਕ</string>
-    <string name="model_home_screen">ਹੋਮ ਸਕਰੀਨ</string>
-    <string name="model_app_switcher">ਐਪ ਸਵਿੱਚਰ</string>
     <string name="model_lock">ਲਾਕ ਕਰੋ</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">ਐਪ ਵਿੰਡੋਆਂ</string>

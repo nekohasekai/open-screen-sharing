@@ -32,7 +32,6 @@ class ScreenDrag(
     private var session: Any? = null
     private var offer: RemoteDragOffer? = null
     private var folder: File? = null
-    private var movesTouch = true
     private var relative = false
     private var last: Pair<Offset, Long>? = null
     private var isOverMac = true
@@ -46,11 +45,9 @@ class ScreenDrag(
         touch: TouchKey,
         location: Offset,
         relative: Boolean,
-        movesTouch: Boolean,
     ) {
         if (controller.remoteDragOffer == null || session != null || touch == attemptedTouch) return
         attemptedTouch = touch
-        this.movesTouch = movesTouch
         this.relative = relative
         last = location to SystemClock.uptimeMillis()
         val offer = controller.takeRemoteDrag() ?: return
@@ -86,11 +83,7 @@ class ScreenDrag(
             }
             setOverMac(true)
         } else if (surface.imageRect.intersect(Rect(0f, 0f, view.width.toFloat(), view.height.toFloat())).contains(location)) {
-            if (movesTouch) {
-                controller.moveTouch(surface.imagePoint(location))
-            } else {
-                controller.movePointer(surface.imagePoint(location))
-            }
+            controller.movePointer(surface.imagePoint(location))
             setOverMac(true)
         } else {
             setOverMac(false)

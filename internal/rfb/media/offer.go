@@ -86,6 +86,31 @@ const (
 	endpointClientVersion       = 1
 	minimumVideoBitrate         = 5_000_000
 	maximumVideoBitrate         = 60_000_000
+
+	// AVConference caps negotiator mode 9 by the smaller of 40 Mbit/s and the
+	// field-9 entry with bit 4096: Nearby settings use operatingMode 8
+	// (arbiter mode 4) on connection type 4, and the blob decoder reads bit 12
+	// as arbiter 4 on connection 4 (AVConference 2235.63.5.2, macOS 27.0.1
+	// 26A434, UUID 93D8C8C0-8B9C-3A5E-A47D-01B5FAF73E1B,
+	// -[AVCMediaStreamNegotiatorSettingsNearbyScreenSharing operatingMode] 0x1c0fb73b0,
+	// -[AVCMediaStreamNegotiatorSettingsNearbyScreenSharing maxBandwidth] 0x1c0fb73b8,
+	// -[AVCMediaStreamNegotiatorSettings connectionType] 0x1c11af800,
+	// _VCBitrateArbiter_ModeFromOperatingMode 0x1c13b4ed0..0x1c13b4ee8, table 0x1c15ea260,
+	// -[VCMediaNegotiationBlobBandwidthSettings(BandwidthSettings) newBandwidthConfigurations]
+	// 0x1c1315f10..0x1c1315f2c, 0x1c1316110..0x1c131612c,
+	// -[AVCMediaStreamNegotiator setupVideoStreamConfiguration:errorReason:]
+	// 0x1c12e0f00..0x1c12e0f70, 0x1c12e12e0..0x1c12e1310; AVConference 2260.14.1,
+	// macOS 27.2 26B5101f, UUID EDFB99EF-2F5E-35DD-8E63-089CBD102EFE,
+	// -[AVCMediaStreamNegotiatorSettingsNearbyScreenSharing operatingMode] 0x1c0632cd8,
+	// -[AVCMediaStreamNegotiatorSettingsNearbyScreenSharing maxBandwidth] 0x1c0632ce0,
+	// -[AVCMediaStreamNegotiatorSettings connectionType] 0x1c082bf4c,
+	// _VCBitrateArbiter_ModeFromOperatingMode 0x1c0a262cc..0x1c0a262e4, table 0x1c0c675c0,
+	// -[VCMediaNegotiationBlobBandwidthSettings(BandwidthSettings) newBandwidthConfigurations]
+	// 0x1c0986788..0x1c09867a4, 0x1c0986988..0x1c09869a4,
+	// -[AVCMediaStreamNegotiator setupVideoStreamConfiguration:errorReason:]
+	// 0x1c0954cf0..0x1c0954d60, 0x1c09550d0..0x1c0955100).
+	nearbyBandwidthBit   = 4096
+	nearbyMaximumBitrate = 40_000_000
 )
 
 // AVConference maps modes 5/7/9 to CoreDeviceScreenSharing, RemoteDesktopScreenSharing,

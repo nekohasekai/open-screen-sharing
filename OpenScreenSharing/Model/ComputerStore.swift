@@ -9,7 +9,6 @@ struct StoredComputer {
     var networkConfiguration: NetworkConfiguration
     var device: DeviceInfo?
     var usesHighPerformance: Bool
-    var deviceType: DeviceType?
     var keyboardSources: [String]
     var trustedFingerprint: String
 }
@@ -73,7 +72,6 @@ final class ComputerStore {
             networkConfiguration: computer.networkConfiguration,
             device: computer.model.isEmpty ? nil : DeviceInfo(model: computer.model, enclosureColor: computer.enclosureColor),
             usesHighPerformance: computer.usesHighPerformance,
-            deviceType: computer.usesHighPerformance ? computer.deviceType : nil,
             keyboardSources: computer.keyboardSources,
             trustedFingerprint: computer.trustedFingerprint
         )

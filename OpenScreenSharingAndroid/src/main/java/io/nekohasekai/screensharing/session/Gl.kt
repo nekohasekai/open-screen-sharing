@@ -145,7 +145,6 @@ internal open class QuadProgram(fragment: String) {
     val program = Gl.program(Shaders.QUAD_VERTEX, fragment)
     private val rect = location("rect")
     private val textureRect = location("textureRect")
-    private val turns = location("turns")
 
     init {
         GLES30.glUseProgram(program)
@@ -159,11 +158,10 @@ internal open class QuadProgram(fragment: String) {
         GLES30.glUseProgram(program)
     }
 
-    fun draw(rect: FloatArray, textureRect: FloatArray = unitRect, turns: Int = 0) {
+    fun draw(rect: FloatArray, textureRect: FloatArray = unitRect) {
         GLES30.glUseProgram(program)
         GLES30.glUniform4fv(this.rect, 1, rect, 0)
         GLES30.glUniform4fv(this.textureRect, 1, textureRect, 0)
-        GLES30.glUniform1i(this.turns, turns)
         GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP, 0, 4)
     }
 
@@ -195,16 +193,11 @@ internal object Shaders {
     const val QUAD_VERTEX = """#version 300 es
 uniform vec4 rect;
 uniform vec4 textureRect;
-uniform int turns;
 out vec2 textureCoordinate;
 void main() {
     vec2 corner = vec2(float(gl_VertexID & 1), float(gl_VertexID >> 1));
-    vec2 source = corner;
-    for (int turn = 0; turn < turns; turn++) {
-        source = vec2(source.y, 1.0 - source.x);
-    }
     gl_Position = vec4(mix(rect.xy, rect.zw, corner), 0.0, 1.0);
-    textureCoordinate = mix(textureRect.xy, textureRect.zw, source);
+    textureCoordinate = mix(textureRect.xy, textureRect.zw, corner);
 }
 """
 

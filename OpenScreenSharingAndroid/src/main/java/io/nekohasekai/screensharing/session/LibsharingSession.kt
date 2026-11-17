@@ -34,7 +34,7 @@ import io.nekohasekai.libsharing.Clipboard as LibsharingClipboard
 import io.nekohasekai.libsharing.VideoAccessUnit as LibsharingVideoAccessUnit
 import io.nekohasekai.libsharing.VideoFormat as LibsharingVideoFormat
 
-class LibsharingRemoteSession(private val configuration: SessionConfiguration, delegate: SessionEventSink) {
+class LibsharingRemoteSession(private val configuration: SessionConfiguration, delegate: SessionEventSink) : RemoteSession {
     private val lock = Any()
     private val session: Session?
     private val handler: LibsharingHandler
@@ -51,7 +51,7 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         val options = Libsharing.newSessionOptions()
         options.protocol = if (configuration.remoteProtocol == RemoteProtocol.Rdp) Libsharing.ProtocolRDP else Libsharing.ProtocolRFB
         options.platform = when (configuration.platform) {
-            RemotePlatform.Mac, RemotePlatform.IOS -> Libsharing.PlatformMac
+            RemotePlatform.Mac -> Libsharing.PlatformMac
             RemotePlatform.Pc -> Libsharing.PlatformPC
             null -> Libsharing.PlatformUnknown
         }
@@ -101,7 +101,7 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         }
     }
 
-    fun connect() {
+    override fun connect() {
         try {
             session?.connect()
         } catch (error: Exception) {
@@ -109,15 +109,15 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         }
     }
 
-    fun stop() {
+    override fun stop() {
         session?.disconnect()
     }
 
-    fun abort() {
+    override fun abort() {
         session?.abort()
     }
 
-    fun answerSessionChoice(prompt: SessionChoicePrompt, choice: SessionChoice) {
+    override fun answerSessionChoice(prompt: SessionChoicePrompt, choice: SessionChoice) {
         val answer = when (choice) {
             SessionChoice.ShareConsole -> Libsharing.SessionChoiceShareConsole
             SessionChoice.OwnSession -> Libsharing.SessionChoiceOwnSession
@@ -126,7 +126,7 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         runCatching { session?.answerPrompt(prompt.id, answer) }
     }
 
-    fun sendPointer(x: Int, y: Int, buttons: PointerButtons, clickCount: Int) {
+    override fun sendPointer(x: Int, y: Int, buttons: PointerButtons, clickCount: Int) {
         var mask = 0
         if (PointerButtons.Primary in buttons) mask = mask or Libsharing.ButtonLeft
         if (PointerButtons.Middle in buttons) mask = mask or Libsharing.ButtonMiddle
@@ -134,12 +134,12 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         runCatching { session?.sendPointer(x, y, mask, clickCount) }
     }
 
-    fun sendScroll(x: Int, y: Int, deltaX: Double, deltaY: Double) {
+    override fun sendScroll(x: Int, y: Int, deltaX: Double, deltaY: Double) {
         val pointsPerPixel = handler.pointsPerPixel
         runCatching { session?.sendScroll(x, y, deltaX * pointsPerPixel, deltaY * pointsPerPixel) }
     }
 
-    fun sendTouches(touches: List<RemoteTouch>) {
+    override fun sendTouches(touches: List<RemoteTouch>) {
         val frame = TouchFrame()
         for (touch in touches) {
             val phase = when (touch.phase) {
@@ -153,7 +153,7 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         runCatching { session?.sendTouches(frame) }
     }
 
-    fun sendKey(key: MacKey, keyboardType: MacKeyboardType, down: Boolean) {
+    override fun sendKey(key: MacKey, keyboardType: MacKeyboardType, down: Boolean) {
         val keyCode = key.keyCode
         if (keyCode == null) {
             runCatching { session?.sendKey(key.keysym, down) }
@@ -167,41 +167,41 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         runCatching { session?.sendKeyCode(keyCode, type, key.keysym, down) }
     }
 
-    fun sendText(text: String) {
+    override fun sendText(text: String) {
         session?.sendText(text)
     }
 
-    fun pasteText(text: String) {
+    override fun pasteText(text: String) {
         session?.pasteText(text)
     }
 
-    fun selectKeyboardSource(id: String) {
+    override fun selectKeyboardSource(id: String) {
         runCatching { session?.selectKeyboardSource(id) }
     }
 
-    fun sendMagnify(x: Int, y: Int, magnification: Double, phase: GesturePhase) {
+    override fun sendMagnify(x: Int, y: Int, magnification: Double, phase: GesturePhase) {
         runCatching { session?.sendMagnify(x, y, magnification, phaseValue(phase)) }
     }
 
-    fun sendRotate(x: Int, y: Int, degrees: Double, phase: GesturePhase) {
+    override fun sendRotate(x: Int, y: Int, degrees: Double, phase: GesturePhase) {
         runCatching { session?.sendRotate(x, y, degrees, phaseValue(phase)) }
     }
 
-    fun sendScrollPhase(x: Int, y: Int, deltaX: Double, deltaY: Double, phase: GesturePhase) {
+    override fun sendScrollPhase(x: Int, y: Int, deltaX: Double, deltaY: Double, phase: GesturePhase) {
         val pointsPerPixel = handler.pointsPerPixel
         runCatching { session?.sendScrollPhase(x, y, deltaX * pointsPerPixel, deltaY * pointsPerPixel, phaseValue(phase)) }
     }
 
-    fun startScrollMomentum(x: Int, y: Int, velocityX: Double, velocityY: Double) {
+    override fun startScrollMomentum(x: Int, y: Int, velocityX: Double, velocityY: Double) {
         val pointsPerPixel = handler.pointsPerPixel
         runCatching { session?.startScrollMomentum(x, y, velocityX * pointsPerPixel, velocityY * pointsPerPixel) }
     }
 
-    fun stopScrollMomentum() {
+    override fun stopScrollMomentum() {
         session?.stopScrollMomentum()
     }
 
-    fun sendSystemCommand(command: SystemCommand) {
+    override fun sendSystemCommand(command: SystemCommand) {
         val value = when (command) {
             SystemCommand.MissionControl -> Libsharing.SystemCommandMissionControl
             SystemCommand.AppWindows -> Libsharing.SystemCommandAppWindows
@@ -211,15 +211,15 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         runCatching { session?.sendSystemCommand(value) }
     }
 
-    fun setAssistCursor(x: Int, y: Int, pressed: Boolean) {
+    override fun setAssistCursor(x: Int, y: Int, pressed: Boolean) {
         runCatching { session?.setAssistCursor(x, y, pressed) }
     }
 
-    fun hideAssistCursor() {
+    override fun hideAssistCursor() {
         runCatching { session?.hideAssistCursor() }
     }
 
-    fun setMode(mode: SessionMode) {
+    override fun setMode(mode: SessionMode) {
         val value = when (mode) {
             SessionMode.Control -> Libsharing.ModeControl
             SessionMode.Observe -> Libsharing.ModeObserve
@@ -227,7 +227,7 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         runCatching { session?.setMode(value) }
     }
 
-    fun selectDisplay(selection: DisplaySelection) {
+    override fun selectDisplay(selection: DisplaySelection) {
         val id = when (selection) {
             DisplaySelection.All -> Libsharing.AllDisplays
             is DisplaySelection.Display -> selection.id
@@ -235,11 +235,11 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         runCatching { session?.selectDisplay(id) }
     }
 
-    fun setQuality(quality: SessionQuality) {
+    override fun setQuality(quality: SessionQuality) {
         runCatching { session?.setQuality(quality(quality)) }
     }
 
-    fun startHighPerformance() {
+    override fun startHighPerformance() {
         val supported = synchronized(lock) { supportsHighPerformance }
         if (supported) {
             startHighPerformanceWithConnection()
@@ -257,7 +257,7 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         }
     }
 
-    fun startHighPerformanceWithConnection() {
+    override fun startHighPerformanceWithConnection() {
         val session = session ?: return
         synchronized(lock) {
             if (highPerformanceRunning) return
@@ -296,7 +296,7 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         return options
     }
 
-    fun uploadFile(localFile: File, remoteFolder: String): Long {
+    override fun uploadFile(localFile: File, remoteFolder: String): Long {
         val session = session ?: throw MessageError("not connected")
         val transfer = session.uploadFile(localFile.path, remoteFolder)
         val id = transfer.transferID()
@@ -304,7 +304,7 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         return id
     }
 
-    fun downloadFile(remotePath: String, localFolder: File): Long {
+    override fun downloadFile(remotePath: String, localFolder: File): Long {
         val session = session ?: throw MessageError("not connected")
         val transfer = session.downloadFile(remotePath, localFolder.path)
         val id = transfer.transferID()
@@ -312,30 +312,30 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         return id
     }
 
-    fun downloadFiles(remotePaths: List<String>, localFolder: File) {
+    override fun downloadFiles(remotePaths: List<String>, localFolder: File) {
         val session = session ?: throw MessageError("not connected")
         session.downloadFiles(remotePaths.joinToString("\n"), localFolder.path)
     }
 
-    fun setCursorAssets(assets: MacCursorAssets?) {
+    override fun setCursorAssets(assets: MacCursorAssets?) {
         handler.setCursorAssets(assets)
     }
 
-    fun startDrop(names: List<String>): Long {
+    override fun startDrop(names: List<String>): Long {
         val session = session ?: throw MessageError("not connected")
         return session.startDrop(names.joinToString("\n"))
     }
 
-    fun cancelDrag(id: Long) {
+    override fun cancelDrag(id: Long) {
         runCatching { session?.cancelDrag(id) }
     }
 
-    fun cancelRemoteDrag() {
+    override fun cancelRemoteDrag() {
         val session = session ?: throw MessageError("not connected")
         session.cancelRemoteDrag()
     }
 
-    fun cancelTransfer(id: Long) {
+    override fun cancelTransfer(id: Long) {
         val transfer = synchronized(lock) { transfers[id] }
         runCatching { transfer?.cancel() }
     }
@@ -344,7 +344,7 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         synchronized(lock) { transfers.remove(id) }
     }
 
-    fun setReceivesAudio(receivesAudio: Boolean) {
+    override fun setReceivesAudio(receivesAudio: Boolean) {
         val changed: Boolean
         val running: Boolean
         synchronized(lock) {
@@ -367,19 +367,19 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         }
     }
 
-    fun sendMicrophoneAudio(data: ByteArray) {
+    override fun sendMicrophoneAudio(data: ByteArray) {
         runCatching { session?.sendMicrophoneAudio(data) }
     }
 
-    fun requestRefresh() {
+    override fun requestRefresh() {
         runCatching { session?.requestRefresh() }
     }
 
-    fun requestKeyframe() {
+    override fun requestKeyframe() {
         runCatching { session?.requestKeyframe() }
     }
 
-    fun statistics(): SessionStatistics? {
+    override fun statistics(): SessionStatistics? {
         val statistics = session?.statistics() ?: return null
         return SessionStatistics(
             roundTripMilliseconds = statistics.roundTripMilliseconds.takeIf { statistics.roundTripKnown },
@@ -390,35 +390,35 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         )
     }
 
-    val displayWidthMultiple: Int
+    override val displayWidthMultiple: Int
         get() = session?.displayWidthMultiple() ?: 1
 
-    fun setVirtualDisplay(mode: VirtualDisplayMode, largestSide: Int) {
+    override fun setVirtualDisplay(mode: VirtualDisplayMode, largestSide: Int) {
         runCatching { session?.setVirtualDisplay(mode.width, mode.height, mode.density.toDouble(), largestSide, largestSide) }
     }
 
-    fun setVisible(visible: Boolean) {
+    override fun setVisible(visible: Boolean) {
         runCatching { session?.setVisible(visible) }
     }
 
-    fun setKeepsAwake(enabled: Boolean) {
+    override fun setKeepsAwake(enabled: Boolean) {
         runCatching { session?.setKeepsAwake(enabled) }
     }
 
-    fun setHDR(enabled: Boolean) {
+    override fun setHDR(enabled: Boolean) {
         runCatching { session?.setHDR(enabled) }
     }
 
-    fun setUpdateRate(rate: Int) {
+    override fun setUpdateRate(rate: Int) {
         runCatching { session?.setUpdateRate(rate) }
     }
 
-    fun setClipboardSharing(enabled: Boolean) {
+    override fun setClipboardSharing(enabled: Boolean) {
         handler.forwardsClipboard = enabled
         runCatching { session?.setSharedClipboard(enabled) }
     }
 
-    fun sendClipboard(content: ClipboardContent, pasting: Boolean) {
+    override fun sendClipboard(content: ClipboardContent, pasting: Boolean) {
         val session = session ?: throw MessageError("not connected")
         val clipboard = Libsharing.newClipboard()
         for (item in content) {
@@ -435,7 +435,7 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         }
     }
 
-    fun requestClipboard() {
+    override fun requestClipboard() {
         val session = session ?: throw MessageError("not connected")
         handler.forceNextClipboard = true
         try {
@@ -836,7 +836,6 @@ private class LibsharingHandler(
                 frameEnd = unit.frameEnd,
                 changedBands = unit.changedBands,
                 discontinuity = unit.discontinuity,
-                turns = PictureTurns(unit.turns),
                 arrivalNanos = now - max(unit.holdNanoseconds, 0L),
                 composedNanos = if (unit.composed) now - unit.composeNanoseconds else null,
             ),

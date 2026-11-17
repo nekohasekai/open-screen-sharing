@@ -105,6 +105,8 @@
     <string name="home_connection">Kết nối</string>
     <string name="home_disable_udp">Tắt UDP</string>
     <string name="home_keep_alive">Duy trì hoạt động</string>
+    <string name="home_control">Điều khiển</string>
+    <string name="home_reverse_scroll_direction">Đảo ngược hướng cuộn</string>
     <string name="home_couldnt_save">Không thể lưu “%1$s”</string>
     <string name="home_port">Cổng</string>
     <string name="home_looking_up">Đang tra cứu…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">Gửi âm thanh</string>
     <string name="model_observe_mode">Chế độ quan sát</string>
     <string name="model_pointer_lock">Khóa con trỏ</string>
-    <string name="model_home_screen">Màn hình chính</string>
-    <string name="model_app_switcher">Bộ chuyển đổi ứng dụng</string>
     <string name="model_lock">Khóa</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Cửa sổ ứng dụng</string>

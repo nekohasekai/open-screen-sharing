@@ -31,15 +31,6 @@ const (
 	momentumEnd      uint32 = 3
 )
 
-type SwipeDirection int
-
-const (
-	SwipeBack SwipeDirection = iota
-	SwipeForward
-	SwipeUp
-	SwipeDown
-)
-
 type SystemCommand uint32
 
 const (
@@ -65,15 +56,12 @@ func (s SystemCommand) String() string {
 }
 
 const (
-	eventGestureStart        = 1
-	eventGestureEnd          = 2
-	eventGestureMagnify      = 3
-	eventGestureSmartMagnify = 4
-	eventGestureRotate       = 5
-	eventGestureSwipe        = 6
-	eventGestureLookup       = 7
-	eventGestureScroll       = 8
-	eventScrollWheel         = 11
+	eventGestureStart   = 1
+	eventGestureEnd     = 2
+	eventGestureMagnify = 3
+	eventGestureRotate  = 5
+	eventGestureScroll  = 8
+	eventScrollWheel    = 11
 	// screensharingd declares user activity for every V2 event from a controlling viewer
 	// before dispatching its subtype and forwards subtype 10 to ScreensharingAgent, whose
 	// gesture handler frees it without posting an event (screensharingd 756.36.5.2,

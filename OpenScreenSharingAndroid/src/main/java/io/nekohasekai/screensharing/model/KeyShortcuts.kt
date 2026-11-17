@@ -73,9 +73,6 @@ enum class ShortcutAction(val rawValue: String) {
     Observe("observe"),
     PointerLock("pointerLock"),
     Keyboard("keyboard"),
-    Home("home"),
-    AppSwitcher("appSwitcher"),
-    Lock("lock"),
     MissionControl("missionControl"),
     AppWindows("appWindows"),
     ShowDesktop("showDesktop"),
@@ -88,7 +85,7 @@ enum class ShortcutAction(val rawValue: String) {
             NewConnection, Disconnect -> ShortcutGroup.File
             SyncClipboard, ReceiveClipboard, SendClipboard -> ShortcutGroup.Edit
             ReceiveAudio, SendAudio -> ShortcutGroup.Sound
-            Observe, PointerLock, Keyboard, Home, AppSwitcher, Lock, MissionControl, AppWindows, ShowDesktop, Launchpad -> ShortcutGroup.Control
+            Observe, PointerLock, Keyboard, MissionControl, AppWindows, ShowDesktop, Launchpad -> ShortcutGroup.Control
             DebugPanel -> ShortcutGroup.Debug
             else -> ShortcutGroup.View
         }
@@ -117,9 +114,6 @@ enum class ShortcutAction(val rawValue: String) {
                 SendAudio -> resources.getString(R.string.model_send_audio)
                 Observe -> resources.getString(R.string.model_observe_mode)
                 PointerLock -> resources.getString(R.string.model_pointer_lock)
-                Home -> resources.getString(R.string.model_home_screen)
-                AppSwitcher -> resources.getString(R.string.model_app_switcher)
-                Lock -> resources.getString(R.string.model_lock)
                 MissionControl -> resources.getString(R.string.model_mission_control)
                 AppWindows -> resources.getString(R.string.model_app_windows)
                 ShowDesktop -> resources.getString(R.string.model_desktop)
@@ -220,10 +214,6 @@ data class KeyShortcut(val key: String, @SerialName("modifiers") val eventModifi
         fun label(target: MappingTarget): String = if (target == MappingTarget.Pc) pcLabel else title
     }
 
-    data class KeySection(val title: String?, val keys: List<NamedKey>) {
-        val id: String get() = title.orEmpty()
-    }
-
     enum class KeyGroup {
         Editing,
         Navigation,
@@ -245,27 +235,19 @@ data class KeyShortcut(val key: String, @SerialName("modifiers") val eventModifi
                 },
             )
 
-        private val sectionNames: List<Pair<String?, List<String>>>
+        private val names: List<String>
             get() = when (this) {
-                Editing -> listOf(null to listOf("return", "tab", "space", "delete", "deleteForward", "escape", "insert"))
-                Navigation -> listOf(null to listOf("home", "end", "pageUp", "pageDown", "upArrow", "downArrow", "leftArrow", "rightArrow"))
-                FunctionKeys -> listOf(null to (1..24).map { "f$it" })
-                Keypad -> listOf(
-                    null to listOf("numLock") + (0..9).map { "keypad$it" } +
-                        listOf("keypadDecimal", "keypadPlus", "keypadMinus", "keypadMultiply", "keypadDivide", "keypadEqual", "keypadEnter"),
-                )
-                System -> listOf(null to listOf("printScreen", "scrollLock", "pause", "menu", "capsLock"))
-                Control -> listOf(
-                    "Mac" to listOf("missionControl", "appWindows", "showDesktop", "launchpad"),
-                    "iPhone / iPad" to listOf("homeScreen", "appSwitcher", "lock"),
-                )
+                Editing -> listOf("return", "tab", "space", "delete", "deleteForward", "escape", "insert")
+                Navigation -> listOf("home", "end", "pageUp", "pageDown", "upArrow", "downArrow", "leftArrow", "rightArrow")
+                FunctionKeys -> (1..24).map { "f$it" }
+                Keypad ->
+                    listOf("numLock") + (0..9).map { "keypad$it" } +
+                        listOf("keypadDecimal", "keypadPlus", "keypadMinus", "keypadMultiply", "keypadDivide", "keypadEqual", "keypadEnter")
+                System -> listOf("printScreen", "scrollLock", "pause", "menu", "capsLock")
+                Control -> listOf("missionControl", "appWindows", "showDesktop", "launchpad")
             }
 
-        fun sections(target: MappingTarget): List<KeySection> = sectionNames
-            .map { (title, names) -> KeySection(title, names.mapNotNull { namedKeys[it] }.filter { target in it.targets }) }
-            .filter { it.keys.isNotEmpty() }
-
-        fun keys(target: MappingTarget): List<NamedKey> = sections(target).flatMap { it.keys }
+        fun keys(target: MappingTarget): List<NamedKey> = names.mapNotNull { namedKeys[it] }.filter { target in it.targets }
     }
 
     val isUnset: Boolean get() = key.isEmpty()
@@ -410,9 +392,6 @@ private val namedKeys: Map<String, KeyShortcut.NamedKey> = run {
     key("appWindows", string(R.string.model_app_windows), null, targets = apple, command = SystemCommand.AppWindows)
     key("showDesktop", string(R.string.model_desktop), null, targets = apple, command = SystemCommand.ShowDesktop)
     key("launchpad", string(R.string.model_apps), null, targets = apple, command = SystemCommand.Launchpad)
-    key("homeScreen", string(R.string.model_home_screen), null, targets = apple, command = SystemCommand.ShowDesktop)
-    key("appSwitcher", string(R.string.model_app_switcher), null, targets = apple, command = SystemCommand.MissionControl)
-    key("lock", string(R.string.model_lock), KeyChord.sideButton.key, targets = apple)
     keys.associateBy { it.name }
 }
 

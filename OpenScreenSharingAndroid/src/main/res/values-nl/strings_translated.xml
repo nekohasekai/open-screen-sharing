@@ -105,6 +105,8 @@
     <string name="home_connection">Verbinding</string>
     <string name="home_disable_udp">UDP uitschakelen</string>
     <string name="home_keep_alive">Actief houden</string>
+    <string name="home_control">Control</string>
+    <string name="home_reverse_scroll_direction">Scrollrichting omkeren</string>
     <string name="home_couldnt_save">Kon \'%1$s\' niet bewaren</string>
     <string name="home_port">Poort</string>
     <string name="home_looking_up">Opzoeken…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">Verstuur audio</string>
     <string name="model_observe_mode">Observeermodus</string>
     <string name="model_pointer_lock">Aanwijzervergrendeling</string>
-    <string name="model_home_screen">Beginscherm</string>
-    <string name="model_app_switcher">Appkiezer</string>
     <string name="model_lock">Vergrendel</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Appvensters</string>

@@ -105,6 +105,8 @@
     <string name="home_connection">کنکشن</string>
     <string name="home_disable_udp">UDP غیر فعال کریں</string>
     <string name="home_keep_alive">فعال رکھیں</string>
+    <string name="home_control">کنٹرول</string>
+    <string name="home_reverse_scroll_direction">اسکرول کی سمت الٹیں</string>
     <string name="home_couldnt_save">“⁨%1$s⁩” محفوظ نہیں کیا جا سکا</string>
     <string name="home_port">پورٹ</string>
     <string name="home_looking_up">تلاش کیا جا رہا ہے…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">آڈیو بھیجیں</string>
     <string name="model_observe_mode">مشاہداتی موڈ</string>
     <string name="model_pointer_lock">پوائنٹر لاک</string>
-    <string name="model_home_screen">ہوم اسکرین</string>
-    <string name="model_app_switcher">ایپ سوئچر</string>
     <string name="model_lock">لاک کریں</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">ایپ ونڈو</string>

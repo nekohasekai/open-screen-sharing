@@ -105,6 +105,8 @@
     <string name="home_connection">Connexion</string>
     <string name="home_disable_udp">Désactiver UDP</string>
     <string name="home_keep_alive">Maintenir actif</string>
+    <string name="home_control">Contrôle</string>
+    <string name="home_reverse_scroll_direction">Inverser le sens du défilement</string>
     <string name="home_couldnt_save">Impossible d’enregistrer « %1$s »</string>
     <string name="home_port">Port</string>
     <string name="home_looking_up">Recherche…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">Envoyer l’audio</string>
     <string name="model_observe_mode">Mode observation</string>
     <string name="model_pointer_lock">Verrouillage du pointeur</string>
-    <string name="model_home_screen">Écran d’accueil</string>
-    <string name="model_app_switcher">Sélecteur d’app</string>
     <string name="model_lock">Verrouiller</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Fenêtres de l’app</string>

@@ -10,12 +10,8 @@ import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Process
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.setValue
 import io.nekohasekai.screensharing.App
 import io.nekohasekai.screensharing.app.MessageError
-import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.concurrent.Executor
@@ -727,18 +723,5 @@ class AudioOutput(private val ring: AudioRing, private val sampleRate: Double) {
         private const val SKIP_THRESHOLD = 0.08
 
         fun fadeFrames(sampleRate: Double): Int = max(1, Math.round(FADE_DURATION * sampleRate).toInt())
-    }
-}
-
-object RemoteAudioSession {
-    var recorders by mutableIntStateOf(0)
-        private set
-
-    fun beginRecording() {
-        App.scope.launch { recorders += 1 }
-    }
-
-    fun endRecording() {
-        App.scope.launch { recorders -= 1 }
     }
 }

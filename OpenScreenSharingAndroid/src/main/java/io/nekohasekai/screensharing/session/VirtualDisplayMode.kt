@@ -89,7 +89,9 @@ class VirtualDisplayRequests {
         if (sizedByConnection && sent != null && framebufferSize == Size(sent.pixelWidth.toFloat(), sent.pixelHeight.toFloat())) {
             answered()
         } else if (!offersVirtualDisplay) {
-            stopWaiting()
+            awaitsAnswer = false
+            this.sent = null
+            reportIdle()
         } else {
             reportIdle()
         }
@@ -122,12 +124,6 @@ class VirtualDisplayRequests {
         if (!awaitsAnswer || sent == null || sent.pixelWidth != framebufferWidth || sent.pixelHeight != framebufferHeight) return
         if (displays.none { it.isVirtual && it.width == sent.width && it.height == sent.height }) return
         answered()
-    }
-
-    fun stopWaiting() {
-        awaitsAnswer = false
-        sent = null
-        reportIdle()
     }
 
     private fun answered() {

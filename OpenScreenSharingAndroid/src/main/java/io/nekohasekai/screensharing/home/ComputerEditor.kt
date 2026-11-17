@@ -45,7 +45,6 @@ import io.nekohasekai.screensharing.model.Computer
 import io.nekohasekai.screensharing.model.ComputerAddress
 import io.nekohasekai.screensharing.model.ComputerStore
 import io.nekohasekai.screensharing.model.ConnectionTarget
-import io.nekohasekai.screensharing.model.DeviceType
 import io.nekohasekai.screensharing.model.MaximumFrameRate
 import io.nekohasekai.screensharing.model.NetworkQuality
 import io.nekohasekai.screensharing.model.RemoteProtocol
@@ -95,6 +94,7 @@ fun ComputerEditor(computer: Computer, setup: ComputerEditorSetup?, dismiss: () 
     var networkConfiguration by remember(computer.id) { mutableStateOf(computer.networkConfiguration) }
     var keepsAlive by remember(computer.id) { mutableStateOf(computer.keepsAlive) }
     var disablesUDP by remember(computer.id) { mutableStateOf(computer.disablesUDP) }
+    var reversesScrolling by remember(computer.id) { mutableStateOf(computer.reversesScrolling) }
     var problem by remember { mutableStateOf<EditorProblem?>(null) }
     var alert by remember { mutableStateOf<AlertState?>(null) }
     val nameFocus = remember { FocusRequester() }
@@ -139,6 +139,7 @@ fun ComputerEditor(computer: Computer, setup: ComputerEditorSetup?, dismiss: () 
                     usesHighPerformance = choice.usesHighPerformance,
                     keepsAlive = keepsAlive,
                     disablesUDP = disablesUDP,
+                    reversesScrolling = choice != ServerChoice.AppleVnc && reversesScrolling,
                 )
             }
         } catch (error: Exception) {
@@ -234,8 +235,7 @@ fun ComputerEditor(computer: Computer, setup: ComputerEditorSetup?, dismiss: () 
                 },
                 onSelect = { networkConfiguration = networkConfiguration.copy(quality = it) },
             )
-            // The iPad negotiated 60 fps in the mode-5 capture (observed on iPad17,1, iPadOS 27.2 24B5099f).
-            if (networkConfiguration.quality == NetworkQuality.Internet && computer.deviceType == DeviceType.Mac) {
+            if (networkConfiguration.quality == NetworkQuality.Internet) {
                 DropdownField(
                     label = stringResource(R.string.home_maximum_frame_rate),
                     selected = networkConfiguration.internetMaximumFrameRate,
@@ -283,6 +283,12 @@ fun ComputerEditor(computer: Computer, setup: ComputerEditorSetup?, dismiss: () 
                     SwitchRow(stringResource(R.string.home_disable_udp), disablesUDP, onCheckedChange = { disablesUDP = it })
                 }
                 SwitchRow(stringResource(R.string.home_keep_alive), keepsAlive, onCheckedChange = { keepsAlive = it })
+            }
+        }
+        if (choice != ServerChoice.AppleVnc) {
+            SectionHeader(stringResource(R.string.home_control))
+            ListGroup {
+                SwitchRow(stringResource(R.string.home_reverse_scroll_direction), reversesScrolling, onCheckedChange = { reversesScrolling = it })
             }
         }
         Spacer(Modifier.height(8.dp))

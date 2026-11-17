@@ -63,7 +63,6 @@ interface RemoteScreenController {
     val pictureMatchesWindow: Boolean
     val resolutionScale: Double
     val info: SessionInfo
-    val cursorPixelsPerPoint: Double
     val phase: SessionPhase
     val sceneInBackground: Boolean
     var scaleMode: ScaleMode
@@ -299,12 +298,11 @@ class ScreenRenderer(
                 val visible = min(stripHeight, canvasHeight - top)
                 if (visible <= 0f) continue
                 waitFor(strip)
-                val unit = snapshot.turns.shownRect(Rect(0f, top / canvasHeight, 1f, (top + visible) / canvasHeight))
                 val rect = Rect(
-                    imageRect.left + imageRect.width * unit.left,
-                    imageRect.top + imageRect.height * unit.top,
-                    imageRect.left + imageRect.width * unit.right,
-                    imageRect.top + imageRect.height * unit.bottom,
+                    imageRect.left,
+                    imageRect.top + imageRect.height * top / canvasHeight,
+                    imageRect.right,
+                    imageRect.top + imageRect.height * (top + visible) / canvasHeight,
                 )
                 images.add(Drawn(strip.texture, rect, floatArrayOf(0f, 0f, 1f, visible / stripHeight)))
             }
@@ -337,7 +335,7 @@ class ScreenRenderer(
             GLES30.glBindSampler(0, pictureSampler)
             for (image in images) {
                 GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, image.texture)
-                resources.picture.draw(Gl.ndc(image.rect.translate(dx, dy), frame.viewSize), image.textureRect, snapshot.turns.count)
+                resources.picture.draw(Gl.ndc(image.rect.translate(dx, dy), frame.viewSize), image.textureRect)
             }
             if (!drawsCursor || cursor == null || cursorRect == null || cursorTexture == 0) return
             val rect = Gl.ndc(cursorRect.translate(dx, dy), frame.viewSize)
@@ -723,17 +721,13 @@ class ScreenPresenter(
         val epoch = snapshot.presentationEpoch
         val generation = snapshot.pictureGeneration
         val run = controller.presentationRun
-        if (snapshot.turns.shownSize(Size(snapshot.width.toFloat(), snapshot.height.toFloat())) != controller.imageSize ||
-            !pipeline.isCurrentPresentation(epoch)
-        ) {
-            return false
-        }
+        if (Size(snapshot.width.toFloat(), snapshot.height.toFloat()) != controller.imageSize || !pipeline.isCurrentPresentation(epoch)) return false
         val imageRect = screen.imageRect
         val scale = screen.displayScale
         val resolutionScale = if (controller.pictureMatchesWindow) controller.resolutionScale else 1.0
         val cursorScale = max(
             scale * controller.info.framebufferPixelsPerCursorPixel.toFloat(),
-            (density / (controller.cursorPixelsPerPoint * resolutionScale)).toFloat(),
+            (density / (controller.info.cursorPixelsPerPoint * resolutionScale)).toFloat(),
         )
         val cursor = screen.drawnCursor(snapshot.cursor, snapshot.cursorVisible, cursorScale)
         var cursorRect: Rect? = null

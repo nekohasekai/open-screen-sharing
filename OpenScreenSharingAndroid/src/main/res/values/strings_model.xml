@@ -25,8 +25,6 @@
     <string name="model_send_audio">Send audio</string>
     <string name="model_observe_mode">Observe mode</string>
     <string name="model_pointer_lock">Pointer lock</string>
-    <string name="model_home_screen">Home screen</string>
-    <string name="model_app_switcher">App switcher</string>
     <string name="model_lock">Lock</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">App windows</string>

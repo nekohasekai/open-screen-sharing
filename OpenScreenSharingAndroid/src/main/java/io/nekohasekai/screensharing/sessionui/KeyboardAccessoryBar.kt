@@ -88,7 +88,7 @@ fun KeyboardAccessoryBar(
                 if (software) {
                     IconKey(stringResource(R.string.model_tab), Icons.AutoMirrored.Outlined.KeyboardTab) { controller.typeKey(MacKey.tab) }
                 }
-                for (modifierKey in if (controller.platform == RemotePlatform.Pc) ModifierKey.pcOrder else ModifierKey.entries) {
+                for (modifierKey in if (controller.info.platform == RemotePlatform.Pc) ModifierKey.pcOrder else ModifierKey.entries) {
                     key(modifierKey) { ModifierKeyButton(controller, modifierKey) }
                 }
             }
@@ -170,7 +170,7 @@ fun ModifierKeyButton(
 ) {
     val isLocked = modifierKey in controller.lockedModifiers
     val isActive = isLocked || modifierKey in controller.pressedModifiers || modifierKey in controller.stickyModifiers
-    val pcLabel = if (controller.platform == RemotePlatform.Pc) modifierKey.pcLabel else null
+    val pcLabel = if (controller.info.platform == RemotePlatform.Pc) modifierKey.pcLabel else null
     val controlling = controller.isControlling
     val title = stringResource(pcLabel?.title ?: modifierKey.title)
     val state =

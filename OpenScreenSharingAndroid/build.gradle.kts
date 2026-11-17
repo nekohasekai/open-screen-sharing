@@ -13,6 +13,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.parcelize")
     id("com.google.devtools.ksp")
     id("com.diffplug.spotless")
+    id("com.github.triplet.play")
 }
 
 fun getProps(propName: String): String {
@@ -48,11 +49,12 @@ android {
         versionCode = providers.gradleProperty("versionCode").orNull?.toInt() ?: 1
         versionName = providers.gradleProperty("versionName").orNull ?: "1.0.1"
         base.archivesName.set("OpenScreenSharing")
+        buildConfigField("boolean", "DEMO", "false")
     }
 
     splits {
         abi {
-            isEnable = true
+            isEnable = gradle.startParameter.taskNames.none { it.contains("bundle", ignoreCase = true) }
             reset()
             include("arm64-v8a", "armeabi-v7a", "x86_64")
             isUniversalApk = true
@@ -77,6 +79,11 @@ android {
             if (getProps("KEYSTORE_PASS").isNotEmpty()) {
                 signingConfig = signingConfigs.getByName("release")
             }
+        }
+        create("demo") {
+            initWith(getByName("debug"))
+            matchingFallbacks += listOf("debug")
+            buildConfigField("boolean", "DEMO", "true")
         }
         release {
             isMinifyEnabled = true
@@ -104,6 +111,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     packaging {
@@ -115,6 +123,11 @@ android {
     lint {
         fatal += "NewApi"
     }
+}
+
+play {
+    track.set("internal")
+    rootProject.file("service-account-credentials.json").takeIf { it.exists() }?.let { serviceAccountCredentials.set(it) }
 }
 
 tasks.withType<KotlinCompile>().configureEach {

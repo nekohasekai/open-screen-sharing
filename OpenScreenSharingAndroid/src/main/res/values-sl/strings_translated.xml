@@ -105,6 +105,8 @@
     <string name="home_connection">Povezava</string>
     <string name="home_disable_udp">Izklopi UDP</string>
     <string name="home_keep_alive">Ohranjanje aktivnosti</string>
+    <string name="home_control">Upravljanje</string>
+    <string name="home_reverse_scroll_direction">Obrni smer pomikanja</string>
     <string name="home_couldnt_save">Povezave »%1$s« ni bilo mogoče shraniti</string>
     <string name="home_port">Vrata</string>
     <string name="home_looking_up">Iskanje …</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">Pošiljanje zvoka</string>
     <string name="model_observe_mode">Način opazovanja</string>
     <string name="model_pointer_lock">Zaklepanje kazalnika</string>
-    <string name="model_home_screen">Začetni zaslon</string>
-    <string name="model_app_switcher">Preklopnik med aplikacijami</string>
     <string name="model_lock">Zakleni</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Okna aplikacij</string>

@@ -6,16 +6,9 @@ nonisolated struct ServerAuthentication: Codable, Hashable, Sendable {
     var requestPermission: Bool
     var vncPassword: Bool
     var noPassword: Bool
-    var grantsRequests: Bool
 
     var openCredentials: SessionCredentials? {
-        if noPassword {
-            return .noAuthentication
-        }
-        if grantsRequests {
-            return .askForPermission(username: "")
-        }
-        return nil
+        noPassword ? .noAuthentication : nil
     }
 }
 
@@ -57,8 +50,7 @@ nonisolated enum ServerProber {
                             account: probe.supportsAccount,
                             requestPermission: probe.supportsRequestControl || probe.supportsRequestObserve,
                             vncPassword: probe.supportsVNCPassword,
-                            noPassword: probe.supportsNoPassword,
-                            grantsRequests: probe.grantsRequests
+                            noPassword: probe.supportsNoPassword
                         ),
                         fingerprint: probe.fingerprint
                     ))

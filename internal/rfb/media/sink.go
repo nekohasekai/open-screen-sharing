@@ -31,7 +31,6 @@ type VideoAccessUnit struct {
 	Sync          bool
 	Band          int
 	Bands         int
-	Turns         int
 	ReceivedAt    time.Time
 	CompletedAt   time.Time
 	ComposedAt    time.Time

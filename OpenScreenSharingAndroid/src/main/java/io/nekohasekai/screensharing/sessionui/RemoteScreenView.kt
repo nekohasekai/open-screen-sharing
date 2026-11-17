@@ -32,7 +32,6 @@ import io.nekohasekai.screensharing.model.AppSettings
 import io.nekohasekai.screensharing.session.CursorShape
 import io.nekohasekai.screensharing.session.Letterbox
 import io.nekohasekai.screensharing.session.PointerButtons
-import io.nekohasekai.screensharing.session.RemotePlatform
 import io.nekohasekai.screensharing.session.SessionController
 import io.nekohasekai.screensharing.session.SessionMode
 import kotlin.math.max
@@ -89,7 +88,6 @@ class RemoteScreenView(context: Context, val controller: SessionController) : Fr
         surface.delegate = object : RemoteScreenSurface.Delegate {
             override fun drawnCursor(shape: CursorShape?, visible: Boolean, scale: Float): DrawnCursor? {
                 val shownBySystem = input.showsCursorAsPointer(shape, visible, scale)
-                if (controller.hidesPointerForTouch) return null
                 val cursor = input.localPointer(shape, scale) ?: shape ?: return null
                 return DrawnCursor(cursor, shownBySystem)
             }
@@ -319,7 +317,6 @@ fun RemoteScreen(controller: SessionController, modifier: Modifier = Modifier, o
             update = { view ->
                 val tracker = view.windowTracker
                 tracker.setMatchesWindow(controller.wantsVirtualDisplay)
-                tracker.setTurnsLandscape(controller.platform != RemotePlatform.IOS)
                 tracker.setPreferredOrientation(controller.preferredOrientation.takeIf { it != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED })
                 val fillsScreen = AppSettings.pictureFillsScreen
                 if (fillsScreen != tracker.fillsScreen) {

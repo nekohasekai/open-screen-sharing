@@ -107,16 +107,6 @@ func (m protoMessage) uint(number uint64) (uint64, bool) {
 	return m[index].value, true
 }
 
-func (m protoMessage) bytes(number uint64) ([]byte, bool) {
-	index := slices.IndexFunc(m, func(field protoField) bool {
-		return field.number == number && field.wireType == protoBytes
-	})
-	if index < 0 {
-		return nil, false
-	}
-	return m[index].bytes, true
-}
-
 func (m protoMessage) messages(number uint64) []protoMessage {
 	var result []protoMessage
 	for _, field := range m {

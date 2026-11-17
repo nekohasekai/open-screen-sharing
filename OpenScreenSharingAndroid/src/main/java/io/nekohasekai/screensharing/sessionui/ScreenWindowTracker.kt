@@ -35,7 +35,6 @@ class ScreenWindowTracker(
     var fillsScreen = false
     var obstructions = ScreenObstructions()
         private set
-    private var turnsLandscape = true
     private var preferredOrientation: Int? = null
     private var awaitsRotation = false
     private val rotationRefused = Runnable {
@@ -103,12 +102,6 @@ class ScreenWindowTracker(
         }
     }
 
-    fun setTurnsLandscape(turns: Boolean) {
-        if (turns == turnsLandscape) return
-        turnsLandscape = turns
-        geometryDidChange()
-    }
-
     fun setPreferredOrientation(orientation: Int?) {
         if (orientation == preferredOrientation) return
         preferredOrientation = orientation
@@ -170,8 +163,7 @@ class ScreenWindowTracker(
         val orientation = when {
             !honored -> null
             isPhone -> preferredOrientation
-            turnsLandscape -> if (windowCoversScreen(activity)) ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE else null
-            else -> null
+            else -> if (windowCoversScreen(activity)) ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE else null
         }
         val requested = SessionOrientation.update(activity, orientation)
         val landscape = view.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE

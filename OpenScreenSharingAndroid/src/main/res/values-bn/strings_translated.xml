@@ -105,6 +105,8 @@
     <string name="home_connection">কানেকশন</string>
     <string name="home_disable_udp">UDP অক্ষম করুন</string>
     <string name="home_keep_alive">সক্রিয় রাখুন</string>
+    <string name="home_control">কন্ট্রোল</string>
+    <string name="home_reverse_scroll_direction">স্ক্রলের দিক বিপরীত করুন</string>
     <string name="home_couldnt_save">“%1$s” সেভ করা যায়নি</string>
     <string name="home_port">পোর্ট</string>
     <string name="home_looking_up">খোঁজা হচ্ছে…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">অডিও প্রেরণ</string>
     <string name="model_observe_mode">পর্যবেক্ষণ মোড</string>
     <string name="model_pointer_lock">পয়েন্টার লক</string>
-    <string name="model_home_screen">হোম স্ক্রিন</string>
-    <string name="model_app_switcher">অ্যাপ সুইচার</string>
     <string name="model_lock">লক করুন</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">অ্যাপ উইন্ডো</string>

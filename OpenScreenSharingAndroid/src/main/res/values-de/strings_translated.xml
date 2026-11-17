@@ -105,6 +105,8 @@
     <string name="home_connection">Verbindung</string>
     <string name="home_disable_udp">UDP deaktivieren</string>
     <string name="home_keep_alive">Aktiv halten</string>
+    <string name="home_control">Steuerung</string>
+    <string name="home_reverse_scroll_direction">Scrollrichtung umkehren</string>
     <string name="home_couldnt_save">„%1$s“ konnte nicht gesichert werden</string>
     <string name="home_port">Port</string>
     <string name="home_looking_up">Suchen …</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">Audio senden</string>
     <string name="model_observe_mode">Beobachtungsmodus</string>
     <string name="model_pointer_lock">Zeigersperre</string>
-    <string name="model_home_screen">Home-Bildschirm</string>
-    <string name="model_app_switcher">App-Umschalter</string>
     <string name="model_lock">Sperren</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">App-Fenster</string>

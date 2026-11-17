@@ -38,13 +38,7 @@ class MicrophoneSender(
     fun start() {
         queue.post {
             try {
-                RemoteAudioSession.beginRecording()
-                try {
-                    capture = startRecording()
-                } catch (error: Exception) {
-                    RemoteAudioSession.endRecording()
-                    throw error
-                }
+                capture = startRecording()
                 running = true
             } catch (error: Exception) {
                 failed(this@MicrophoneSender, error)
@@ -58,7 +52,6 @@ class MicrophoneSender(
                 running = false
                 capture?.stop()
                 capture = null
-                RemoteAudioSession.endRecording()
             }
             thread.quitSafely()
         }

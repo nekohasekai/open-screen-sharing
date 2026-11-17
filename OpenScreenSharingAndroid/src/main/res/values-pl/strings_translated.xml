@@ -105,6 +105,8 @@
     <string name="home_connection">Połączenie</string>
     <string name="home_disable_udp">Wyłącz UDP</string>
     <string name="home_keep_alive">Utrzymywanie aktywności</string>
+    <string name="home_control">Sterowanie</string>
+    <string name="home_reverse_scroll_direction">Odwróć kierunek przewijania</string>
     <string name="home_couldnt_save">Nie udało się zachować „%1$s”</string>
     <string name="home_port">Port</string>
     <string name="home_looking_up">Wyszukuję…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">Wysyłanie dźwięku</string>
     <string name="model_observe_mode">Tryb obserwacji</string>
     <string name="model_pointer_lock">Blokada wskaźnika</string>
-    <string name="model_home_screen">Ekran początkowy</string>
-    <string name="model_app_switcher">Ekran zmiany aplikacji</string>
     <string name="model_lock">Zablokuj</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Okna aplikacji</string>

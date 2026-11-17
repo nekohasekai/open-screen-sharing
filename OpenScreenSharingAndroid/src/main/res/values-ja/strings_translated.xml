@@ -105,6 +105,8 @@
     <string name="home_connection">接続</string>
     <string name="home_disable_udp">UDPを無効にする</string>
     <string name="home_keep_alive">アクティブ状態を維持</string>
+    <string name="home_control">コントロール</string>
+    <string name="home_reverse_scroll_direction">スクロールの方向を反転</string>
     <string name="home_couldnt_save">“%1$s”を保存できませんでした</string>
     <string name="home_port">ポート</string>
     <string name="home_looking_up">検索中…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">オーディオを送信</string>
     <string name="model_observe_mode">監視モード</string>
     <string name="model_pointer_lock">ポインタロック</string>
-    <string name="model_home_screen">ホーム画面</string>
-    <string name="model_app_switcher">アプリスイッチャー</string>
     <string name="model_lock">ロック</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">アプリウインドウ</string>

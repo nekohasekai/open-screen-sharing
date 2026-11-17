@@ -26,33 +26,6 @@ enum class RemoteProtocol(val rawValue: String, val defaultPort: Int) {
 }
 
 @Serializable
-enum class DeviceType(val rawValue: String) {
-    @SerialName("mac")
-    Mac("mac"),
-
-    @SerialName("iPhone")
-    IPhone("iPhone"),
-
-    @SerialName("iPad")
-    IPad("iPad"),
-    ;
-
-    val isIOS: Boolean get() = this != Mac
-
-    companion object {
-        fun of(model: String): DeviceType? {
-            val trimmed = model.trim()
-            return when {
-                trimmed.startsWith("iPhone") -> IPhone
-                trimmed.startsWith("iPad") -> IPad
-                trimmed.startsWith("Mac") || trimmed.startsWith("iMac") -> Mac
-                else -> null
-            }
-        }
-    }
-}
-
-@Serializable
 enum class SessionQuality(val rawValue: String) {
     @SerialName("adaptive")
     Adaptive("adaptive"),
@@ -82,6 +55,7 @@ data class Computer(
     val trustedFingerprint: String = "",
     val keepsAlive: Boolean = false,
     val disablesUDP: Boolean = false,
+    val reversesScrolling: Boolean = false,
     val quality: SessionQuality = SessionQuality.Adaptive,
     val observes: Boolean = false,
     val sharesClipboard: Boolean = true,
@@ -103,8 +77,6 @@ data class Computer(
         remoteProtocol = remoteProtocol,
         username = username,
     )
-
-    val deviceType: DeviceType get() = DeviceType.of(model) ?: DeviceType.Mac
 
     val networkConfiguration: NetworkConfiguration get() = NetworkConfiguration(networkQuality, internetMaximumFrameRate)
 
@@ -178,7 +150,7 @@ data class Computer(
     private fun hashFields(): List<Any?> = listOf(
         id, name, host, port, username, password, authenticates, model, enclosureColor, lastConnected, createdAt,
         usesHighPerformance, networkQuality, internetMaximumFrameRate, remoteProtocol, trustedFingerprint, keepsAlive,
-        disablesUDP, quality, observes, sharesClipboard, resolutionScale, displayID, usesHDR, receivesAudio, sendsAudio,
+        disablesUDP, reversesScrolling, quality, observes, sharesClipboard, resolutionScale, displayID, usesHDR, receivesAudio, sendsAudio,
         keyboardSources, windowWidth, windowHeight, locksPointer, usesNativeTouch,
     )
 }

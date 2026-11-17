@@ -11,6 +11,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.room.Upsert
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import io.nekohasekai.screensharing.App
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.Json
@@ -90,7 +92,7 @@ class AppConverters {
     fun toSessionQuality(value: String): SessionQuality = SessionQuality.entries.firstOrNull { it.rawValue == value } ?: SessionQuality.Adaptive
 }
 
-@Database(entities = [Computer::class, Preference::class], version = 1, exportSchema = false)
+@Database(entities = [Computer::class, Preference::class], version = 2, exportSchema = false)
 @TypeConverters(AppConverters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun computers(): ComputerDao
@@ -99,8 +101,15 @@ abstract class AppDatabase : RoomDatabase() {
 
     companion object {
         val shared: AppDatabase by lazy {
-            Room.databaseBuilder(App.instance, AppDatabase::class.java, "Screen Sharing.sqlite")
+            io.nekohasekai.screensharing.demo.Demo.current?.database ?: Room.databaseBuilder(App.instance, AppDatabase::class.java, "Screen Sharing.sqlite")
                 .allowMainThreadQueries()
+                .addMigrations(
+                    object : Migration(1, 2) {
+                        override fun migrate(db: SupportSQLiteDatabase) {
+                            db.execSQL("ALTER TABLE computers ADD COLUMN reversesScrolling INTEGER NOT NULL DEFAULT 0")
+                        }
+                    },
+                )
                 .fallbackToDestructiveMigration(true)
                 .build()
         }

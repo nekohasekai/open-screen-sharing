@@ -1,6 +1,5 @@
 #if os(iOS)
 import UIKit
-import UserNotifications
 
 final class ScreenWindowTracker {
     private unowned let view: UIView
@@ -14,7 +13,6 @@ final class ScreenWindowTracker {
     private(set) var fillsScreen = false
     private(set) var obstructions = ScreenObstructions()
     private var replacedMinimumSize: CGSize?
-    private var turnsLandscape = true
     private var preferredOrientation: UIInterfaceOrientationMask?
     private var restoredOrientation: UIInterfaceOrientationMask?
     private var awaitsRotation = false
@@ -101,12 +99,6 @@ final class ScreenWindowTracker {
         }
     }
 
-    func setTurnsLandscape(_ turns: Bool) {
-        guard turns != turnsLandscape else { return }
-        turnsLandscape = turns
-        geometryDidChange()
-    }
-
     func setPreferredOrientation(_ orientation: UIInterfaceOrientationMask?) {
         guard orientation != preferredOrientation else { return }
         preferredOrientation = orientation
@@ -184,22 +176,38 @@ final class ScreenWindowTracker {
         let orientation: UIInterfaceOrientationMask?
         if view.traitCollection.userInterfaceIdiom == .phone {
             orientation = preferredOrientation
-        } else if turnsLandscape {
-            orientation = windowCoversScreen ? .landscape : nil
         } else {
-            orientation = nil
+            orientation = windowCoversScreen ? .landscape : nil
         }
         if orientation != nil, restoredOrientation == nil {
             restoredOrientation = UIInterfaceOrientationMask(rawValue: 1 << scene.interfaceOrientationCompat.rawValue)
             UIDevice.current.beginGeneratingDeviceOrientationNotifications()
         }
         let requested = SessionOrientation.update(scene, to: orientation) { [weak self] in
-            guard let self, self.awaitsRotation else { return }
-            self.awaitsRotation = false
-            self.geometryDidChange()
+            self?.rotationRefused(in: scene)
         }
         let current = UIInterfaceOrientationMask(rawValue: 1 << scene.interfaceOrientationCompat.rawValue)
         awaitsRotation = (requested || awaitsRotation) && orientation.map { !$0.contains(current) } ?? false
+    }
+
+    private func rotationRefused(in scene: UIWindowScene) {
+        guard awaitsRotation, scene === self.scene else { return }
+        var responder = view.next
+        while let current = responder, !(current is UIViewController) {
+            responder = current.next
+        }
+        if #available(iOS 16, *), let transition = (responder as? UIViewController)?.transitionCoordinator,
+            transition.animate(alongsideTransition: nil, completion: { [weak self] _ in
+                guard let self, self.awaitsRotation, scene === self.scene else { return }
+                SessionOrientation.request(scene, to: SessionOrientation.supportedOrientations(for: scene)) { [weak self] in
+                    self?.rotationRefused(in: scene)
+                }
+            })
+        {
+            return
+        }
+        awaitsRotation = false
+        geometryDidChange()
     }
 }
 
@@ -235,10 +243,15 @@ enum SessionOrientation {
             }
         }
         guard let orientation else { return false }
+        request(scene, to: orientation, refused: refused)
+        return true
+    }
+
+    @available(iOS 16, *)
+    static func request(_ scene: UIWindowScene, to orientation: UIInterfaceOrientationMask, refused: @escaping @MainActor @Sendable () -> Void) {
         scene.requestGeometryUpdate(.iOS(interfaceOrientations: orientation)) { _ in
             Task { @MainActor in refused() }
         }
-        return true
     }
 }
 
@@ -261,29 +274,8 @@ extension UIWindowScene {
 }
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        #if DEBUG || SIDELOAD
-        UNUserNotificationCenter.current().delegate = self
-        #endif
-        return true
-    }
-
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
         SessionOrientation.supportedOrientations(for: window?.windowScene)
     }
 }
-
-#if DEBUG || SIDELOAD
-extension AppDelegate: UNUserNotificationCenterDelegate {
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
-        [.banner, .list, .sound]
-    }
-
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-        if response.notification.request.identifier == ServerController.problemNotification {
-            HomeRequest.shared.pending = .server
-        }
-    }
-}
-#endif
 #endif

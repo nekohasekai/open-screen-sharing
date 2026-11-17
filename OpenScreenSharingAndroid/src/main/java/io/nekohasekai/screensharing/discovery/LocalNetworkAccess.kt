@@ -19,6 +19,7 @@ object LocalNetworkAccess {
         }
 
     suspend fun request(host: String, requester: RuntimePermission.Requester) {
+        if (io.nekohasekai.screensharing.demo.Demo.current != null) return
         if (permission.isGranted) return
         val local = when (val address = parseNumericAddress(host)) {
             null -> host.lowercase().removeSuffix(".").endsWith(".local") || resolvesLocally(host)

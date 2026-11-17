@@ -133,11 +133,11 @@ final class TrackpadUIView: UIView {
             scroll(by: delta, phase: .changed)
         case .magnifying:
             let scale = spread / max(startSpread, 1)
-            controller.magnify(at: controller.pointerPosition, by: Double(scale / lastScale - 1), phase: .changed)
+            controller.magnify(by: Double(scale / lastScale - 1), phase: .changed)
             lastScale = scale
         case .rotating:
             let angle = self.angle
-            controller.rotate(at: controller.pointerPosition, degrees: -Double(Self.normalized(angle - lastAngle)) * 180 / .pi, phase: .changed)
+            controller.rotate(degrees: -Double(Self.normalized(angle - lastAngle)) * 180 / .pi, phase: .changed)
             lastAngle = angle
         default:
             break
@@ -191,11 +191,11 @@ final class TrackpadUIView: UIView {
             if abs(scale - 1) > Self.pinchThreshold {
                 mode = .magnifying
                 lastScale = scale
-                controller.magnify(at: controller.pointerPosition, by: Double(scale - 1), phase: .began)
+                controller.magnify(by: Double(scale - 1), phase: .began)
             } else if abs(rotation) > Self.rotationThreshold {
                 mode = .rotating
                 lastAngle = angle
-                controller.rotate(at: controller.pointerPosition, degrees: -Double(rotation) * 180 / .pi, phase: .began)
+                controller.rotate(degrees: -Double(rotation) * 180 / .pi, phase: .began)
             } else if travel > Self.tapSlop {
                 mode = .scrolling
                 let delta = CGPoint(x: lastCentroid.x - startCentroid.x, y: lastCentroid.y - startCentroid.y)
@@ -226,9 +226,9 @@ final class TrackpadUIView: UIView {
             scroll(by: .zero, phase: cancelled ? .cancelled : .ended)
             if !cancelled { startMomentum(at: time) }
         case .magnifying:
-            controller.magnify(at: controller.pointerPosition, by: 0, phase: cancelled ? .cancelled : .ended)
+            controller.magnify(by: 0, phase: cancelled ? .cancelled : .ended)
         case .rotating:
-            controller.rotate(at: controller.pointerPosition, degrees: 0, phase: cancelled ? .cancelled : .ended)
+            controller.rotate(degrees: 0, phase: cancelled ? .cancelled : .ended)
         case .idle, .pointing, .done:
             break
         }

@@ -7,7 +7,6 @@ import (
 	"os"
 	"runtime"
 	"slices"
-	"sync"
 
 	"howett.net/plist"
 )
@@ -20,25 +19,6 @@ type ownScreenError struct {
 
 func (e *ownScreenError) Error() string {
 	return e.address.String() + " is an address of this device"
-}
-
-var servingDevices = struct {
-	access sync.Mutex
-	ports  map[*DeviceServer]int32
-}{ports: make(map[*DeviceServer]int32)}
-
-func servesOwnScreen(port int32) bool {
-	if runtime.GOOS == "darwin" && port == macScreenSharingPort {
-		return macScreenSharingEnabled()
-	}
-	servingDevices.access.Lock()
-	defer servingDevices.access.Unlock()
-	for _, served := range servingDevices.ports {
-		if served == port {
-			return true
-		}
-	}
-	return false
 }
 
 // launchd keeps the enabled state of system daemons in this world-readable override file;
@@ -59,7 +39,7 @@ func macScreenSharingEnabled() bool {
 }
 
 func checkOwnScreen(ctx context.Context, host string, port int32) error {
-	if !servesOwnScreen(port) {
+	if runtime.GOOS != "darwin" || port != macScreenSharingPort || !macScreenSharingEnabled() {
 		return nil
 	}
 	targets, err := net.DefaultResolver.LookupNetIP(ctx, "ip", host)

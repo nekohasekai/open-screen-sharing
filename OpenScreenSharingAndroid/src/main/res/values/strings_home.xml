@@ -43,6 +43,8 @@
     <string name="home_connection">Connection</string>
     <string name="home_disable_udp">Disable UDP</string>
     <string name="home_keep_alive">Keep alive</string>
+    <string name="home_control">Control</string>
+    <string name="home_reverse_scroll_direction">Reverse scroll direction</string>
     <string name="home_couldnt_save">Couldn’t save “%1$s”</string>
 
     <string name="home_port">Port</string>

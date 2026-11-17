@@ -58,6 +58,9 @@ class AvailabilityMonitor(private val nearby: NearbyBrowser) {
         get() = if (LocalNetworkAccess.permission.isGranted) ComputerAvailability.Unavailable else null
 
     fun availability(address: ComputerAddress): ComputerAvailability? {
+        if (io.nekohasekai.screensharing.demo.Demo.current?.isAvailable(address) == true) {
+            return ComputerAvailability.Available
+        }
         if (servers[address] == RemoteProtocol.Vnc && nearby.hasCurrentService(address, RemoteProtocol.Vnc)) {
             return ComputerAvailability.Available
         }

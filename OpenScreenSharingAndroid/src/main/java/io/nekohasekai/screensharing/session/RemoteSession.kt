@@ -6,6 +6,7 @@ import io.nekohasekai.screensharing.model.ComputerAddress
 import io.nekohasekai.screensharing.model.NetworkConfiguration
 import io.nekohasekai.screensharing.model.RemoteProtocol
 import io.nekohasekai.screensharing.model.SessionQuality
+import java.io.File
 
 sealed interface SessionPhase {
     data object Idle : SessionPhase
@@ -205,7 +206,6 @@ enum class ServerDialect {
 
 enum class RemotePlatform {
     Mac,
-    IOS,
     Pc,
 }
 
@@ -290,7 +290,6 @@ class VideoAccessUnit(
     val frameEnd: Boolean,
     val changedBands: Int,
     val discontinuity: Boolean,
-    val turns: PictureTurns,
     val arrivalNanos: Long,
     val composedNanos: Long?,
 )
@@ -325,3 +324,53 @@ data class SessionStatistics(
 data class PacketStatistics(val received: Long, val expected: Long)
 
 data class VideoStreamStatistics(val losses: Long)
+
+interface RemoteSession {
+    val displayWidthMultiple: Int
+
+    fun connect()
+    fun stop()
+    fun abort()
+    fun answerSessionChoice(prompt: SessionChoicePrompt, choice: SessionChoice)
+    fun sendPointer(x: Int, y: Int, buttons: PointerButtons, clickCount: Int)
+    fun sendScroll(x: Int, y: Int, deltaX: Double, deltaY: Double)
+    fun sendTouches(touches: List<RemoteTouch>)
+    fun sendKey(key: MacKey, keyboardType: MacKeyboardType, down: Boolean)
+    fun sendText(text: String)
+    fun pasteText(text: String)
+    fun selectKeyboardSource(id: String)
+    fun sendMagnify(x: Int, y: Int, magnification: Double, phase: GesturePhase)
+    fun sendRotate(x: Int, y: Int, degrees: Double, phase: GesturePhase)
+    fun sendScrollPhase(x: Int, y: Int, deltaX: Double, deltaY: Double, phase: GesturePhase)
+    fun startScrollMomentum(x: Int, y: Int, velocityX: Double, velocityY: Double)
+    fun stopScrollMomentum()
+    fun sendSystemCommand(command: SystemCommand)
+    fun setAssistCursor(x: Int, y: Int, pressed: Boolean)
+    fun hideAssistCursor()
+    fun setMode(mode: SessionMode)
+    fun selectDisplay(selection: DisplaySelection)
+    fun setQuality(quality: SessionQuality)
+    fun startHighPerformance()
+    fun startHighPerformanceWithConnection()
+    fun uploadFile(localFile: File, remoteFolder: String): Long
+    fun downloadFile(remotePath: String, localFolder: File): Long
+    fun downloadFiles(remotePaths: List<String>, localFolder: File)
+    fun setCursorAssets(assets: MacCursorAssets?)
+    fun startDrop(names: List<String>): Long
+    fun cancelDrag(id: Long)
+    fun cancelRemoteDrag()
+    fun cancelTransfer(id: Long)
+    fun setReceivesAudio(receivesAudio: Boolean)
+    fun sendMicrophoneAudio(data: ByteArray)
+    fun requestRefresh()
+    fun requestKeyframe()
+    fun statistics(): SessionStatistics?
+    fun setVirtualDisplay(mode: VirtualDisplayMode, largestSide: Int)
+    fun setVisible(visible: Boolean)
+    fun setKeepsAwake(enabled: Boolean)
+    fun setHDR(enabled: Boolean)
+    fun setUpdateRate(rate: Int)
+    fun setClipboardSharing(enabled: Boolean)
+    fun sendClipboard(content: ClipboardContent, pasting: Boolean)
+    fun requestClipboard()
+}

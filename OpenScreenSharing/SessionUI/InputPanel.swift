@@ -263,10 +263,8 @@ private struct InputPanelView: View {
             headerButton("Keyboard", systemImage: "keyboard", isOn: plan.showsKeyboard) {
                 controller.setMacKeyboardVisible(!plan.showsKeyboard)
             }
-            if controller.platform != .iOS {
-                headerButton("Trackpad", systemImage: "rectangle.and.hand.point.up.left", isOn: plan.showsTrackpad) {
-                    controller.setTrackpadVisible(!plan.showsTrackpad)
-                }
+            headerButton("Trackpad", systemImage: "rectangle.and.hand.point.up.left", isOn: plan.showsTrackpad) {
+                controller.setTrackpadVisible(!plan.showsTrackpad)
             }
             if plan.showsKeyboard {
                 Button {

@@ -44,7 +44,6 @@ nonisolated final class VideoDecoder: @unchecked Sendable {
         var arrival: CFTimeInterval
         var capture: CFTimeInterval
         var composed: CFTimeInterval?
-        var turns: PictureTurns
         var submittedMask = 0
         var ended = false
         var remaining = 0
@@ -186,7 +185,6 @@ nonisolated final class VideoDecoder: @unchecked Sendable {
             }
             pending.append(PendingFrame(
                 id: unit.frameID, arrival: unit.arrival, capture: unit.presentationTime.seconds, composed: unit.composed,
-                turns: unit.turns,
                 latestTickets: Array(repeating: nil, count: bands), strips: Array(repeating: nil, count: bands)))
             lastSubmittedFrameID = unit.frameID
             lastSubmissionEnded = false
@@ -272,7 +270,6 @@ nonisolated final class VideoDecoder: @unchecked Sendable {
                     pixelBuffer: bands == 1 ? strips[0] : nil,
                     strips: bands == 1 ? [] : strips,
                     canvasHeight: canvasHeight,
-                    turns: first.turns,
                     timing: FrameTiming(arrival: first.arrival, capture: first.capture, composed: first.composed))
                 output(frame)
             }

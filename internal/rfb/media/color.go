@@ -101,34 +101,19 @@ func (r *bitReader) signedGolomb() int {
 	return -int(value / 2)
 }
 
-func HEVCPictureSize(sps []byte) (width, height int, ok bool) {
-	if len(sps) < 3 {
-		return 0, 0, false
-	}
-	r := &bitReader{data: unescapeRBSP(sps[2:])}
-	_, _, width, height = readHEVCSPSHeader(r)
-	return width, height, !r.overrun
-}
-
-func readHEVCSPSHeader(r *bitReader) (maxSubLayersMinus1, chromaFormat, width, height int) {
+func parseHEVCColor(r *bitReader) (Color, error) {
+	var color Color
 	r.bits(4)
-	maxSubLayersMinus1 = int(r.bits(3))
+	maxSubLayersMinus1 := int(r.bits(3))
 	r.bits(1)
 	skipHEVCProfileTierLevel(r, maxSubLayersMinus1)
 	r.unsignedGolomb()
-	chromaFormat = int(r.unsignedGolomb())
-	if chromaFormat == 3 {
+	color.ChromaFormat = int(r.unsignedGolomb())
+	if color.ChromaFormat == 3 {
 		r.bits(1)
 	}
-	width = int(r.unsignedGolomb())
-	height = int(r.unsignedGolomb())
-	return
-}
-
-func parseHEVCColor(r *bitReader) (Color, error) {
-	var color Color
-	maxSubLayersMinus1, chromaFormat, _, _ := readHEVCSPSHeader(r)
-	color.ChromaFormat = chromaFormat
+	r.unsignedGolomb()
+	r.unsignedGolomb()
 	if r.flag() {
 		for i := 0; i < 4; i++ {
 			r.unsignedGolomb()

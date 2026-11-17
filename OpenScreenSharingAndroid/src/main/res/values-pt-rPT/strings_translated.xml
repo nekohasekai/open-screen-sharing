@@ -105,6 +105,8 @@
     <string name="home_connection">Ligação</string>
     <string name="home_disable_udp">Desativar UDP</string>
     <string name="home_keep_alive">Manter ativo</string>
+    <string name="home_control">Controlo</string>
+    <string name="home_reverse_scroll_direction">Inverter direção do deslocamento</string>
     <string name="home_couldnt_save">Não foi possível guardar “%1$s”</string>
     <string name="home_port">Porta</string>
     <string name="home_looking_up">A procurar…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">Enviar áudio</string>
     <string name="model_observe_mode">Modo de observação</string>
     <string name="model_pointer_lock">Bloqueio do cursor</string>
-    <string name="model_home_screen">Ecrã principal</string>
-    <string name="model_app_switcher">Seletor de aplicações</string>
     <string name="model_lock">Bloquear</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Janelas de aplicações</string>

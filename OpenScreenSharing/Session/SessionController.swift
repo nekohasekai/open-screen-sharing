@@ -207,7 +207,7 @@ final class SessionController: Identifiable {
     private let store = ComputerStore.shared
     @PerceptionIgnored var onClose: () -> Void = {}
 
-    @PerceptionIgnored private var session: LibsharingRemoteSession?
+    @PerceptionIgnored private var session: (any RemoteSession)?
     @PerceptionIgnored private var sink: SessionEventSink?
     @PerceptionIgnored private var dragID: Int64?
     @PerceptionIgnored private var drops: [Int64: DropDelivery] = [:]
@@ -232,15 +232,12 @@ final class SessionController: Identifiable {
     @PerceptionIgnored private var keyboardSourceTimeout: Task<Void, Never>?
     @PerceptionIgnored private var keyboardType = MacKeyboardType.ansi
     @PerceptionIgnored private(set) var pointerPosition = CGPoint.zero
-    @PerceptionIgnored private var pictureSize = CGSize.zero
-    @PerceptionIgnored private var pictureTurns = PictureTurns.none
     @PerceptionIgnored private(set) var pointerButtons: PointerButtons = []
     @PerceptionIgnored private var clickCount = 0
     @PerceptionIgnored private var lastPress: (buttons: PointerButtons, position: CGPoint, time: TimeInterval)?
     @PerceptionIgnored private var pointerModifiers: Set<ModifierKey> = []
     @PerceptionIgnored private var nativeTouchIDs: Set<Int64> = []
     @PerceptionIgnored private var lastPointerMoveTime: TimeInterval = 0
-    @PerceptionIgnored private var pointerMovedSinceTouch = false
     @PerceptionIgnored private var displayArea = CGSize.zero
     @PerceptionIgnored private(set) var windowSize: CGSize?
     @PerceptionIgnored private var displayScale: CGFloat = 2
@@ -249,6 +246,7 @@ final class SessionController: Identifiable {
     private let virtualDisplayRequests = VirtualDisplayRequests()
     @PerceptionIgnored private(set) var sceneInBackground = false
     @PerceptionIgnored private var keepsAlive = false
+    @PerceptionIgnored private var reversesScrolling = false
     @PerceptionIgnored private var screenVisible = true
     @PerceptionIgnored private var localScreensAsleep = false
     @PerceptionIgnored nonisolated(unsafe) private var screenSleepObservers: [any NSObjectProtocol] = []
@@ -289,20 +287,6 @@ final class SessionController: Identifiable {
     @PerceptionIgnored private var passwordUpdate = PasswordUpdate.keep
     @PerceptionIgnored private var usedSavedPassword = false
     @PerceptionIgnored private var device: DeviceInfo?
-    private var deviceType: DeviceType? {
-        didSet {
-            if isIOS {
-                virtualDisplayRequests.stopWaiting()
-            }
-        }
-    }
-
-    private var isIOS: Bool { deviceType?.isIOS ?? false }
-    private var isPhone: Bool { deviceType == .iPhone }
-
-    var platform: RemotePlatform {
-        isIOS ? .iOS : info.platform
-    }
 
     init(route: SessionRoute) {
         self.route = route
@@ -312,7 +296,6 @@ final class SessionController: Identifiable {
         server = route.server
         device = route.model.map { DeviceInfo(model: $0, enclosureColor: "") }
         usesHighPerformance = route.remoteProtocol == .vnc && route.usesHighPerformance
-        deviceType = route.deviceType ?? route.model.flatMap(DeviceType.init(model:))
         windowSize = route.computerID.flatMap { store.stored($0) }?.memory.windowSize
         virtualDisplayRequests.onIdle = { [weak self] in self?.virtualDisplayDidSettle() }
         #if os(macOS)
@@ -331,7 +314,7 @@ final class SessionController: Identifiable {
             DispatchQueue.main.async {
                 guard let self else { return }
                 let shown = self.pipeline.currentPicture
-                self.handle(picture: shown.picture, width: shown.width, height: shown.height, turns: shown.turns)
+                self.handle(picture: shown.picture, width: shown.width, height: shown.height)
             }
         }
     }
@@ -349,7 +332,6 @@ final class SessionController: Identifiable {
             restore(stored.memory)
             device = device ?? stored.device
             usesHighPerformance = stored.usesHighPerformance
-            deviceType = stored.deviceType
             keyboardSources = stored.keyboardSources.map(MacInputSource.init(id:))
             trustedFingerprint = stored.trustedFingerprint
         }
@@ -498,27 +480,9 @@ final class SessionController: Identifiable {
 
     fileprivate func handle(device: DeviceInfo) {
         self.device = device
-        if let type = DeviceType(model: device.model) {
-            deviceType = type
-        }
         if let computerID {
             save { try $0.setDevice(device, for: computerID) }
         }
-    }
-
-    var touchScreenSize: CGSize? {
-        guard let density = touchScreenDensity, info.framebufferWidth > 0, info.framebufferHeight > 0 else { return nil }
-        return CGSize(width: Double(info.framebufferWidth) / density, height: Double(info.framebufferHeight) / density)
-    }
-
-    private var touchScreenDensity: Double? {
-        guard isIOS else { return nil }
-        return isPhone && min(info.framebufferWidth, info.framebufferHeight) >= 1000 ? 3 : 2
-    }
-
-    var cursorPixelsPerPoint: Double {
-        guard let density = touchScreenDensity else { return info.cursorPixelsPerPoint }
-        return density / info.framebufferPixelsPerCursorPixel
     }
 
     private func connect(with credentials: SessionCredentials) {
@@ -529,6 +493,7 @@ final class SessionController: Identifiable {
             networkConfiguration = computer.networkConfiguration
             keepsAlive = computer.keepsAlive
             disablesUDP = computer.disablesUDP
+            reversesScrolling = computer.reversesScrolling
         }
         hdrEnabled = hdrEnabled && networkSupportsHDR
         highPerformanceStartPending = usesHighPerformance
@@ -556,7 +521,7 @@ final class SessionController: Identifiable {
             disablesUDP: disablesUDP
         )
         let sink = SessionEventSink(controller: self, pipeline: pipeline)
-        let session = LibsharingRemoteSession(configuration: configuration, delegate: sink)
+        let session = Demo.current?.makeSession(self, sink) ?? LibsharingRemoteSession(configuration: configuration, delegate: sink)
         sink.session = session
         if sceneInBackground {
             sink.setSceneInBackground(true)
@@ -748,9 +713,6 @@ final class SessionController: Identifiable {
         guard sceneInBackground, phase.isActive, !reconnectsOnReturn, backgroundTask == .invalid,
             transferTask?.isRunning != true, sink?.keepsAppRunning != true
         else { return }
-        #if DEBUG || SIDELOAD
-        if ServerController.shared.keepsAppRunning { return }
-        #endif
         reconnectsOnReturn = true
         teardown()
         phase = .reconnecting(attempt: 1)
@@ -821,11 +783,6 @@ final class SessionController: Identifiable {
         switch newPhase {
         case .connected:
             reconnectAttempts = 0
-            if info.dialect != .apple {
-                deviceType = nil
-            } else if deviceType == nil {
-                deviceType = .mac
-            }
             if !hasConnected || passwordUpdate.isPending {
                 hasConnected = true
                 recordConnection()
@@ -915,34 +872,19 @@ final class SessionController: Identifiable {
         }
     }
 
-    private func handle(picture: ScreenPicture, width: Int, height: Int, turns: PictureTurns) {
+    private func handle(picture: ScreenPicture, width: Int, height: Int) {
         self.picture = picture
         if picture == .current {
             hasPicture = true
         }
-        let newPictureSize = CGSize(width: width, height: height)
-        guard newPictureSize != pictureSize || turns != pictureTurns else { return }
-        let serverPointer = newPictureSize == pictureSize ? serverPoint(pointerPosition) : nil
-        pictureSize = newPictureSize
-        pictureTurns = turns
-        let size = turns.shownSize(of: newPictureSize)
+        let size = CGSize(width: width, height: height)
+        guard size != imageSize else { return }
         imageSize = size
-        if let serverPointer {
-            pointerPosition = shownPoint(serverPointer)
-            pipeline.setCursorPosition(pointerPosition, visible: remotePointerVisible)
-        } else if pointerPosition == .zero || pointerPosition.x >= size.width || pointerPosition.y >= size.height {
+        if pointerPosition == .zero || pointerPosition.x >= size.width || pointerPosition.y >= size.height {
             pointerPosition = CGPoint(x: size.width / 2, y: size.height / 2)
             pipeline.setCursorPosition(pointerPosition, visible: remotePointerVisible)
         }
         screen?.imageSizeDidChange()
-    }
-
-    private func serverPoint(_ point: CGPoint) -> CGPoint {
-        pictureTurns.picturePoint(point, inPictureOf: pictureSize)
-    }
-
-    private func shownPoint(_ point: CGPoint) -> CGPoint {
-        pictureTurns.shownPoint(point, inPictureOf: pictureSize)
     }
 
     fileprivate func handle(displays: [RemoteDisplay], selection: DisplaySelection) {
@@ -1014,7 +956,7 @@ final class SessionController: Identifiable {
 
     fileprivate func handle(cursorMovedTo point: CGPoint) {
         if isControlling, CACurrentMediaTime() - lastPointerMoveTime < 0.3 { return }
-        pointerPosition = shownPoint(point)
+        pointerPosition = point
         pipeline.setCursorPosition(pointerPosition, visible: remotePointerVisible)
     }
 
@@ -1115,7 +1057,7 @@ final class SessionController: Identifiable {
 
     func dropMoved(to point: CGPoint) {
         guard dragID != nil else { return }
-        moveTouch(to: point)
+        movePointer(to: point)
         if !pointerButtons.contains(.primary) {
             press(.primary)
         }
@@ -1601,7 +1543,7 @@ final class SessionController: Identifiable {
     }
 
     var wantsVirtualDisplay: Bool {
-        !isIOS && (usesHighPerformance || route.remoteProtocol == .rdp)
+        usesHighPerformance || route.remoteProtocol == .rdp
     }
 
     var pictureMatchesWindow: Bool {
@@ -1615,7 +1557,7 @@ final class SessionController: Identifiable {
         if !followsWindow, imageSize.width > 0, imageSize.height > 0 {
             return imageSize.width < imageSize.height ? .portrait : .landscape
         }
-        return platform == .iOS ? nil : .landscape
+        return .landscape
     }
     #endif
 
@@ -1708,7 +1650,7 @@ final class SessionController: Identifiable {
     }
 
     fileprivate func audioFailed(_ error: any Error) {
-        alert = AlertState(platform != .pc ? String(localized: "Can’t Play the Mac’s Sound") : String(localized: "Can’t Play the Computer’s Sound"), error: error)
+        alert = AlertState(info.platform != .pc ? String(localized: "Can’t Play the Mac’s Sound") : String(localized: "Can’t Play the Computer’s Sound"), error: error)
     }
 
     func sendChord(_ chord: KeyChord) {
@@ -1840,7 +1782,6 @@ final class SessionController: Identifiable {
 
 
     func movePointer(to point: CGPoint) {
-        pointerMovedSinceTouch = true
         let clamped = clampToImage(point)
         pointerPosition = clamped
         lastPointerMoveTime = CACurrentMediaTime()
@@ -1850,10 +1791,6 @@ final class SessionController: Identifiable {
             return
         }
         sendPointer(buttons: pointerButtons)
-    }
-
-    var touchesDirectly: Bool {
-        isIOS && isControlling
     }
 
     var touchesNatively: Bool {
@@ -1869,27 +1806,13 @@ final class SessionController: Identifiable {
         session?.sendTouches(
             touches.map { touch in
                 var touch = touch
-                touch.location = serverPoint(clampToImage(touch.location))
+                touch.location = clampToImage(touch.location)
                 return touch
             })
         for touch in touches where touch.phase == .ended || touch.phase == .cancelled {
             nativeTouchIDs.remove(touch.id)
         }
         endPointerInput()
-    }
-
-    var hidesPointerForTouch: Bool {
-        isIOS && !pointerMovedSinceTouch
-    }
-
-    func moveTouch(to point: CGPoint) {
-        pointerMovedSinceTouch = false
-        let clamped = clampToImage(point)
-        pointerPosition = clamped
-        lastPointerMoveTime = CACurrentMediaTime()
-        pipeline.setCursorPosition(clamped, visible: true)
-        guard isControlling, !pointerButtons.isEmpty else { return }
-        sendPointer(buttons: pointerButtons)
     }
 
     func pointerLeftScreen() {
@@ -1902,8 +1825,7 @@ final class SessionController: Identifiable {
         let wanted = capabilities.contains(.assistCursor) && !mode.controls && phase == .connected
         if wanted {
             assistCursorShown = true
-            let point = serverPoint(pointerPosition)
-            session?.setAssistCursor(x: Int(point.x), y: Int(point.y), pressed: !pointerButtons.isEmpty)
+            session?.setAssistCursor(x: Int(pointerPosition.x), y: Int(pointerPosition.y), pressed: !pointerButtons.isEmpty)
         } else {
             pointerLeftScreen()
         }
@@ -1921,8 +1843,8 @@ final class SessionController: Identifiable {
 
     private func sendPointer(buttons: PointerButtons) {
         guard !holdsPointer else { return }
-        let point = serverPoint(pointerPosition)
-        session?.sendPointer(x: Int(point.x.rounded(.down)), y: Int(point.y.rounded(.down)), buttons: buttons, clickCount: clickCount)
+        session?.sendPointer(
+            x: Int(pointerPosition.x.rounded(.down)), y: Int(pointerPosition.y.rounded(.down)), buttons: buttons, clickCount: clickCount)
     }
 
     private static let multiClickInterval: TimeInterval = 0.5
@@ -1953,7 +1875,7 @@ final class SessionController: Identifiable {
         guard isControlling else { return }
         textCursorMayHaveMoved()
         guard pointerButtons.isEmpty, nativeTouchIDs.isEmpty else { return }
-        if platform == .pc, pressedKeys.values.contains(where: { ModifierKey(keysym: $0.keysym) == .command }) {
+        if info.platform == .pc, pressedKeys.values.contains(where: { ModifierKey(keysym: $0.keysym) == .command }) {
             commandTapPending = false
             var modifiers = Set(pressedKeys.values.compactMap { ModifierKey(keysym: $0.keysym) })
             modifiers.remove(.command)
@@ -1989,32 +1911,32 @@ final class SessionController: Identifiable {
         capabilities.contains(.gestures) && isControlling
     }
 
-    func magnify(at point: CGPoint, by magnification: Double, phase: GesturePhase) {
+    func magnify(by magnification: Double, phase: GesturePhase) {
         guard sendsGesturesToMac else { return }
-        let point = serverPoint(point)
-        session?.sendMagnify(x: Int(point.x), y: Int(point.y), magnification: magnification, phase: phase)
+        session?.sendMagnify(x: Int(pointerPosition.x), y: Int(pointerPosition.y), magnification: magnification, phase: phase)
     }
 
-    func rotate(at point: CGPoint, degrees: Double, phase: GesturePhase) {
+    func rotate(degrees: Double, phase: GesturePhase) {
         guard sendsGesturesToMac else { return }
-        let point = serverPoint(point)
-        session?.sendRotate(x: Int(point.x), y: Int(point.y), degrees: degrees, phase: phase)
+        session?.sendRotate(x: Int(pointerPosition.x), y: Int(pointerPosition.y), degrees: degrees, phase: phase)
     }
 
     func scroll(byPixels delta: CGPoint, phase: GesturePhase) {
         guard sendsGesturesToMac else { return }
         isScrollGliding = false
-        let point = serverPoint(pointerPosition)
-        let delta = pictureTurns.pictureVector(delta)
-        session?.sendScrollPhase(x: Int(point.x), y: Int(point.y), deltaX: Double(delta.x), deltaY: Double(delta.y), phase: phase)
+        let direction: Double = reversesScrolling ? -1 : 1
+        session?.sendScrollPhase(
+            x: Int(pointerPosition.x), y: Int(pointerPosition.y), deltaX: Double(delta.x) * direction, deltaY: Double(delta.y) * direction,
+            phase: phase)
     }
 
     func startScrollMomentum(pixelsPerSecond velocity: CGPoint) {
         guard sendsGesturesToMac, hypot(velocity.x, velocity.y) > 50 else { return }
         isScrollGliding = true
-        let point = serverPoint(pointerPosition)
-        let velocity = pictureTurns.pictureVector(velocity)
-        session?.startScrollMomentum(x: Int(point.x), y: Int(point.y), velocityX: Double(velocity.x), velocityY: Double(velocity.y))
+        let direction: Double = reversesScrolling ? -1 : 1
+        session?.startScrollMomentum(
+            x: Int(pointerPosition.x), y: Int(pointerPosition.y), velocityX: Double(velocity.x) * direction,
+            velocityY: Double(velocity.y) * direction)
     }
 
     func stopScrollMomentum() {
@@ -2024,7 +1946,7 @@ final class SessionController: Identifiable {
     }
 
     func canPerform(_ command: SystemCommand) -> Bool {
-        capabilities.contains(command.capability) || platform != .pc && command.fallbackChord != nil
+        capabilities.contains(command.capability) || info.platform != .pc && command.fallbackChord != nil
     }
 
     func perform(_ command: SystemCommand) {
@@ -2032,16 +1954,16 @@ final class SessionController: Identifiable {
         textCursorMayHaveMoved()
         if capabilities.contains(command.capability) {
             session?.sendSystemCommand(command)
-        } else if platform != .pc, let chord = command.fallbackChord {
+        } else if info.platform != .pc, let chord = command.fallbackChord {
             sendChord(chord)
         }
     }
 
     func scroll(byPixels delta: CGPoint) {
         guard isControlling else { return }
-        let point = serverPoint(pointerPosition)
-        let delta = pictureTurns.pictureVector(delta)
-        session?.sendScroll(x: Int(point.x), y: Int(point.y), deltaX: Double(delta.x), deltaY: Double(delta.y))
+        let direction: Double = reversesScrolling ? -1 : 1
+        session?.sendScroll(
+            x: Int(pointerPosition.x), y: Int(pointerPosition.y), deltaX: Double(delta.x) * direction, deltaY: Double(delta.y) * direction)
     }
 
     private func clampToImage(_ point: CGPoint) -> CGPoint {
@@ -2186,7 +2108,7 @@ final class SessionController: Identifiable {
             return true
         }
         var key = mapped
-        if platform == .pc {
+        if info.platform == .pc {
             commandTapPending = false
             var modifiers = held
             if let shortcut, let output = KeyTranslations.output(for: shortcut), let chord = output.chord(for: .pc) {
@@ -2210,12 +2132,12 @@ final class SessionController: Identifiable {
     }
 
     var mappingTarget: MappingTarget {
-        platform == .pc ? .pc : .apple
+        info.platform == .pc ? .pc : .apple
     }
 
     private func pressModifier(_ key: MacKey, id: Int, tappable: Bool) {
         pressedKeys[id] = key
-        guard platform == .pc, let modifier = ModifierKey(keysym: key.keysym) else {
+        guard info.platform == .pc, let modifier = ModifierKey(keysym: key.keysym) else {
             send(key, down: true)
             return
         }
@@ -2226,7 +2148,7 @@ final class SessionController: Identifiable {
     }
 
     private func release(_ key: MacKey) {
-        guard platform == .pc, let modifier = ModifierKey(keysym: key.keysym) else {
+        guard info.platform == .pc, let modifier = ModifierKey(keysym: key.keysym) else {
             send(key, down: false)
             return
         }
@@ -2403,7 +2325,7 @@ final class SessionController: Identifiable {
         textCursorMayHaveMoved()
         var latched = lockedModifiers.union(pressedModifiers)
         var down = Set<MacKey>()
-        if platform == .pc {
+        if info.platform == .pc {
             commandTapPending = false
             setSentModifiers([])
         } else {
@@ -2612,7 +2534,7 @@ final class SessionController: Identifiable {
         stopRepeat()
         let keys = pressedKeys.values.sorted { lhs, rhs in !lhs.isModifier && rhs.isModifier }
         pressedKeys.removeAll()
-        for key in keys where platform != .pc || ModifierKey(keysym: key.keysym) == nil {
+        for key in keys where info.platform != .pc || ModifierKey(keysym: key.keysym) == nil {
             send(key, down: false)
         }
         for key in sentModifiers.values {
@@ -2673,7 +2595,7 @@ final class SessionController: Identifiable {
     private func macKey(for key: UIKey) -> MacKey? {
         let typed = keysym(for: key)
         guard let keyCode = MacKey.keyCode(for: key.keyCode, type: keyboardType),
-            platform != .pc || ![.keyboardPrintScreen, .keyboardScrollLock, .keyboardPause].contains(key.keyCode)
+            info.platform != .pc || ![.keyboardPrintScreen, .keyboardScrollLock, .keyboardPause].contains(key.keyCode)
         else {
             return typed.map { MacKey(keyCode: nil, keysym: $0) }
         }
@@ -2778,7 +2700,7 @@ nonisolated final class SessionEventSink: @unchecked Sendable {
     private var audioPlayer: AudioPlayer?
     private var isVideo = false
     private var sceneInBackground = false
-    weak var session: LibsharingRemoteSession?
+    weak var session: (any RemoteSession)?
 
     @MainActor
     init(controller: SessionController, pipeline: DisplayPipeline) {
@@ -2786,13 +2708,7 @@ nonisolated final class SessionEventSink: @unchecked Sendable {
         self.pipeline = pipeline
         debugInfo = controller.debugInfo
         decoder = VideoDecoder(
-            output: { [weak self, pipeline] frame in
-                guard let self, !self.isDetached else { return }
-                let timing = frame.timing
-                pipeline.setVideoFrame(frame) { [weak self] picture in
-                    self?.pictureReady(picture, arrival: timing.arrival, capture: timing.capture, composed: timing.composed)
-                }
-            },
+            output: { [weak self] frame in self?.sessionDecodedVideo(frame) },
             failure: { [weak self] in self?.session?.requestKeyframe() },
             unsupported: { [weak self] hdr, error in self?.onMain { $0.videoDecodingFailed(error, hdr: hdr) } }
         )
@@ -2873,6 +2789,10 @@ nonisolated final class SessionEventSink: @unchecked Sendable {
 
     func sessionVideoFormatChanged(_ format: VideoFormat) {
         decoder.setFormat(format)
+        sessionVideoStarted()
+    }
+
+    func sessionVideoStarted() {
         lock.lock()
         let started = !isVideo
         isVideo = true
@@ -2903,6 +2823,14 @@ nonisolated final class SessionEventSink: @unchecked Sendable {
 
     func sessionReceivedVideo(_ unit: VideoAccessUnit) {
         decoder.decode(unit)
+    }
+
+    func sessionDecodedVideo(_ frame: DecodedVideoFrame) {
+        guard !isDetached else { return }
+        let timing = frame.timing
+        pipeline.setVideoFrame(frame) { [weak self] picture in
+            self?.pictureReady(picture, arrival: timing.arrival, capture: timing.capture, composed: timing.composed)
+        }
     }
 
     func sessionAudioFormatChanged(_ format: AudioFormat) {

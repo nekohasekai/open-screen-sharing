@@ -45,7 +45,6 @@ enum ShortcutAction: String, CaseIterable, Identifiable {
     #if os(iOS)
     case keyboard
     #endif
-    case home, appSwitcher, lock
     case missionControl, appWindows, showDesktop, launchpad
     case debugPanel
 
@@ -78,8 +77,7 @@ enum ShortcutAction: String, CaseIterable, Identifiable {
         case .newConnection, .disconnect: .file
         case .syncClipboard, .receiveClipboard, .sendClipboard: .edit
         case .receiveAudio, .sendAudio: .sound
-        case .observe, .pointerLock, .home, .appSwitcher, .lock, .missionControl, .appWindows, .showDesktop, .launchpad:
-            .control
+        case .observe, .pointerLock, .missionControl, .appWindows, .showDesktop, .launchpad: .control
         #if os(iOS)
         case .keyboard: .control
         #endif
@@ -118,9 +116,6 @@ enum ShortcutAction: String, CaseIterable, Identifiable {
         case .sendAudio: return String(localized: "Send Audio")
         case .observe: return String(localized: "Observe Mode")
         case .pointerLock: return String(localized: "Pointer Lock")
-        case .home: return String(localized: SessionCommand.home.title)
-        case .appSwitcher: return String(localized: SessionCommand.appSwitcher.title)
-        case .lock: return String(localized: SessionCommand.lock.title)
         case .missionControl: return String(localized: SystemCommand.missionControl.title)
         case .appWindows: return String(localized: SystemCommand.appWindows.title)
         case .showDesktop: return String(localized: SystemCommand.showDesktop.title)
@@ -157,13 +152,6 @@ struct KeyShortcut: Codable, Hashable {
         }
     }
 
-    struct KeySection: Identifiable {
-        let title: String?
-        let keys: [NamedKey]
-
-        var id: String { title ?? "" }
-    }
-
     enum KeyGroup: CaseIterable, Identifiable {
         case editing, navigation, functionKeys, keypad, system, control
 
@@ -180,34 +168,21 @@ struct KeyShortcut: Codable, Hashable {
             }
         }
 
-        private var sectionNames: [(title: String?, names: [String])] {
+        private var names: [String] {
             switch self {
-            case .editing: [(nil, ["return", "tab", "space", "delete", "deleteForward", "escape", "insert"])]
-            case .navigation: [(nil, ["home", "end", "pageUp", "pageDown", "upArrow", "downArrow", "leftArrow", "rightArrow"])]
-            case .functionKeys: [(nil, (1...24).map { "f\($0)" })]
+            case .editing: ["return", "tab", "space", "delete", "deleteForward", "escape", "insert"]
+            case .navigation: ["home", "end", "pageUp", "pageDown", "upArrow", "downArrow", "leftArrow", "rightArrow"]
+            case .functionKeys: (1...24).map { "f\($0)" }
             case .keypad:
-                [
-                    (
-                        nil,
-                        ["numLock"] + (0...9).map { "keypad\($0)" }
-                            + ["keypadDecimal", "keypadPlus", "keypadMinus", "keypadMultiply", "keypadDivide", "keypadEqual", "keypadEnter"]
-                    )
-                ]
-            case .system: [(nil, ["printScreen", "scrollLock", "pause", "menu", "capsLock"])]
-            case .control:
-                [("Mac", ["missionControl", "appWindows", "showDesktop", "launchpad"]), ("iPhone / iPad", ["homeScreen", "appSwitcher", "lock"])]
+                ["numLock"] + (0...9).map { "keypad\($0)" }
+                    + ["keypadDecimal", "keypadPlus", "keypadMinus", "keypadMultiply", "keypadDivide", "keypadEqual", "keypadEnter"]
+            case .system: ["printScreen", "scrollLock", "pause", "menu", "capsLock"]
+            case .control: ["missionControl", "appWindows", "showDesktop", "launchpad"]
             }
-        }
-
-        func sections(for target: MappingTarget) -> [KeySection] {
-            sectionNames.map { section in
-                KeySection(title: section.title, keys: section.names.compactMap { KeyShortcut.namedKeys[$0] }.filter { $0.targets.contains(target) })
-            }
-            .filter { !$0.keys.isEmpty }
         }
 
         func keys(for target: MappingTarget) -> [NamedKey] {
-            sections(for: target).flatMap(\.keys)
+            names.compactMap { KeyShortcut.namedKeys[$0] }.filter { $0.targets.contains(target) }
         }
     }
 
@@ -275,9 +250,6 @@ struct KeyShortcut: Codable, Hashable {
         add("appWindows", String(localized: SystemCommand.appWindows.title), nil, for: [.apple], command: .appWindows)
         add("showDesktop", String(localized: SystemCommand.showDesktop.title), nil, for: [.apple], command: .showDesktop)
         add("launchpad", String(localized: SystemCommand.launchpad.title), nil, for: [.apple], command: .launchpad)
-        add("homeScreen", String(localized: SessionCommand.home.title), nil, for: [.apple], command: .showDesktop)
-        add("appSwitcher", String(localized: SessionCommand.appSwitcher.title), nil, for: [.apple], command: .missionControl)
-        add("lock", String(localized: SessionCommand.lock.title), KeyChord.sideButton.key, for: [.apple])
         return Dictionary(uniqueKeysWithValues: keys.map { ($0.name, $0) })
     }()
 

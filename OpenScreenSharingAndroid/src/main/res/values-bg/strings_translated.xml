@@ -105,6 +105,8 @@
     <string name="home_connection">Връзка</string>
     <string name="home_disable_udp">Изключване на UDP</string>
     <string name="home_keep_alive">Поддържане активно</string>
+    <string name="home_control">Управление</string>
+    <string name="home_reverse_scroll_direction">Обръщане на посоката на превъртане</string>
     <string name="home_couldnt_save">Неуспешно запазване на „%1$s“</string>
     <string name="home_port">Порт</string>
     <string name="home_looking_up">Търсене…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">Изпращане на звук</string>
     <string name="model_observe_mode">Режим на наблюдение</string>
     <string name="model_pointer_lock">Заключване на показалеца</string>
-    <string name="model_home_screen">Начален екран</string>
-    <string name="model_app_switcher">Превключвател на приложения</string>
     <string name="model_lock">Заключи</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Прозорци на приложението</string>

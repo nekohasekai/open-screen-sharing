@@ -894,7 +894,7 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
         }
         if magnifyGoesToMac {
             guard let phase = GesturePhase(event.phase) else { return }
-            controller.magnify(at: controller.pointerPosition, by: event.magnification, phase: phase)
+            controller.magnify(by: event.magnification, phase: phase)
             return
         }
         let location = convert(event.locationInWindow, from: nil)
@@ -906,7 +906,7 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
             rotateGoesToMac = controller.sendsGesturesToMac && !controller.isZoomModeOn
         }
         guard rotateGoesToMac, let phase = GesturePhase(event.phase) else { return }
-        controller.rotate(at: controller.pointerPosition, degrees: Double(event.rotation), phase: phase)
+        controller.rotate(degrees: Double(event.rotation), phase: phase)
     }
 
     override func smartMagnify(with event: NSEvent) {

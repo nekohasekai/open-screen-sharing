@@ -3,7 +3,6 @@ package io.nekohasekai.screensharing.session
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.ColorMatrixColorFilter
-import android.graphics.Matrix
 import android.graphics.Paint
 import android.os.Build
 import android.os.SharedMemory
@@ -83,11 +82,11 @@ object PixelBufferImage {
         ),
     )
 
-    fun thumbnailScale(width: Int, height: Int, turns: PictureTurns): Float = min(1f, THUMBNAIL_WIDTH / (if (turns.isSideways) height else width))
+    fun thumbnailScale(width: Int): Float = min(1f, THUMBNAIL_WIDTH / width)
 
-    fun makeThumbnail(image: Bitmap, turns: PictureTurns, bgra: Boolean = false): ByteArray? {
+    fun makeThumbnail(image: Bitmap, bgra: Boolean = false): ByteArray? {
         if (image.width <= 0 || image.height <= 0) return null
-        val scale = thumbnailScale(image.width, image.height, turns)
+        val scale = thumbnailScale(image.width)
         val width = max(1, (image.width * scale).roundToInt())
         val height = max(1, (image.height * scale).roundToInt())
         var scaled = image
@@ -105,11 +104,6 @@ object PixelBufferImage {
             scaled = next
             swaps = false
             if (!halves) break
-        }
-        if (turns.count != 0) {
-            val turned = Bitmap.createBitmap(scaled, 0, 0, scaled.width, scaled.height, Matrix().apply { postRotate(turns.degrees.toFloat()) }, true)
-            if (scaled !== image && turned !== scaled) scaled.recycle()
-            scaled = turned
         }
         val stream = ByteArrayOutputStream()
         val encoded = scaled.compress(Bitmap.CompressFormat.JPEG, THUMBNAIL_QUALITY, stream)

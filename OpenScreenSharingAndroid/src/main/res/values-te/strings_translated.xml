@@ -105,6 +105,8 @@
     <string name="home_connection">కనెక్షన్</string>
     <string name="home_disable_udp">UDPని నిలిపివేయండి</string>
     <string name="home_keep_alive">యాక్టివ్‌గా ఉంచండి</string>
+    <string name="home_control">నియంత్రణ</string>
+    <string name="home_reverse_scroll_direction">స్క్రోల్ దిశను రివర్స్ చేయండి</string>
     <string name="home_couldnt_save">“%1$s”ను సేవ్ చేయడం సాధ్యపడలేదు</string>
     <string name="home_port">పోర్ట్</string>
     <string name="home_looking_up">వెతుకుతోంది…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">ఆడియోను పంపడం</string>
     <string name="model_observe_mode">పరిశీలన మోడ్</string>
     <string name="model_pointer_lock">పాయింటర్ లాక్</string>
-    <string name="model_home_screen">హోమ్ స్క్రీన్</string>
-    <string name="model_app_switcher">యాప్ స్విచర్</string>
     <string name="model_lock">లాక్ చేయండి</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">యాప్ విండోలు</string>

@@ -105,6 +105,8 @@
     <string name="home_connection">การเชื่อมต่อ</string>
     <string name="home_disable_udp">ปิดใช้ UDP</string>
     <string name="home_keep_alive">คงการทำงานไว้</string>
+    <string name="home_control">ควบคุม</string>
+    <string name="home_reverse_scroll_direction">กลับทิศทางการเลื่อน</string>
     <string name="home_couldnt_save">ไม่สามารถบันทึก “%1$s” ได้</string>
     <string name="home_port">พอร์ต</string>
     <string name="home_looking_up">กำลังค้นหา…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">ส่งเสียง</string>
     <string name="model_observe_mode">โหมดสังเกตการณ์</string>
     <string name="model_pointer_lock">ล็อคตัวชี้</string>
-    <string name="model_home_screen">หน้าจอโฮม</string>
-    <string name="model_app_switcher">แถบสลับแอป</string>
     <string name="model_lock">ล็อค</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">หน้าต่างแอป</string>

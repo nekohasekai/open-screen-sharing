@@ -27,10 +27,7 @@ struct ConnectToView: View {
 
     private var found: [NearbyComputer] {
         nearby.computers.filter { found in
-            #if os(iOS) && (DEBUG || SIDELOAD)
-            guard found.name != ServerController.shared.advertisedName else { return false }
-            #endif
-            return !store.computers.contains { saved in
+            !store.computers.contains { saved in
                 saved.remoteProtocol == found.remoteProtocol
                     && (found.address.map(saved.address.matches) == true
                         || nearby.computer(matching: saved.address, remoteProtocol: saved.remoteProtocol)?.id == found.id)

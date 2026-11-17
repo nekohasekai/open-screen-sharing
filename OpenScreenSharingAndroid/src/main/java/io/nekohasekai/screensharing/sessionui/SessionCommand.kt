@@ -12,10 +12,8 @@ import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.DesktopWindows
 import androidx.compose.material.icons.outlined.HdrOn
 import androidx.compose.material.icons.outlined.HighQuality
-import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Keyboard
 import androidx.compose.material.icons.outlined.KeyboardHide
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.Monitor
 import androidx.compose.material.icons.outlined.Mouse
@@ -23,7 +21,6 @@ import androidx.compose.material.icons.outlined.OpenInFull
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.TextFields
 import androidx.compose.material.icons.outlined.TouchApp
-import androidx.compose.material.icons.outlined.ViewCarousel
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.ZoomIn
 import androidx.compose.runtime.Composable
@@ -33,7 +30,6 @@ import io.nekohasekai.screensharing.R
 import io.nekohasekai.screensharing.model.AppSettings
 import io.nekohasekai.screensharing.model.RemoteProtocol
 import io.nekohasekai.screensharing.model.ShortcutAction
-import io.nekohasekai.screensharing.session.KeyChord
 import io.nekohasekai.screensharing.session.RemotePlatform
 import io.nekohasekai.screensharing.session.SessionCapabilities
 import io.nekohasekai.screensharing.session.SessionController
@@ -61,9 +57,6 @@ enum class SessionCommand(
     AppWindows("appWindows"),
     ShowDesktop("showDesktop"),
     Launchpad("launchpad"),
-    Home("home"),
-    AppSwitcher("appSwitcher"),
-    Lock("lock"),
     Clipboard("clipboard"),
     DebugInfo("debugInfo"),
     ;
@@ -86,9 +79,6 @@ enum class SessionCommand(
                 Keyboard -> R.string.settings_keyboard
                 QuickInput -> R.string.settings_quick_input
                 MissionControl, AppWindows, ShowDesktop, Launchpad -> systemCommand!!.title
-                Home -> R.string.model_home_screen
-                AppSwitcher -> R.string.model_app_switcher
-                Lock -> R.string.model_lock
                 Clipboard -> R.string.chrome_clipboard
                 DebugInfo -> R.string.model_debug_panel
             }
@@ -110,9 +100,6 @@ enum class SessionCommand(
                 Keyboard -> Icons.Outlined.Keyboard
                 QuickInput -> Icons.Outlined.TextFields
                 MissionControl, AppWindows, ShowDesktop, Launchpad -> systemCommand!!.systemImage
-                Home -> Icons.Outlined.Home
-                AppSwitcher -> Icons.Outlined.ViewCarousel
-                Lock -> Icons.Outlined.Lock
                 Clipboard -> Icons.Outlined.ContentPaste
                 DebugInfo -> Icons.Outlined.Speed
             }
@@ -123,7 +110,6 @@ enum class SessionCommand(
                 ZoomMode, Scale, Displays, Quality, Resolution, Hdr -> SessionCommandCategory.View
                 Audio, SendAudio -> SessionCommandCategory.Sound
                 Observe, PointerLock, NativeTouch, Keyboard, QuickInput, MissionControl, AppWindows, ShowDesktop, Launchpad,
-                Home, AppSwitcher, Lock,
                 -> SessionCommandCategory.Control
                 Clipboard -> SessionCommandCategory.Clipboard
                 DebugInfo -> SessionCommandCategory.Debug
@@ -151,24 +137,19 @@ enum class SessionCommand(
                 PointerLock -> ShortcutAction.PointerLock
                 Keyboard -> ShortcutAction.Keyboard
                 MissionControl, AppWindows, ShowDesktop, Launchpad -> ShortcutAction.system(systemCommand!!)
-                Home -> ShortcutAction.Home
-                AppSwitcher -> ShortcutAction.AppSwitcher
-                Lock -> ShortcutAction.Lock
                 DebugInfo -> ShortcutAction.DebugPanel
                 else -> null
             }
 
     fun applies(platform: RemotePlatform): Boolean = when (this) {
-        Home, AppSwitcher, Lock -> platform == RemotePlatform.IOS
-        Displays, Quality, Resolution, Hdr -> platform != RemotePlatform.IOS
         MissionControl, AppWindows, ShowDesktop, Launchpad -> platform == RemotePlatform.Mac
-        ZoomMode, Scale, Audio, SendAudio, Observe, PointerLock, QuickInput, Clipboard, DebugInfo -> true
-        Keyboard -> true
-        NativeTouch -> platform != RemotePlatform.IOS
+        ZoomMode, Scale, Displays, Quality, Resolution, Hdr, Audio, SendAudio, NativeTouch, Observe, PointerLock, Keyboard, QuickInput,
+        Clipboard, DebugInfo,
+        -> true
     }
 
     fun isOffered(controller: SessionController): Boolean {
-        if (!applies(controller.platform)) return false
+        if (!applies(controller.info.platform)) return false
         val capabilities = controller.capabilities
         val known = !capabilities.isEmpty
         fun offers(capability: SessionCapabilities): Boolean = !known || capability in capabilities
@@ -201,7 +182,7 @@ enum class SessionCommand(
             Observe -> {
                 offers(SessionCapabilities.Control) && offers(SessionCapabilities.Observe)
             }
-            Keyboard, QuickInput, Lock -> {
+            Keyboard, QuickInput -> {
                 offers(SessionCapabilities.Control)
             }
             NativeTouch -> {
@@ -209,12 +190,6 @@ enum class SessionCommand(
             }
             PointerLock -> {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && offers(SessionCapabilities.Control) && io.nekohasekai.screensharing.sessionui.PointerLock.hasMouse
-            }
-            Home -> {
-                !known || controller.canPerform(SystemCommand.ShowDesktop)
-            }
-            AppSwitcher -> {
-                !known || controller.canPerform(SystemCommand.MissionControl)
             }
             MissionControl, AppWindows, ShowDesktop, Launchpad -> {
                 !known || controller.canPerform(systemCommand!!)
@@ -246,7 +221,7 @@ enum class SessionCommand(
             PointerLock -> {
                 controller.canLockPointer
             }
-            NativeTouch, Keyboard, QuickInput, MissionControl, AppWindows, ShowDesktop, Launchpad, Home, AppSwitcher, Lock -> {
+            NativeTouch, Keyboard, QuickInput, MissionControl, AppWindows, ShowDesktop, Launchpad -> {
                 controller.isControlling
             }
         }
@@ -293,7 +268,7 @@ val SessionController.showsDisplayPicker: Boolean
     get() = displays.size > 1 && !usesHighPerformance
 
 val SessionController.offersResolution: Boolean
-    get() = platform != RemotePlatform.IOS && wantsVirtualDisplay && (capabilities.isEmpty || SessionCapabilities.VirtualDisplay in capabilities)
+    get() = wantsVirtualDisplay && (capabilities.isEmpty || SessionCapabilities.VirtualDisplay in capabilities)
 
 enum class SessionCommandStyle {
     BarItem,
@@ -377,15 +352,6 @@ private fun BarCommand(
         SessionCommand.MissionControl, SessionCommand.AppWindows, SessionCommand.ShowDesktop, SessionCommand.Launchpad -> {
             BarButton(title, icon, enabled) { controller.perform(command.systemCommand!!) }
         }
-        SessionCommand.Home -> {
-            BarButton(title, icon, enabled) { controller.perform(SystemCommand.ShowDesktop) }
-        }
-        SessionCommand.AppSwitcher -> {
-            BarButton(title, icon, enabled) { controller.perform(SystemCommand.MissionControl) }
-        }
-        SessionCommand.Lock -> {
-            BarButton(title, icon, enabled) { controller.sendChord(KeyChord.sideButton) }
-        }
         SessionCommand.DebugInfo -> {
             BarToggle(title, icon, AppSettings.showsDebugInfo, enabled) { AppSettings.showsDebugInfo = it }
         }
@@ -460,15 +426,6 @@ private fun MenuCommand(
         }
         SessionCommand.MissionControl, SessionCommand.AppWindows, SessionCommand.ShowDesktop, SessionCommand.Launchpad -> {
             MenuButton(command, enabled, menu) { controller.perform(command.systemCommand!!) }
-        }
-        SessionCommand.Home -> {
-            MenuButton(command, enabled, menu) { controller.perform(SystemCommand.ShowDesktop) }
-        }
-        SessionCommand.AppSwitcher -> {
-            MenuButton(command, enabled, menu) { controller.perform(SystemCommand.MissionControl) }
-        }
-        SessionCommand.Lock -> {
-            MenuButton(command, enabled, menu) { controller.sendChord(KeyChord.sideButton) }
         }
         SessionCommand.Clipboard -> {
             ClipboardMenuItems(controller, enabled, menu)

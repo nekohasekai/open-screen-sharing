@@ -59,13 +59,13 @@ nonisolated enum PixelBufferImage {
     private static let colorSpace = CGColorSpace(name: CGColorSpace.sRGB)
     private static let thumbnailWidth: CGFloat = 1280
 
-    static func makeThumbnail(_ pixelBuffer: CVPixelBuffer, turns: PictureTurns) -> Data? {
-        thumbnail(of: CIImage(cvPixelBuffer: pixelBuffer).oriented(turns.imageOrientation))
+    static func makeThumbnail(_ pixelBuffer: CVPixelBuffer) -> Data? {
+        thumbnail(of: CIImage(cvPixelBuffer: pixelBuffer))
     }
 
-    static func makeThumbnail(strips: [CVPixelBuffer?], stripHeight: Int, canvasHeight: Int, turns: PictureTurns) -> Data? {
+    static func makeThumbnail(strips: [CVPixelBuffer?], stripHeight: Int, canvasHeight: Int) -> Data? {
         guard let image = composed(strips: strips, stripHeight: stripHeight, canvasHeight: canvasHeight) else { return nil }
-        return thumbnail(of: image.oriented(turns.imageOrientation))
+        return thumbnail(of: image)
     }
 
     private static func composed(strips: [CVPixelBuffer?], stripHeight: Int, canvasHeight: Int) -> CIImage? {

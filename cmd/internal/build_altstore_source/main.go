@@ -105,7 +105,7 @@ func main() {
 			Name:                 info["CFBundleDisplayName"].(string),
 			BundleIdentifier:     info["CFBundleIdentifier"].(string),
 			DeveloperName:        "nekohasekai",
-			LocalizedDescription: "Open Screen Sharing aims to develop superior servers and clients based on the private protocol used by Apple VNC (macOS's Screen Sharing server and ScreenSharing.app).",
+			LocalizedDescription: "A remote desktop client that doesn't suck.",
 			IconURL:              releaseURL + "icon.png",
 			Category:             "utilities",
 			Versions: []version{{

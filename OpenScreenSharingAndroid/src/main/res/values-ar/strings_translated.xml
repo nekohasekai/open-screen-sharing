@@ -105,6 +105,8 @@
     <string name="home_connection">الاتصال</string>
     <string name="home_disable_udp">تعطيل UDP</string>
     <string name="home_keep_alive">الإبقاء نشطًا</string>
+    <string name="home_control">التحكم</string>
+    <string name="home_reverse_scroll_direction">عكس اتجاه التمرير</string>
     <string name="home_couldnt_save">تعذر حفظ \"%1$s\"</string>
     <string name="home_port">المنفذ</string>
     <string name="home_looking_up">يجري البحث…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">إرسال الصوت</string>
     <string name="model_observe_mode">وضع المراقبة</string>
     <string name="model_pointer_lock">قفل المؤشر</string>
-    <string name="model_home_screen">الشاشة الرئيسية</string>
-    <string name="model_app_switcher">مُبدِّل التطبيقات</string>
     <string name="model_lock">قفل</string>
     <string name="model_mission_control">إدارة المهام</string>
     <string name="model_app_windows">نوافذ التطبيقات</string>

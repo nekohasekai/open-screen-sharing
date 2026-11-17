@@ -20,6 +20,7 @@ struct ComputerEditor: View {
     @State private var networkConfiguration: NetworkConfiguration
     @State private var keepsAlive: Bool
     @State private var disablesUDP: Bool
+    @State private var reversesScrolling: Bool
     @State private var problem: Problem?
     @State private var alert: AlertState?
     @FocusState private var focusedField: Field?
@@ -48,6 +49,7 @@ struct ComputerEditor: View {
         _networkConfiguration = State(initialValue: computer.networkConfiguration)
         _keepsAlive = State(initialValue: computer.keepsAlive)
         _disablesUDP = State(initialValue: computer.disablesUDP)
+        _reversesScrolling = State(initialValue: computer.reversesScrolling)
     }
 
     private var trimmedUsername: String {
@@ -111,8 +113,7 @@ struct ComputerEditor: View {
                             Text("Internet").tag(NetworkQuality.internet)
                         }
                         .pickerStyle(.menu)
-                        // The iPad negotiated 60 fps in the mode-5 capture (observed on iPad17,1, iPadOS 27.2 24B5099f).
-                        if networkConfiguration.quality == .internet, computer.deviceType == .mac {
+                        if networkConfiguration.quality == .internet {
                             Picker("Maximum Frame Rate", selection: $networkConfiguration.internetMaximumFrameRate) {
                                 ForEach(MaximumFrameRate.allCases) { rate in
                                     Text("\(rate.rawValue) FPS").tag(rate)
@@ -170,6 +171,13 @@ struct ComputerEditor: View {
                         Text("Connection")
                     }
                 }
+                if choice != .appleVNC {
+                    Section {
+                        Toggle("Reverse Scroll Direction", isOn: $reversesScrolling)
+                    } header: {
+                        Text("Control")
+                    }
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -222,6 +230,7 @@ struct ComputerEditor: View {
                 computer.usesHighPerformance = choice.usesHighPerformance
                 computer.keepsAlive = keepsAlive
                 computer.disablesUDP = disablesUDP
+                computer.reversesScrolling = choice != .appleVNC && reversesScrolling
             }
         } catch {
             alert = AlertState(String(localized: "Couldn’t Save “\(name)”"), error: error)

@@ -11,7 +11,6 @@ nonisolated struct SessionRoute: Codable, Hashable, Identifiable, Sendable {
     var model: String?
     var remoteProtocol: RemoteProtocol
     var usesHighPerformance: Bool
-    var deviceType: DeviceType?
     var server: ServerAuthentication?
 
     var address: ComputerAddress {
@@ -20,7 +19,8 @@ nonisolated struct SessionRoute: Codable, Hashable, Identifiable, Sendable {
 
     var knownPlatform: RemotePlatform? {
         if remoteProtocol == .rdp { return .pc }
-        return (deviceType ?? model.flatMap(DeviceType.init(model:))).map { $0.isIOS ? .iOS : .mac }
+        let model = model?.trimmingCharacters(in: .whitespaces) ?? ""
+        return usesHighPerformance || model.hasPrefix("Mac") || model.hasPrefix("iMac") ? .mac : nil
     }
 
     init(computer: Computer) {
@@ -32,11 +32,10 @@ nonisolated struct SessionRoute: Codable, Hashable, Identifiable, Sendable {
         model = computer.model.isEmpty ? nil : computer.model
         remoteProtocol = computer.remoteProtocol
         usesHighPerformance = computer.usesHighPerformance
-        deviceType = computer.usesHighPerformance ? computer.deviceType : nil
     }
 
     private enum CodingKeys: String, CodingKey {
-        case id, computerID, name, host, port, username, model, remoteProtocol, usesHighPerformance, deviceType, server
+        case id, computerID, name, host, port, username, model, remoteProtocol, usesHighPerformance, server
     }
 }
 

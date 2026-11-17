@@ -219,6 +219,7 @@ fun HomeView(pendingLink: String?, onLinkHandled: () -> Unit) {
     var requestedLocalNetworkAccess by rememberSaveable { mutableStateOf(false) }
     val discovers = watching && LocalWindowInfo.current.isWindowFocused
     LaunchedEffect(discovers) {
+        if (io.nekohasekai.screensharing.demo.Demo.current != null) return@LaunchedEffect
         if (!discovers || requestedLocalNetworkAccess || LocalNetworkAccess.permission.isGranted) return@LaunchedEffect
         requestedLocalNetworkAccess = true
         localNetworkAccess.request()

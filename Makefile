@@ -31,7 +31,7 @@ build_ios_ipa: lib archive_ios_ipa
 archive_ios_ipa:
 	rm -rf build/OpenScreenSharing-Sideload.xcarchive build/Payload build/OpenScreenSharing.ipa
 	xcodebuild archive -skipMacroValidation $(XCODEBUILD_FLAGS) -scheme OpenScreenSharing -configuration Release -destination 'generic/platform=iOS' -archivePath build/OpenScreenSharing-Sideload.xcarchive \
-		CODE_SIGNING_ALLOWED=NO SWIFT_ACTIVE_COMPILATION_CONDITIONS=SIDELOAD APP_INFOPLIST_FILE=OpenScreenSharing/Info-Server.plist EXCLUDED_SOURCE_FILE_NAMES='$$(SRCROOT)/OpenScreenSharing/Demo/*.jpg' | xcbeautify
+		CODE_SIGNING_ALLOWED=NO SWIFT_ACTIVE_COMPILATION_CONDITIONS=SIDELOAD | xcbeautify
 	mkdir build/Payload
 	cp -R build/OpenScreenSharing-Sideload.xcarchive/Products/Applications/Screen\ Sharing.app build/Payload/
 	cd build && zip -qry OpenScreenSharing.ipa Payload
@@ -48,9 +48,13 @@ altstore_source:
 	sips --cropToHeightWidth 512 512 build/altstore/icon.png > /dev/null
 	go run ./cmd/internal/build_altstore_source
 
-.PHONY: screenshots
-screenshots:
-	go run ./cmd/internal/screenshots
+.PHONY: screenshots_ios
+screenshots_ios:
+	go run ./cmd/internal/screenshots $(SCREENSHOT_FLAGS)
+
+.PHONY: screenshots_android
+screenshots_android:
+	go run ./cmd/internal/screenshots_android $(SCREENSHOT_FLAGS)
 
 build_macos:
 	xcodebuild build -skipMacroValidation -scheme OpenScreenSharing -configuration Debug -destination 'generic/platform=macOS' | xcbeautify | grep -A 10 -e "Build Succeeded" -e "BUILD FAILED" -e "❌"
@@ -93,7 +97,10 @@ build_android:
 install_android:
 	./gradlew :OpenScreenSharingAndroid:installDebug --console=plain 2>&1 | grep -A 3 -e "^e: " -e "BUILD SUCCESSFUL" -e "BUILD FAILED" -e "What went wrong"
 
-release_android: lib_android strings_android archive_android
+release_android: lib_android strings_android archive_android upload_android
+
+upload_android:
+	./gradlew :OpenScreenSharingAndroid:publishReleaseBundle --console=plain -q $(GRADLE_FLAGS)
 
 archive_android:
 	rm -f build/OpenScreenSharing-*.apk

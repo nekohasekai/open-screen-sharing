@@ -105,6 +105,8 @@
     <string name="home_connection">இணைப்பு</string>
     <string name="home_disable_udp">UDP-ஐ முடக்கு</string>
     <string name="home_keep_alive">செயலில் வைத்திரு</string>
+    <string name="home_control">கட்டுப்பாடு</string>
+    <string name="home_reverse_scroll_direction">ஸ்க்ரோல் திசையைத் தலைகீழாக்கு</string>
     <string name="home_couldnt_save">“%1$s”-ஐச் சேமிக்க முடியவில்லை</string>
     <string name="home_port">போர்ட்</string>
     <string name="home_looking_up">தேடப்படுகிறது…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">ஆடியோவை அனுப்பு</string>
     <string name="model_observe_mode">பார்வையிடல் பயன்முறை</string>
     <string name="model_pointer_lock">பாயிண்டர் பூட்டு</string>
-    <string name="model_home_screen">முகப்புத் திரை</string>
-    <string name="model_app_switcher">ஆப் ஸ்விட்சர்</string>
     <string name="model_lock">பூட்டு</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">ஆப் சாளரங்கள்</string>

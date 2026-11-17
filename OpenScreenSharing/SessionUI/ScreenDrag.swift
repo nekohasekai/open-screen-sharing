@@ -13,7 +13,6 @@ final class ScreenDrag: NSObject, UIDragInteractionDelegate {
     private weak var session: UIDragSession?
     private var liftPreviews: [ObjectIdentifier: [UIView]] = [:]
     private var offer: RemoteDragOffer?
-    private var touchType = UITouch.TouchType.direct
     private var relative = false
     private var last: (location: CGPoint, time: TimeInterval)?
     private var isOverMac = true
@@ -35,7 +34,6 @@ final class ScreenDrag: NSObject, UIDragInteractionDelegate {
     func begin(with touch: UITouch, relative: Bool) {
         guard controller.remoteDragOffer != nil, session == nil, touch !== attemptedTouch else { return }
         attemptedTouch = touch
-        touchType = touch.type
         self.relative = relative
         last = (touch.location(in: view), touch.timestamp)
         #if DEBUG || SIDELOAD
@@ -80,11 +78,7 @@ final class ScreenDrag: NSObject, UIDragInteractionDelegate {
             }
             setOverMac(true)
         } else if view.imageRect.intersection(view.bounds).contains(location) {
-            if touchType == .indirectPointer {
-                controller.movePointer(to: view.imagePoint(for: location))
-            } else {
-                controller.moveTouch(to: view.imagePoint(for: location))
-            }
+            controller.movePointer(to: view.imagePoint(for: location))
             setOverMac(true)
         } else {
             setOverMac(false)

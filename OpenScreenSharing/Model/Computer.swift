@@ -23,6 +23,7 @@ nonisolated struct Computer: Codable, Identifiable, Hashable, FetchableRecord, P
     var trustedFingerprint = ""
     var keepsAlive = false
     var disablesUDP = false
+    var reversesScrolling = false
 
     var quality = SessionQuality.adaptive
     var observes = false
@@ -44,10 +45,6 @@ nonisolated struct Computer: Codable, Identifiable, Hashable, FetchableRecord, P
         port = address.port
         self.remoteProtocol = remoteProtocol
         self.username = username
-    }
-
-    var deviceType: DeviceType {
-        DeviceType(model: model) ?? .mac
     }
 
     var networkConfiguration: NetworkConfiguration {
@@ -144,27 +141,6 @@ nonisolated enum RemoteProtocol: String, Codable, Sendable {
         case .rdp: 3389
         }
     }
-}
-
-nonisolated enum DeviceType: String, Codable, Sendable {
-    case mac
-    case iPhone
-    case iPad
-
-    init?(model: String) {
-        let model = model.trimmingCharacters(in: .whitespaces)
-        if model.hasPrefix("iPhone") {
-            self = .iPhone
-        } else if model.hasPrefix("iPad") {
-            self = .iPad
-        } else if model.hasPrefix("Mac") || model.hasPrefix("iMac") {
-            self = .mac
-        } else {
-            return nil
-        }
-    }
-
-    var isIOS: Bool { self != .mac }
 }
 
 nonisolated enum SessionQuality: String, Codable, CaseIterable, Identifiable, Sendable {

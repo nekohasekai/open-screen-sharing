@@ -45,8 +45,6 @@ object Keysym {
     const val commandLeft = 0xffeb
     const val commandRight = 0xffec
 
-    const val powerOff = 0x1008ff2a
-
     fun function(number: Int): Int = 0xffbe + number.coerceIn(1, 35) - 1
 
     fun keypad(digit: Int): Int = 0xffb0 + digit.coerceIn(0, 9)
@@ -234,8 +232,6 @@ data class KeyChord(val modifiers: List<ModifierKey>, val key: MacKey) {
 
     companion object {
         val previousInputSource = KeyChord(listOf(ModifierKey.Control), MacKey.space)
-
-        val sideButton = KeyChord(emptyList(), MacKey(null, Keysym.powerOff))
     }
 }
 

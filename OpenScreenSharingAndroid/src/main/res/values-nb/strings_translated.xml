@@ -105,6 +105,8 @@
     <string name="home_connection">Tilkobling</string>
     <string name="home_disable_udp">Slå av UDP</string>
     <string name="home_keep_alive">Hold aktiv</string>
+    <string name="home_control">Kontroll</string>
+    <string name="home_reverse_scroll_direction">Snu rulleretningen</string>
     <string name="home_couldnt_save">Kunne ikke lagre «%1$s»</string>
     <string name="home_port">Port</string>
     <string name="home_looking_up">Slår opp…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">Send lyd</string>
     <string name="model_observe_mode">Observasjonsmodus</string>
     <string name="model_pointer_lock">Pekerlås</string>
-    <string name="model_home_screen">Hjem-skjerm</string>
-    <string name="model_app_switcher">Appveksler</string>
     <string name="model_lock">Lås</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Appvinduer</string>

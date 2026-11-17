@@ -105,6 +105,8 @@
     <string name="home_connection">연결</string>
     <string name="home_disable_udp">UDP 비활성화</string>
     <string name="home_keep_alive">활성 상태 유지</string>
+    <string name="home_control">제어</string>
+    <string name="home_reverse_scroll_direction">스크롤 방향 반전</string>
     <string name="home_couldnt_save">‘%1$s’을(를) 저장할 수 없음</string>
     <string name="home_port">포트</string>
     <string name="home_looking_up">확인 중…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">오디오 전송</string>
     <string name="model_observe_mode">감시 모드</string>
     <string name="model_pointer_lock">포인터 잠금</string>
-    <string name="model_home_screen">홈 화면</string>
-    <string name="model_app_switcher">앱 전환기</string>
     <string name="model_lock">잠금</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">앱 윈도우</string>

@@ -92,11 +92,23 @@ func (c *Client) receiveStatus() error {
 		c.mode = ModeObserve
 		c.access.Unlock()
 	case StatusDisplaysSleep, StatusDisplaysWake:
+		asleep := status == StatusDisplaysSleep
 		c.access.Lock()
-		session := c.media
+		if c.media != nil {
+			c.media.stream.SetDisplaysAsleep(asleep)
+			// When the displays wake, screensharingd asks ScreensharingAgent to monitor
+			// screen changes again only for connections that do not use the media stream
+			// encoding, so nothing restarts the media sender of this connection
+			// (screensharingd 756.36.5.2, macOS 27.0.1 26A434,
+			// UUID 44908B06-F788-3822-ABC4-2285001F6A8D, SendFrameBuffer
+			// 0x1000217b0..0x100021828, 0x1000218d4).
+			if !asleep {
+				err = c.reconfigureVirtualDisplayLocked()
+			}
+		}
 		c.access.Unlock()
-		if session != nil {
-			session.stream.SetDisplaysAsleep(status == StatusDisplaysSleep)
+		if err != nil {
+			return err
 		}
 	}
 	c.handler.StatusReceived(status)

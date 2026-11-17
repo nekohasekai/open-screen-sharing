@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -199,11 +200,12 @@ private fun ComputerThumbnail(data: ByteArray, dimmed: Boolean) {
 val Computer.detailText: String
     @Composable get() {
         val lastConnected = lastConnected ?: return addressDescription
-        return stringResource(R.string.home_last_connected, relativeDate(lastConnected))
+        val locale = LocalConfiguration.current.locales.get(0) ?: Locale.getDefault()
+        return stringResource(R.string.home_last_connected, relativeDate(lastConnected, locale))
     }
 
-private fun relativeDate(time: Long): String {
-    val locale = ULocale.forLocale(Locale.getDefault())
+private fun relativeDate(time: Long, targetLocale: Locale): String {
+    val locale = ULocale.forLocale(targetLocale)
     val formatter = RelativeDateTimeFormatter.getInstance(
         locale,
         NumberFormat.getInstance(locale),

@@ -105,6 +105,8 @@
     <string name="home_connection">連線</string>
     <string name="home_disable_udp">禁用 UDP</string>
     <string name="home_keep_alive">保持活動</string>
+    <string name="home_control">控制</string>
+    <string name="home_reverse_scroll_direction">反轉捲動方向</string>
     <string name="home_couldnt_save">無法儲存「%1$s」</string>
     <string name="home_port">連接埠</string>
     <string name="home_looking_up">查詢中…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">傳送音訊</string>
     <string name="model_observe_mode">監看模式</string>
     <string name="model_pointer_lock">獨占滑鼠</string>
-    <string name="model_home_screen">主畫面</string>
-    <string name="model_app_switcher">App 切換器</string>
     <string name="model_lock">鎖定</string>
     <string name="model_mission_control">指揮中心</string>
     <string name="model_app_windows">App 視窗</string>

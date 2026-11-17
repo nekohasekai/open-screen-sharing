@@ -105,6 +105,8 @@
     <string name="home_connection">חיבור</string>
     <string name="home_disable_udp">השבתת UDP</string>
     <string name="home_keep_alive">שמירה על פעילות</string>
+    <string name="home_control">שליטה</string>
+    <string name="home_reverse_scroll_direction">היפוך כיוון הגלילה</string>
     <string name="home_couldnt_save">לא ניתן לשמור את ״%1$s״</string>
     <string name="home_port">יציאה</string>
     <string name="home_looking_up">מאתר…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">שליחת שמע</string>
     <string name="model_observe_mode">מצב צפייה</string>
     <string name="model_pointer_lock">נעילת מצביע</string>
-    <string name="model_home_screen">מסך הבית</string>
-    <string name="model_app_switcher">מחליף היישומים</string>
     <string name="model_lock">נעילה</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">חלונות של יישומים</string>

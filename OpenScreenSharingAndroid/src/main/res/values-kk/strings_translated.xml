@@ -105,6 +105,8 @@
     <string name="home_connection">Қосылым</string>
     <string name="home_disable_udp">UDP-ны өшіру</string>
     <string name="home_keep_alive">Белсенді күйде ұстау</string>
+    <string name="home_control">Басқару</string>
+    <string name="home_reverse_scroll_direction">Айналдыру бағытын кері бұру</string>
     <string name="home_couldnt_save">«%1$s» қосылымын сақтау мүмкін болмады</string>
     <string name="home_port">Порт</string>
     <string name="home_looking_up">Ізделуде…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">Дыбысты жіберу</string>
     <string name="model_observe_mode">Бақылау режимі</string>
     <string name="model_pointer_lock">Меңзерді бекіту</string>
-    <string name="model_home_screen">Басты экран</string>
-    <string name="model_app_switcher">Қолданба ауыстырғыш</string>
     <string name="model_lock">Құлыптау</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Қолданба терезелері</string>

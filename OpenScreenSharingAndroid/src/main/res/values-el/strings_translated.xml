@@ -105,6 +105,8 @@
     <string name="home_connection">Σύνδεση</string>
     <string name="home_disable_udp">Απενεργοποίηση UDP</string>
     <string name="home_keep_alive">Διατήρηση ενεργού</string>
+    <string name="home_control">Control</string>
+    <string name="home_reverse_scroll_direction">Αντιστροφή κατεύθυνσης κύλισης</string>
     <string name="home_couldnt_save">Δεν ήταν δυνατή η αποθήκευση του «%1$s»</string>
     <string name="home_port">Θύρα</string>
     <string name="home_looking_up">Αναζήτηση…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">Αποστολή ήχου</string>
     <string name="model_observe_mode">Λειτουργία παρατήρησης</string>
     <string name="model_pointer_lock">Κλείδωμα δείκτη</string>
-    <string name="model_home_screen">Οθόνη Αφετηρίας</string>
-    <string name="model_app_switcher">Εναλλαγή εφαρμογών</string>
     <string name="model_lock">Κλείδωμα</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Παράθυρα εφαρμογής</string>

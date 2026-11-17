@@ -131,16 +131,14 @@ data class InputStep(val target: MappingTarget?, val combo: KeyCombo, val text: 
 
 data class KeyKind(val target: MappingTarget, val title: String)
 
-class KeyGroupChoice(val title: String, val sections: List<Section>) {
+class KeyGroupChoice(val title: String, val keys: List<Key>) {
     class Key(val name: String, val symbol: String?, val label: String, val isCommand: Boolean) {
         val id: String get() = name
     }
 
-    class Section(val title: String?, val keys: List<Key>)
-
     val id: String get() = title
 
-    val hasSymbols: Boolean get() = sections.any { section -> section.keys.any { it.symbol != null } }
+    val hasSymbols: Boolean get() = keys.any { it.symbol != null }
 
     companion object {
         fun all(target: MappingTarget): List<KeyGroupChoice> {
@@ -149,24 +147,16 @@ class KeyGroupChoice(val title: String, val sections: List<Section>) {
                 R.string.settings_numbers to "1234567890",
                 R.string.settings_symbols to "`-=[]\\;',./",
             ).map { (title, keys) ->
-                KeyGroupChoice(
-                    App.instance.getString(title),
-                    listOf(Section(null, keys.map { Key(it.toString(), null, it.uppercase(), false) })),
-                )
+                KeyGroupChoice(App.instance.getString(title), keys.map { Key(it.toString(), null, it.uppercase(), false) })
             }
             val named = KeyShortcut.KeyGroup.entries.mapNotNull { group ->
-                val sections = group.sections(target)
-                if (sections.isEmpty()) return@mapNotNull null
+                val keys = group.keys(target)
+                if (keys.isEmpty()) return@mapNotNull null
                 KeyGroupChoice(
                     group.title,
-                    sections.map { section ->
-                        Section(
-                            section.title,
-                            section.keys.map { key ->
-                                val label = key.label(target)
-                                Key(key.name, if (target == MappingTarget.Apple && key.symbol != label) key.symbol else null, label, key.command != null)
-                            },
-                        )
+                    keys.map { key ->
+                        val label = key.label(target)
+                        Key(key.name, if (target == MappingTarget.Apple && key.symbol != label) key.symbol else null, label, key.command != null)
                     },
                 )
             }
@@ -482,7 +472,7 @@ private fun KeyStepView(
         val groups = remember(target) { KeyGroupChoice.all(target) }
         ListGroup {
             for (group in groups) {
-                val selected = group.sections.flatMap { it.keys }.filter { it.name in step.combo.keys }.joinToString(", ") { it.label }
+                val selected = group.keys.filter { it.name in step.combo.keys }.joinToString(", ") { it.label }
                 ListItem(
                     headlineContent = { Text(group.title) },
                     supportingContent = if (selected.isEmpty()) null else ({ Text(selected, maxLines = 1, overflow = TextOverflow.Ellipsis) }),
@@ -504,14 +494,11 @@ private fun KeyListView(
     onBack: () -> Unit,
 ) {
     PageScaffold(group.title, navigationIcon = { BackButton(onBack) }) {
-        for (section in group.sections) {
-            section.title?.let { SectionHeader(it) }
-            ListGroup {
-                for (key in section.keys) {
-                    CheckmarkRow(symbol = key.symbol, showsSymbol = group.hasSymbols, title = key.label, isOn = key.name in step.combo.keys) {
-                        onRecordingChange(null)
-                        update { it.toggle(key) }
-                    }
+        ListGroup {
+            for (key in group.keys) {
+                CheckmarkRow(symbol = key.symbol, showsSymbol = group.hasSymbols, title = key.label, isOn = key.name in step.combo.keys) {
+                    onRecordingChange(null)
+                    update { it.toggle(key) }
                 }
             }
         }

@@ -102,12 +102,6 @@ class ToolbarLayout private constructor(
                 "SessionToolbar",
                 listOf(SessionCommand.Displays, SessionCommand.Audio, SessionCommand.PointerLock, SessionCommand.Keyboard, SessionCommand.Clipboard),
             )
-        val iOS =
-            ToolbarLayout(
-                RemotePlatform.IOS,
-                "SessionToolbar.iOS",
-                listOf(SessionCommand.PointerLock, SessionCommand.Keyboard, SessionCommand.Home, SessionCommand.AppSwitcher, SessionCommand.Clipboard),
-            )
         val pc =
             ToolbarLayout(
                 RemotePlatform.Pc,
@@ -115,9 +109,8 @@ class ToolbarLayout private constructor(
                 listOf(SessionCommand.Displays, SessionCommand.Audio, SessionCommand.PointerLock, SessionCommand.Keyboard, SessionCommand.Clipboard),
             )
 
-        fun layout(controller: SessionController): ToolbarLayout = when (controller.platform) {
+        fun layout(controller: SessionController): ToolbarLayout = when (controller.info.platform) {
             RemotePlatform.Mac -> mac
-            RemotePlatform.IOS -> iOS
             RemotePlatform.Pc -> pc
         }
 

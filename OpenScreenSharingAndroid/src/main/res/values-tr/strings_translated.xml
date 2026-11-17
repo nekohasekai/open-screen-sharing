@@ -105,6 +105,8 @@
     <string name="home_connection">Bağlantı</string>
     <string name="home_disable_udp">UDP’yi Devre Dışı Bırak</string>
     <string name="home_keep_alive">Etkin Tut</string>
+    <string name="home_control">Kontrol</string>
+    <string name="home_reverse_scroll_direction">Kaydırma Yönünü Ters Çevir</string>
     <string name="home_couldnt_save">“%1$s” Kaydedilemedi</string>
     <string name="home_port">Kapı</string>
     <string name="home_looking_up">Aranıyor…</string>
@@ -166,8 +168,6 @@
     <string name="model_send_audio">Sesi Gönder</string>
     <string name="model_observe_mode">İzleme Modu</string>
     <string name="model_pointer_lock">İmleç Kilidi</string>
-    <string name="model_home_screen">Ana Ekran</string>
-    <string name="model_app_switcher">Uygulama Değiştirici</string>
     <string name="model_lock">Kilitle</string>
     <string name="model_mission_control">Mission Control</string>
     <string name="model_app_windows">Uygulama Pencereleri</string>

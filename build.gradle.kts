@@ -6,4 +6,5 @@ plugins {
     id("org.jetbrains.kotlin.plugin.parcelize") version "2.4.10" apply false
     id("com.google.devtools.ksp") version "2.3.10" apply false
     id("com.diffplug.spotless") version "8.8.0" apply false
+    id("com.github.triplet.play") version "4.0.0" apply false
 }

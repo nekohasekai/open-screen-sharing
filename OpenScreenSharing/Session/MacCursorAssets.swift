@@ -62,7 +62,7 @@ nonisolated final class MacCursorAssets: @unchecked Sendable {
     private let lock = NSLock()
     private var images: [String: CGImage] = [:]
 
-    init(session: LibsharingRemoteSession) throws {
+    init(session: any RemoteSession) throws {
         let fileManager = FileManager.default
         let download = Self.downloads.appendingPathComponent(UUID().uuidString, isDirectory: true)
         try fileManager.createDirectory(at: download, withIntermediateDirectories: true)

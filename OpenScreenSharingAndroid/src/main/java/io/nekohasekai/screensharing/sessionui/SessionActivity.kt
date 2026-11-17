@@ -180,7 +180,9 @@ class SessionActivity : ComponentActivity() {
         }
         lifecycleScope.launch {
             snapshotFlow { controller.phase }.first { it == SessionPhase.Connected }
-            asksForNotifications = true
+            if (io.nekohasekai.screensharing.demo.Demo.current == null) {
+                asksForNotifications = true
+            }
         }
     }
 
