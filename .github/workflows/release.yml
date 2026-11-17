@@ -22,7 +22,7 @@ jobs:
       - name: Release
         run: |-
           gh release download nightly -D build -p OpenScreenSharing.ipa -p OpenScreenSharing.pkg -p 'OpenScreenSharing-*.dSYMs.zip' -p 'OpenScreenSharing-*.apk' -p metadata.json -p icon.png
-          if [ "$(jq .build build/metadata.json)" != "$(git tag -l --format='%(contents:subject)' nightly)" ]; then
+          if [ "$(jq .nightly build/metadata.json)" != "$(git tag -l --format='%(contents:subject)' nightly)" ]; then
             echo "nightly was updated during the release, run it again" >&2
             exit 1
           fi

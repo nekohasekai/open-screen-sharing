@@ -15,6 +15,8 @@ jobs:
     name: Calculate version
     runs-on: ubuntu-latest
     outputs:
+      apple_changed: ${{ steps.outputs.outputs.apple_changed }}
+      android_changed: ${{ steps.outputs.outputs.android_changed }}
       version: ${{ steps.outputs.outputs.version }}
       build_number: ${{ steps.outputs.outputs.build_number }}
       play_version_code: ${{ steps.outputs.outputs.play_version_code }}
@@ -49,9 +51,25 @@ jobs:
             echo "play_version_code=$PLAY_VERSION_CODE" >> "$GITHUB_OUTPUT"
           fi
           PREVIOUS=0
+          APPLE_CHANGED=true
+          ANDROID_CHANGED=true
           if git fetch --depth=1 origin tag nightly; then
             PREVIOUS=$(git tag -l --format='%(contents:subject)' nightly)
+            RELEASED=$(curl -fsSL --retry 3 "https://github.com/$GITHUB_REPOSITORY/releases/download/nightly/metadata.json" | jq -r '"\(.version) \(.nightly)"' || true)
+            if [ "$GITHUB_EVENT_NAME" = push ] && [ "$RELEASED" = "$VERSION $PREVIOUS" ]; then
+              UNBUILT_PATHS=(':!.github' ':!assets' ':!*.md' ':!LICENSE' ':!.gitignore' ':!*_test.go' ':!cmd/internal/app_store_connect' ':!cmd/internal/build_android_strings'
+                ':!cmd/internal/format_xcstrings' ':!cmd/internal/google_play' ':!cmd/internal/screenshots*')
+              if git diff --quiet 'nightly^{commit}' HEAD -- . "${UNBUILT_PATHS[@]}" ':!OpenScreenSharingAndroid' ':!*.gradle.kts' ':!gradle*'; then
+                APPLE_CHANGED=false
+              fi
+              if git diff --quiet 'nightly^{commit}' HEAD -- . "${UNBUILT_PATHS[@]}" ':!OpenScreenSharing' ':!OpenScreenSharing.xcodeproj' ':!cmd/internal/build_altstore_source'; then
+                ANDROID_CHANGED=false
+              fi
+            fi
           fi
+          echo "apple_changed=$APPLE_CHANGED android_changed=$ANDROID_CHANGED"
+          echo "apple_changed=$APPLE_CHANGED" >> "$GITHUB_OUTPUT"
+          echo "android_changed=$ANDROID_CHANGED" >> "$GITHUB_OUTPUT"
           echo "build_number=$((PREVIOUS + 1))"
           echo "build_number=$((PREVIOUS + 1))" >> "$GITHUB_OUTPUT"
           echo "library_hash=${{ hashFiles('go.mod', 'go.sum', 'libsharing/**', 'internal/**', 'cmd/internal/build_libsharing/**') }}" >> "$GITHUB_OUTPUT"
@@ -62,6 +80,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
   build_apple_library:
     name: Build Apple library (${{ matrix.artifact }})
+    if: needs.calculate_version.outputs.apple_changed == 'true'
     runs-on: xcode-27
     needs:
       - calculate_version
@@ -198,10 +217,11 @@ jobs:
         with:
           path: ${{ runner.temp }}/CompilationCache
           key: swift-app-store-${{ steps.xcode.outputs.build }}-${{ hashFiles('OpenScreenSharing/**', 'OpenScreenSharing.xcodeproj/**', 'Frameworks/Libsharing.xcframework/ios-arm64/Libsharing.framework/Versions/A/Headers/**', 'Frameworks/Libsharing.xcframework/ios-arm64/Libsharing.framework/Versions/A/Modules/**') }}
+          restore-keys: swift-app-store-${{ steps.xcode.outputs.build }}-
       - name: Build
         run: make archive_ios export_ios
         env:
-          XCODEBUILD_FLAGS: MARKETING_VERSION=${{ needs.calculate_version.outputs.version }} CURRENT_PROJECT_VERSION=${{ env.PROJECT_VERSION }} COMPILATION_CACHE_ENABLE_CACHING=YES COMPILATION_CACHE_CAS_PATH=${{ runner.temp }}/CompilationCache
+          XCODEBUILD_FLAGS: MARKETING_VERSION=${{ needs.calculate_version.outputs.version }} CURRENT_PROJECT_VERSION=${{ env.PROJECT_VERSION }} COMPILATION_CACHE_ENABLE_CACHING=YES COMPILATION_CACHE_CAS_PATH=${{ runner.temp }}/CompilationCache COMPILATION_CACHE_LIMIT_SIZE=2G
       - name: Upload to App Store Connect
         run: |-
           xcrun altool --upload-app \
@@ -247,10 +267,11 @@ jobs:
         with:
           path: ${{ runner.temp }}/CompilationCache
           key: swift-sideload-${{ steps.xcode.outputs.build }}-${{ hashFiles('OpenScreenSharing/**', 'OpenScreenSharing.xcodeproj/**', 'Frameworks/Libsharing.xcframework/ios-arm64/Libsharing.framework/Versions/A/Headers/**', 'Frameworks/Libsharing.xcframework/ios-arm64/Libsharing.framework/Versions/A/Modules/**') }}
+          restore-keys: swift-sideload-${{ steps.xcode.outputs.build }}-
       - name: Build
         run: make archive_ios_ipa altstore_source
         env:
-          XCODEBUILD_FLAGS: ${{ needs.calculate_version.outputs.version && format('MARKETING_VERSION={0} ', needs.calculate_version.outputs.version) }}CURRENT_PROJECT_VERSION=${{ needs.calculate_version.outputs.build_number }} COMPILATION_CACHE_ENABLE_CACHING=YES COMPILATION_CACHE_CAS_PATH=${{ runner.temp }}/CompilationCache
+          XCODEBUILD_FLAGS: ${{ needs.calculate_version.outputs.version && format('MARKETING_VERSION={0} ', needs.calculate_version.outputs.version) }}CURRENT_PROJECT_VERSION=${{ needs.calculate_version.outputs.build_number }} COMPILATION_CACHE_ENABLE_CACHING=YES COMPILATION_CACHE_CAS_PATH=${{ runner.temp }}/CompilationCache COMPILATION_CACHE_LIMIT_SIZE=2G
       - name: Package dSYMs
         run: ditto -c -k --keepParent build/OpenScreenSharing-Sideload.xcarchive/dSYMs build/OpenScreenSharing-iOS.dSYMs.zip
       - name: Upload build
@@ -324,10 +345,11 @@ jobs:
         with:
           path: ${{ runner.temp }}/CompilationCache
           key: swift-macos-${{ steps.xcode.outputs.build }}-${{ hashFiles('OpenScreenSharing/**', 'OpenScreenSharing.xcodeproj/**', 'Frameworks/Libsharing.xcframework/macos-arm64_x86_64/Libsharing.framework/Versions/A/Headers/**', 'Frameworks/Libsharing.xcframework/macos-arm64_x86_64/Libsharing.framework/Versions/A/Modules/**') }}
+          restore-keys: swift-macos-${{ steps.xcode.outputs.build }}-
       - name: Build
         run: make archive_macos export_macos build_macos_pkg notarize_macos_pkg
         env:
-          XCODEBUILD_FLAGS: MARKETING_VERSION=${{ needs.calculate_version.outputs.version }} CURRENT_PROJECT_VERSION=${{ needs.calculate_version.outputs.build_number }} COMPILATION_CACHE_ENABLE_CACHING=YES COMPILATION_CACHE_CAS_PATH=${{ runner.temp }}/CompilationCache
+          XCODEBUILD_FLAGS: MARKETING_VERSION=${{ needs.calculate_version.outputs.version }} CURRENT_PROJECT_VERSION=${{ needs.calculate_version.outputs.build_number }} COMPILATION_CACHE_ENABLE_CACHING=YES COMPILATION_CACHE_CAS_PATH=${{ runner.temp }}/CompilationCache COMPILATION_CACHE_LIMIT_SIZE=2G
       - name: Package dSYMs
         run: ditto -c -k --keepParent build/OpenScreenSharing-macOS.xcarchive/dSYMs build/OpenScreenSharing-macOS.dSYMs.zip
       - name: Write metadata
@@ -347,7 +369,7 @@ jobs:
           if-no-files-found: error
   build_android_library:
     name: Build Android library
-    if: needs.calculate_version.outputs.android == 'true'
+    if: needs.calculate_version.outputs.android == 'true' && needs.calculate_version.outputs.android_changed == 'true'
     runs-on: ubuntu-latest
     needs:
       - calculate_version
@@ -435,7 +457,9 @@ jobs:
           ANDROID_PUBLISHER_CREDENTIALS: ${{ secrets.ANDROID_PUBLISHER_CREDENTIALS }}
   publish_nightly:
     name: Publish nightly
-    if: github.ref == 'refs/heads/main' && !cancelled() && !failure()
+    if: >-
+      github.ref == 'refs/heads/main' && !cancelled() && !failure()
+      && (needs.calculate_version.outputs.apple_changed == 'true' || needs.calculate_version.outputs.android_changed == 'true')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -462,18 +486,23 @@ jobs:
           else
             NOTES=$(git log --format='* %s')
           fi
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" tag -a -f nightly -m "$BUILD_NUMBER" "$GITHUB_SHA"
-          git push -f origin refs/tags/nightly
-          ASSETS=(dist/OpenScreenSharing.ipa dist/OpenScreenSharing-iOS.dSYMs.zip dist/altstore/altstore.json dist/altstore/icon.png)
-          if [ -f dist/OpenScreenSharing.pkg ]; then
-            ASSETS+=(dist/OpenScreenSharing.pkg dist/OpenScreenSharing-macOS.dSYMs.zip)
+          UNCHANGED=()
+          if [ "$APPLE_CHANGED" = false ]; then
+            UNCHANGED+=(-p OpenScreenSharing.ipa -p OpenScreenSharing.pkg -p 'OpenScreenSharing-*.dSYMs.zip' -p altstore.json -p icon.png -p metadata.json)
           fi
-          if [ -f dist/OpenScreenSharing-universal.apk ]; then
-            ASSETS+=(dist/OpenScreenSharing-arm64-v8a.apk dist/OpenScreenSharing-armeabi-v7a.apk dist/OpenScreenSharing-x86_64.apk dist/OpenScreenSharing-universal.apk)
+          if [ "$ANDROID_CHANGED" = false ]; then
+            UNCHANGED+=(-p 'OpenScreenSharing-*.apk')
+          fi
+          if [ ${#UNCHANGED[@]} -gt 0 ]; then
+            gh release download nightly -D dist "${UNCHANGED[@]}"
           fi
           if [ -f dist/metadata.json ]; then
-            ASSETS+=(dist/metadata.json)
+            METADATA=$(jq -c --argjson nightly "$BUILD_NUMBER" '.nightly = $nightly' dist/metadata.json)
+            echo "$METADATA" > dist/metadata.json
           fi
+          mapfile -t ASSETS < <(find dist -type f)
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" tag -a -f nightly -m "$BUILD_NUMBER" "$GITHUB_SHA"
+          git push -f origin refs/tags/nightly
           gh release create "nightly-$BUILD_NUMBER" --draft --prerelease --target "$GITHUB_SHA" --title "Nightly build" --notes "$NOTES" "${ASSETS[@]}"
           DRAFT=$(gh release view "nightly-$BUILD_NUMBER" --json apiUrl --jq .apiUrl)
           if PREVIOUS=$(gh release view nightly --json apiUrl --jq .apiUrl); then
@@ -481,5 +510,50 @@ jobs:
           fi
           gh api -X PATCH "$DRAFT" -f tag_name=nightly -F draft=false > /dev/null
         env:
+          APPLE_CHANGED: ${{ needs.calculate_version.outputs.apple_changed }}
+          ANDROID_CHANGED: ${{ needs.calculate_version.outputs.android_changed }}
           BUILD_NUMBER: ${{ needs.calculate_version.outputs.build_number }}
+          GH_TOKEN: ${{ github.token }}
+  move_nightly:
+    name: Move nightly
+    if: github.ref == 'refs/heads/main' && needs.calculate_version.outputs.apple_changed == 'false' && needs.calculate_version.outputs.android_changed == 'false'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs:
+      - calculate_version
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+        with:
+          fetch-depth: 1
+      - name: Move tag
+        run: |-
+          git fetch --depth=1 origin tag nightly
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" tag -a -f nightly -m "$(git tag -l --format='%(contents:subject)' nightly)" "$GITHUB_SHA"
+          git push -f origin refs/tags/nightly
+  prune_caches:
+    name: Prune caches
+    if: >-
+      github.ref == 'refs/heads/main' && !cancelled()
+      && (needs.calculate_version.outputs.apple_changed == 'true' || needs.calculate_version.outputs.android_changed == 'true')
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    needs:
+      - calculate_version
+      - build_ios
+      - build_ios_ipa
+      - build_macos
+      - build_android
+    steps:
+      - name: Delete superseded caches
+        run: |-
+          CACHES=$(gh cache list --ref "$GITHUB_REF" --limit 1000 --json id,key \
+            --jq 'group_by(.key | sub("-[^-]*$"; "")) | map(.[1:]) | flatten | .[].id')
+          for cache in $CACHES; do
+            gh cache delete "$cache"
+          done
+        env:
+          GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
