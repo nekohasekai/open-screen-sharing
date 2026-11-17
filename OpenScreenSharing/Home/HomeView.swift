@@ -10,6 +10,7 @@ final class HomeRequest {
     enum Pending: Equatable {
         case newConnection
         case settings
+        case connect(SessionRoute)
     }
 
     static let shared = HomeRequest()
@@ -128,6 +129,7 @@ struct HomeView: View {
                 switch pending {
                 case .newConnection: newConnection()
                 case .settings: selection = .settings
+                case .connect(let route): connect(route)
                 }
             }
     }

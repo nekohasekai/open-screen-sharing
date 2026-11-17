@@ -17,10 +17,12 @@ jobs:
     outputs:
       version: ${{ steps.outputs.outputs.version }}
       build_number: ${{ steps.outputs.outputs.build_number }}
+      play_version_code: ${{ steps.outputs.outputs.play_version_code }}
       library_hash: ${{ steps.outputs.outputs.library_hash }}
       app_store: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATES_P12 != '' }}
       developer_id: ${{ secrets.DEVELOPER_ID_CERTIFICATES_P12 != '' }}
       android: ${{ secrets.LOCAL_PROPERTIES != '' }}
+      google_play: ${{ secrets.ANDROID_PUBLISHER_CREDENTIALS != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -41,6 +43,11 @@ jobs:
             echo "version=$VERSION"
             echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           fi
+          if [ -n "$ANDROID_PUBLISHER_CREDENTIALS" ]; then
+            PLAY_VERSION_CODE=$(go run ./cmd/internal/google_play next_version_code)
+            echo "play_version_code=$PLAY_VERSION_CODE"
+            echo "play_version_code=$PLAY_VERSION_CODE" >> "$GITHUB_OUTPUT"
+          fi
           PREVIOUS=0
           if git fetch --depth=1 origin tag nightly; then
             PREVIOUS=$(git tag -l --format='%(contents:subject)' nightly)
@@ -51,6 +58,7 @@ jobs:
         env:
           ASC_KEY: ${{ secrets.ASC_KEY }}
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ANDROID_PUBLISHER_CREDENTIALS: ${{ secrets.ANDROID_PUBLISHER_CREDENTIALS }}
           GH_TOKEN: ${{ github.token }}
   build_apple_library:
     name: Build Apple library (${{ matrix.artifact }})
@@ -418,6 +426,13 @@ jobs:
             build/OpenScreenSharing-x86_64.apk
             build/OpenScreenSharing-universal.apk
           if-no-files-found: error
+      - name: Upload to Google Play
+        if: needs.calculate_version.outputs.google_play == 'true'
+        run: make upload_android
+        env:
+          GRADLE_FLAGS: ${{ needs.calculate_version.outputs.version && format('-PversionName={0} ', needs.calculate_version.outputs.version) }}-PversionCode=${{ needs.calculate_version.outputs.play_version_code }}
+          LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
+          ANDROID_PUBLISHER_CREDENTIALS: ${{ secrets.ANDROID_PUBLISHER_CREDENTIALS }}
   publish_nightly:
     name: Publish nightly
     if: github.ref == 'refs/heads/main' && !cancelled() && !failure()

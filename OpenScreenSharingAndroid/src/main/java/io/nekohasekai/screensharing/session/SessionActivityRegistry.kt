@@ -17,7 +17,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -26,7 +25,6 @@ import io.nekohasekai.screensharing.App
 import io.nekohasekai.screensharing.R
 import io.nekohasekai.screensharing.app.ContinuedTask
 import io.nekohasekai.screensharing.model.PreferenceStore
-import kotlinx.coroutines.launch
 
 object SessionActivityRegistry {
     internal const val CHANNEL_SESSIONS = "sessions"
@@ -92,9 +90,6 @@ object SessionActivityRegistry {
                 }
             },
         )
-        App.scope.launch {
-            snapshotFlow { RemoteAudioSession.recorders }.collect { service?.update() }
-        }
     }
 
     fun set(controller: SessionController, active: Boolean) {

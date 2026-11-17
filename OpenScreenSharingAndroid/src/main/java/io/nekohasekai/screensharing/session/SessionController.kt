@@ -312,7 +312,7 @@ class SessionController(
     private var pointerLockHasLocked: Boolean by mutableStateOf(false)
     var onClose: () -> Unit = {}
 
-    private var session: LibsharingRemoteSession? = null
+    private var session: RemoteSession? = null
     private var sink: SessionEventSink? = null
     private var dragID: Long? = null
     private val drops = HashMap<Long, DropDelivery>()
@@ -617,7 +617,7 @@ class SessionController(
         hdrEnabled = hdrEnabled && networkSupportsHDR
         highPerformanceStartPending = usesHighPerformance
         hasPicture = false
-        pipeline.setExpectsVideo(usesHighPerformance)
+        pipeline.setExpectsVideo(usesHighPerformance && io.nekohasekai.screensharing.demo.Demo.current == null)
         pipeline.setSchedulesPresentation(networkConfiguration.schedulesPresentation)
         val configuration =
             SessionConfiguration(
@@ -648,7 +648,7 @@ class SessionController(
                 disablesUDP = disablesUDP,
             )
         val sink = SessionEventSink(this, pipeline)
-        val session = LibsharingRemoteSession(configuration, sink)
+        val session = io.nekohasekai.screensharing.demo.Demo.current?.makeSession(this, sink) ?: LibsharingRemoteSession(configuration, sink)
         sink.session = session
         if (sceneInBackground) {
             sink.setSceneInBackground(true)
@@ -914,7 +914,7 @@ class SessionController(
                     computerID?.let { computerID -> save { ComputerStore.setTrustedFingerprint(fingerprint, computerID) } }
                     trustedFingerprint = fingerprint
                 }
-                pipeline.setExpectsVideo(usesHighPerformance)
+                pipeline.setExpectsVideo(usesHighPerformance && io.nekohasekai.screensharing.demo.Demo.current == null)
                 val sendsClipboard =
                     hasWindowFocus &&
                         sendChangedClipboard { sent ->
@@ -2792,7 +2792,7 @@ class SessionEventSink(
     private var sceneInBackground = false
 
     @Volatile
-    var session: LibsharingRemoteSession? = null
+    var session: RemoteSession? = null
 
     private val decoder =
         VideoDecoder(
@@ -2891,6 +2891,10 @@ class SessionEventSink(
     fun sessionVideoFormatChanged(format: VideoFormat) {
         if (isDetached) return
         decoder.setFormat(format)
+        sessionVideoStarted()
+    }
+
+    internal fun sessionVideoStarted() {
         val started =
             synchronized(lock) {
                 val started = !isVideo

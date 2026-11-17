@@ -3,6 +3,56 @@ import CoreMedia
 import CoreVideo
 import Foundation
 
+nonisolated protocol RemoteSession: AnyObject, Sendable {
+    var displayWidthMultiple: Int { get }
+
+    func connect()
+    func stop()
+    func abort()
+    func answerSessionChoice(_ prompt: SessionChoicePrompt, choice: SessionChoice)
+    func sendPointer(x: Int, y: Int, buttons: PointerButtons, clickCount: Int)
+    func sendScroll(x: Int, y: Int, deltaX: Double, deltaY: Double)
+    func sendTouches(_ touches: [RemoteTouch])
+    func sendKey(_ key: MacKey, keyboardType: MacKeyboardType, down: Bool)
+    func sendText(_ text: String) throws
+    func pasteText(_ text: String) throws
+    func selectKeyboardSource(_ id: String)
+    func sendMagnify(x: Int, y: Int, magnification: Double, phase: GesturePhase)
+    func sendRotate(x: Int, y: Int, degrees: Double, phase: GesturePhase)
+    func sendScrollPhase(x: Int, y: Int, deltaX: Double, deltaY: Double, phase: GesturePhase)
+    func startScrollMomentum(x: Int, y: Int, velocityX: Double, velocityY: Double)
+    func stopScrollMomentum()
+    func sendSystemCommand(_ command: SystemCommand)
+    func setAssistCursor(x: Int, y: Int, pressed: Bool)
+    func hideAssistCursor()
+    func setMode(_ mode: SessionMode)
+    func selectDisplay(_ selection: DisplaySelection)
+    func setQuality(_ quality: SessionQuality)
+    func startHighPerformance()
+    func startHighPerformanceWithConnection()
+    func uploadFile(_ localURL: URL, remoteFolder: String) throws -> Int64
+    func downloadFile(_ remotePath: String, localFolder: URL) throws -> Int64
+    func downloadFiles(_ remotePaths: [String], localFolder: URL) throws
+    func setCursorAssets(_ assets: MacCursorAssets?)
+    func startDrop(names: [String]) throws -> Int64
+    func cancelDrag(_ id: Int64)
+    func cancelRemoteDrag() throws
+    func cancelTransfer(_ id: Int64)
+    func setReceivesAudio(_ receivesAudio: Bool)
+    func sendMicrophoneAudio(_ data: Data)
+    func requestRefresh()
+    func requestKeyframe()
+    func statistics() -> SessionStatistics?
+    func setVirtualDisplay(_ mode: VirtualDisplayMode, largestSide: Int)
+    func setVisible(_ visible: Bool)
+    func setKeepsAwake(_ enabled: Bool)
+    func setHDR(_ enabled: Bool)
+    func setUpdateRate(_ rate: Int)
+    func setClipboardSharing(_ enabled: Bool)
+    func sendClipboard(_ content: ClipboardContent, pasting: Bool) throws
+    func requestClipboard() throws
+}
+
 nonisolated enum SessionPhase: Equatable, Sendable {
     case idle
     case connecting

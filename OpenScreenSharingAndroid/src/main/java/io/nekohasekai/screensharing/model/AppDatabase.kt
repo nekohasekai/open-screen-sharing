@@ -99,7 +99,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     companion object {
         val shared: AppDatabase by lazy {
-            Room.databaseBuilder(App.instance, AppDatabase::class.java, "Screen Sharing.sqlite")
+            io.nekohasekai.screensharing.demo.Demo.current?.database ?: Room.databaseBuilder(App.instance, AppDatabase::class.java, "Screen Sharing.sqlite")
                 .allowMainThreadQueries()
                 .fallbackToDestructiveMigration(true)
                 .build()

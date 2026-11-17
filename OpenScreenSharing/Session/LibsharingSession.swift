@@ -5,7 +5,7 @@ import QuartzCore
 import Libsharing
 import os
 
-nonisolated final class LibsharingRemoteSession: @unchecked Sendable {
+nonisolated final class LibsharingRemoteSession: RemoteSession, @unchecked Sendable {
     private let configuration: SessionConfiguration
     private let lock = NSLock()
     private let session: LibsharingSession?

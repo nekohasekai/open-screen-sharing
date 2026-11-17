@@ -33,6 +33,9 @@ final class AppLaunch {
         _ = AppDatabase.shared
         nearby = Demo.current?.nearby ?? NearbyBrowser()
         availabilityMonitor = AvailabilityMonitor(nearby: nearby)
+        #if (DEBUG || DEMO) && os(iOS)
+        Demo.current?.attach(availabilityMonitor: availabilityMonitor)
+        #endif
         #if os(macOS)
         UpdateManager.shared.checkOnLaunch()
         _ = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in

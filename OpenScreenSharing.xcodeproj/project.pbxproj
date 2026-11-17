@@ -13,20 +13,9 @@
 		5C0000000000000000000204 /* Perception in Frameworks */ = {isa = PBXBuildFile; productRef = 5C0000000000000000000A06 /* Perception */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		5C0000000000000000000801 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5C0000000000000000000001 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 5C0000000000000000000501;
-			remoteInfo = OpenScreenSharing;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		5C0000000000000000000101 /* Screen Sharing.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Screen Sharing.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5C0000000000000000000102 /* Libsharing.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Libsharing.xcframework; sourceTree = "<group>"; };
-		5C0000000000000000000103 /* OpenScreenSharingUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OpenScreenSharingUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -54,11 +43,6 @@
 			path = OpenScreenSharing;
 			sourceTree = "<group>";
 		};
-		5C0000000000000000000303 /* OpenScreenSharingUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = OpenScreenSharingUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,13 +57,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5C0000000000000000000405 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -87,7 +64,6 @@
 			isa = PBXGroup;
 			children = (
 				5C0000000000000000000301 /* OpenScreenSharing */,
-				5C0000000000000000000303 /* OpenScreenSharingUITests */,
 				5C0000000000000000000012 /* Frameworks */,
 				5C0000000000000000000013 /* Products */,
 			);
@@ -105,7 +81,6 @@
 			isa = PBXGroup;
 			children = (
 				5C0000000000000000000101 /* Screen Sharing.app */,
-				5C0000000000000000000103 /* OpenScreenSharingUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -138,29 +113,6 @@
 			productReference = 5C0000000000000000000101 /* Screen Sharing.app */;
 			productType = "com.apple.product-type.application";
 		};
-		5C0000000000000000000502 /* OpenScreenSharingUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 5C0000000000000000000703 /* Build configuration list for PBXNativeTarget "OpenScreenSharingUITests" */;
-			buildPhases = (
-				5C0000000000000000000404 /* Sources */,
-				5C0000000000000000000405 /* Frameworks */,
-				5C0000000000000000000406 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				5C0000000000000000000802 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				5C0000000000000000000303 /* OpenScreenSharingUITests */,
-			);
-			name = OpenScreenSharingUITests;
-			packageProductDependencies = (
-			);
-			productName = OpenScreenSharingUITests;
-			productReference = 5C0000000000000000000103 /* OpenScreenSharingUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -173,10 +125,6 @@
 				TargetAttributes = {
 					5C0000000000000000000501 = {
 						CreatedOnToolsVersion = 27.2;
-					};
-					5C0000000000000000000502 = {
-						CreatedOnToolsVersion = 27.2;
-						TestTargetID = 5C0000000000000000000501;
 					};
 				};
 			};
@@ -250,20 +198,12 @@
 			projectRoot = "";
 			targets = (
 				5C0000000000000000000501 /* OpenScreenSharing */,
-				5C0000000000000000000502 /* OpenScreenSharingUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		5C0000000000000000000403 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		5C0000000000000000000406 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -280,22 +220,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5C0000000000000000000404 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		5C0000000000000000000802 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 5C0000000000000000000501 /* OpenScreenSharing */;
-			targetProxy = 5C0000000000000000000801 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		5C0000000000000000000601 /* Debug */ = {
@@ -478,7 +403,6 @@
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				ENABLE_PREVIEWS = YES;
 				"ENABLE_RESOURCE_ACCESS_AUDIO_INPUT[sdk=macosx*]" = YES;
-				EXCLUDED_SOURCE_FILE_NAMES = "$(SRCROOT)/OpenScreenSharing/Demo/*.jpg";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OpenScreenSharing/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Screen Sharing";
@@ -514,48 +438,6 @@
 			};
 			name = Release;
 		};
-		5C0000000000000000000605 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = P8XK3KHB48;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.screensharing.uitests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = OpenScreenSharing;
-			};
-			name = Debug;
-		};
-		5C0000000000000000000606 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = P8XK3KHB48;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.screensharing.uitests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = OpenScreenSharing;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -573,15 +455,6 @@
 			buildConfigurations = (
 				5C0000000000000000000603 /* Debug */,
 				5C0000000000000000000604 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		5C0000000000000000000703 /* Build configuration list for PBXNativeTarget "OpenScreenSharingUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				5C0000000000000000000605 /* Debug */,
-				5C0000000000000000000606 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

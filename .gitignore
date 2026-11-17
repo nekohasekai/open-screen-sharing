@@ -13,3 +13,4 @@ AGENTS.md
 /local.properties
 /OpenScreenSharingAndroid/build/
 /OpenScreenSharingAndroid/libs/
+/service-account-credentials.json

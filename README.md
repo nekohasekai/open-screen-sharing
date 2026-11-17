@@ -24,6 +24,14 @@ Or download [OpenScreenSharing.ipa](https://github.com/nekohasekai/open-screen-s
 
 Download and install [OpenScreenSharing.pkg](https://github.com/nekohasekai/open-screen-sharing/releases/latest/download/OpenScreenSharing.pkg).
 
+### Android
+
+[![Get it on Google Play](assets/readme/google-play-badge.svg)](https://play.google.com/store/apps/details?id=io.nekohasekai.screensharing)
+
+You can **support my work** by purchasing it on Google Play.
+
+Or download the [APK](https://github.com/nekohasekai/open-screen-sharing/releases/latest/download/OpenScreenSharing-universal.apk) and install it directly.
+
 ### Nightly builds
 
 You can download and install nightly builds from the [Nightly release](https://github.com/nekohasekai/open-screen-sharing/releases/tag/nightly). For AltStore or SideStore on iOS, the source URL is:
@@ -41,6 +49,8 @@ You can also switch to the Nightly track in the App settings of the macOS app an
 * [x] Publish to iOS App Store
 * [ ] Publish to Homebrew
 * [x] Add support for Android
+* [x] Publish to Google Play
+* [ ] Publish to F-Droid
 
 ## License
 

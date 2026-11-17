@@ -1,12 +1,10 @@
 package io.nekohasekai.screensharing.session
 
-import android.Manifest
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.graphics.drawable.Icon
 import android.os.Build
@@ -25,7 +23,6 @@ class SessionService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private val notificationManager: NotificationManager get() = getSystemService(NotificationManager::class.java)
     private var foregroundID = 0
-    private var requestedTypes = 0
     private var posted = emptySet<Int>()
     private var startedForForeground = false
     private var stopped = false
@@ -81,9 +78,8 @@ class SessionService : Service() {
             return
         }
         val (id, notification) = notifications.first()
-        val types = foregroundTypes()
-        if (id != foregroundID || types != requestedTypes) {
-            if (!enterForeground(id, notification, types)) {
+        if (id != foregroundID) {
+            if (!enterForeground(id, notification)) {
                 SessionActivityRegistry.foregroundFailed()
                 stop()
                 return
@@ -100,19 +96,15 @@ class SessionService : Service() {
         posted = shown
     }
 
-    private fun enterForeground(id: Int, notification: Notification, types: Int): Boolean {
-        val attempts = if (types and MICROPHONE != 0) listOf(types, types and MICROPHONE.inv()) else listOf(types)
-        for (attempt in attempts) {
-            try {
-                ServiceCompat.startForeground(this, id, notification, attempt)
-                foregroundID = id
-                requestedTypes = types
-                return true
-            } catch (error: Exception) {
-                Log.w(TAG, "start the foreground service with types $attempt", error)
-            }
+    private fun enterForeground(id: Int, notification: Notification): Boolean {
+        try {
+            ServiceCompat.startForeground(this, id, notification, FOREGROUND_TYPE)
+            foregroundID = id
+            return true
+        } catch (error: Exception) {
+            Log.w(TAG, "start the foreground service", error)
+            return false
         }
-        return false
     }
 
     internal fun stop() {
@@ -122,7 +114,7 @@ class SessionService : Service() {
         handler.removeCallbacksAndMessages(null)
         if (startedForForeground && foregroundID == 0) {
             try {
-                ServiceCompat.startForeground(this, PLACEHOLDER_ID, placeholderNotification(), foregroundTypes())
+                ServiceCompat.startForeground(this, PLACEHOLDER_ID, placeholderNotification(), FOREGROUND_TYPE)
             } catch (error: Exception) {
                 Log.w(TAG, "satisfy the foreground service start", error)
             }
@@ -132,19 +124,6 @@ class SessionService : Service() {
         posted = emptySet()
         foregroundID = 0
         stopSelf(lastStartID)
-    }
-
-    private fun foregroundTypes(): Int {
-        var types = 0
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            types = ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && RemoteAudioSession.recorders > 0 &&
-            checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
-        ) {
-            types = types or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
-        }
-        return types
     }
 
     private fun builder(channel: String): Notification.Builder {
@@ -226,7 +205,7 @@ class SessionService : Service() {
         private const val PLACEHOLDER_ID = 999
         private const val PROGRESS_MAX = 1000
         private const val UPDATE_INTERVAL = 500L
-        private const val MICROPHONE = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+        private val FOREGROUND_TYPE = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE else 0
         private const val PENDING_FLAGS = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     }
 }

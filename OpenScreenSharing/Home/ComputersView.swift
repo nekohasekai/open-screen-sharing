@@ -16,6 +16,7 @@ struct ComputersView: View {
     @State private var cardLabelHeight: CGFloat = 0
     #if os(iOS)
     @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(\.locale) private var locale
     @State private var margin: CGFloat = 16
     private static let cardWidth: CGFloat = 340
     #else
@@ -228,7 +229,7 @@ struct ComputersView: View {
             connect(SessionRoute(computer: computer))
         } label: {
             ComputerCard(
-                name: computer.displayName, detail: computer.detailText, device: computer.device,
+                name: computer.displayName, detail: computer.detailText(in: locale), device: computer.device,
                 thumbnail: computer.thumbnail, availability: availabilityMonitor.availability(of: computer.address))
         }
         .buttonStyle(.plain)
@@ -242,7 +243,7 @@ struct ComputersView: View {
             connect(SessionRoute(computer: computer))
         } label: {
             ComputerRow(
-                name: computer.displayName, detail: computer.detailText, device: computer.device,
+                name: computer.displayName, detail: computer.detailText(in: locale), device: computer.device,
                 availability: availabilityMonitor.availability(of: computer.address))
         }
         .foregroundStyle(.primary)

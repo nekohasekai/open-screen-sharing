@@ -184,12 +184,30 @@ final class ScreenWindowTracker {
             UIDevice.current.beginGeneratingDeviceOrientationNotifications()
         }
         let requested = SessionOrientation.update(scene, to: orientation) { [weak self] in
-            guard let self, self.awaitsRotation else { return }
-            self.awaitsRotation = false
-            self.geometryDidChange()
+            self?.rotationRefused(in: scene)
         }
         let current = UIInterfaceOrientationMask(rawValue: 1 << scene.interfaceOrientationCompat.rawValue)
         awaitsRotation = (requested || awaitsRotation) && orientation.map { !$0.contains(current) } ?? false
+    }
+
+    private func rotationRefused(in scene: UIWindowScene) {
+        guard awaitsRotation, scene === self.scene else { return }
+        var responder = view.next
+        while let current = responder, !(current is UIViewController) {
+            responder = current.next
+        }
+        if #available(iOS 16, *), let transition = (responder as? UIViewController)?.transitionCoordinator,
+            transition.animate(alongsideTransition: nil, completion: { [weak self] _ in
+                guard let self, self.awaitsRotation, scene === self.scene else { return }
+                SessionOrientation.request(scene, to: SessionOrientation.supportedOrientations(for: scene)) { [weak self] in
+                    self?.rotationRefused(in: scene)
+                }
+            })
+        {
+            return
+        }
+        awaitsRotation = false
+        geometryDidChange()
     }
 }
 
@@ -225,10 +243,15 @@ enum SessionOrientation {
             }
         }
         guard let orientation else { return false }
+        request(scene, to: orientation, refused: refused)
+        return true
+    }
+
+    @available(iOS 16, *)
+    static func request(_ scene: UIWindowScene, to orientation: UIInterfaceOrientationMask, refused: @escaping @MainActor @Sendable () -> Void) {
         scene.requestGeometryUpdate(.iOS(interfaceOrientations: orientation)) { _ in
             Task { @MainActor in refused() }
         }
-        return true
     }
 }
 

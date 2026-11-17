@@ -203,7 +203,7 @@ final class SessionController: Identifiable {
     private let store = ComputerStore.shared
     @PerceptionIgnored var onClose: () -> Void = {}
 
-    @PerceptionIgnored private var session: LibsharingRemoteSession?
+    @PerceptionIgnored private var session: (any RemoteSession)?
     @PerceptionIgnored private var sink: SessionEventSink?
     @PerceptionIgnored private var dragID: Int64?
     @PerceptionIgnored private var drops: [Int64: DropDelivery] = [:]
@@ -515,7 +515,7 @@ final class SessionController: Identifiable {
             disablesUDP: disablesUDP
         )
         let sink = SessionEventSink(controller: self, pipeline: pipeline)
-        let session = LibsharingRemoteSession(configuration: configuration, delegate: sink)
+        let session = Demo.current?.makeSession(self, sink) ?? LibsharingRemoteSession(configuration: configuration, delegate: sink)
         sink.session = session
         if sceneInBackground {
             sink.setSceneInBackground(true)
@@ -2635,7 +2635,7 @@ nonisolated final class SessionEventSink: @unchecked Sendable {
     private var audioPlayer: AudioPlayer?
     private var isVideo = false
     private var sceneInBackground = false
-    weak var session: LibsharingRemoteSession?
+    weak var session: (any RemoteSession)?
 
     @MainActor
     init(controller: SessionController, pipeline: DisplayPipeline) {
@@ -2643,13 +2643,7 @@ nonisolated final class SessionEventSink: @unchecked Sendable {
         self.pipeline = pipeline
         debugInfo = controller.debugInfo
         decoder = VideoDecoder(
-            output: { [weak self, pipeline] frame in
-                guard let self, !self.isDetached else { return }
-                let timing = frame.timing
-                pipeline.setVideoFrame(frame) { [weak self] picture in
-                    self?.pictureReady(picture, arrival: timing.arrival, capture: timing.capture, composed: timing.composed)
-                }
-            },
+            output: { [weak self] frame in self?.sessionDecodedVideo(frame) },
             failure: { [weak self] in self?.session?.requestKeyframe() },
             unsupported: { [weak self] hdr, error in self?.onMain { $0.videoDecodingFailed(error, hdr: hdr) } }
         )
@@ -2730,6 +2724,10 @@ nonisolated final class SessionEventSink: @unchecked Sendable {
 
     func sessionVideoFormatChanged(_ format: VideoFormat) {
         decoder.setFormat(format)
+        sessionVideoStarted()
+    }
+
+    func sessionVideoStarted() {
         lock.lock()
         let started = !isVideo
         isVideo = true
@@ -2760,6 +2758,14 @@ nonisolated final class SessionEventSink: @unchecked Sendable {
 
     func sessionReceivedVideo(_ unit: VideoAccessUnit) {
         decoder.decode(unit)
+    }
+
+    func sessionDecodedVideo(_ frame: DecodedVideoFrame) {
+        guard !isDetached else { return }
+        let timing = frame.timing
+        pipeline.setVideoFrame(frame) { [weak self] picture in
+            self?.pictureReady(picture, arrival: timing.arrival, capture: timing.capture, composed: timing.composed)
+        }
     }
 
     func sessionAudioFormatChanged(_ format: AudioFormat) {

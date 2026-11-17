@@ -91,6 +91,7 @@ enum class SessionTutorial(val rawValue: String) {
 
     companion object {
         fun unseen(): List<SessionTutorial> {
+            if (io.nekohasekai.screensharing.demo.Demo.current != null) return emptyList()
             val seen = AppSettings.seenTutorials
             return entries.filter { it.rawValue !in seen }
         }
