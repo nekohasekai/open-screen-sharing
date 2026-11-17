@@ -22,7 +22,13 @@ Or download [OpenScreenSharing.ipa](https://github.com/nekohasekai/open-screen-s
 
 ### macOS
 
-Download and install [OpenScreenSharing.pkg](https://github.com/nekohasekai/open-screen-sharing/releases/latest/download/OpenScreenSharing.pkg).
+Install with Homebrew:
+
+```
+brew install --cask open-screen-sharing
+```
+
+Or download and install [OpenScreenSharing.pkg](https://github.com/nekohasekai/open-screen-sharing/releases/latest/download/OpenScreenSharing.pkg).
 
 ### Android
 
@@ -47,7 +53,7 @@ You can also switch to the Nightly track in the App settings of the macOS app an
 * [x] Add support for macOS
 * [x] Add support for RDP
 * [x] Publish to iOS App Store
-* [ ] Publish to Homebrew
+* [x] Publish to Homebrew
 * [x] Add support for Android
 * [x] Publish to Google Play
 * [ ] Publish to F-Droid
