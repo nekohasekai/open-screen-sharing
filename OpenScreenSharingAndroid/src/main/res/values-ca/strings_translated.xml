@@ -105,6 +105,8 @@
     <string name="home_connection">Connexió</string>
     <string name="home_disable_udp">Desactiva UDP</string>
     <string name="home_keep_alive">Mantenir actiu</string>
+    <string name="home_control">Control</string>
+    <string name="home_reverse_scroll_direction">Inverteix la direcció del desplaçament</string>
     <string name="home_couldnt_save">No s’ha pogut desar “%1$s”.</string>
     <string name="home_port">Port</string>
     <string name="home_looking_up">Cercant…</string>

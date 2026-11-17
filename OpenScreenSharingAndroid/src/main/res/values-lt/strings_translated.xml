@@ -105,6 +105,8 @@
     <string name="home_connection">Ryšys</string>
     <string name="home_disable_udp">Išjungti UDP</string>
     <string name="home_keep_alive">Palaikyti aktyvų</string>
+    <string name="home_control">Valdymas</string>
+    <string name="home_reverse_scroll_direction">Apversti slinkimo kryptį</string>
     <string name="home_couldnt_save">Nepavyko įrašyti „%1$s”</string>
     <string name="home_port">Prievadas</string>
     <string name="home_looking_up">Ieškoma…</string>

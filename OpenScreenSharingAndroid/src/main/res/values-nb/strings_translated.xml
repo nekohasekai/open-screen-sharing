@@ -105,6 +105,8 @@
     <string name="home_connection">Tilkobling</string>
     <string name="home_disable_udp">Slå av UDP</string>
     <string name="home_keep_alive">Hold aktiv</string>
+    <string name="home_control">Kontroll</string>
+    <string name="home_reverse_scroll_direction">Snu rulleretningen</string>
     <string name="home_couldnt_save">Kunne ikke lagre «%1$s»</string>
     <string name="home_port">Port</string>
     <string name="home_looking_up">Slår opp…</string>

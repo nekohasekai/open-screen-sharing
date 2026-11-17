@@ -55,6 +55,7 @@ data class Computer(
     val trustedFingerprint: String = "",
     val keepsAlive: Boolean = false,
     val disablesUDP: Boolean = false,
+    val reversesScrolling: Boolean = false,
     val quality: SessionQuality = SessionQuality.Adaptive,
     val observes: Boolean = false,
     val sharesClipboard: Boolean = true,
@@ -149,7 +150,7 @@ data class Computer(
     private fun hashFields(): List<Any?> = listOf(
         id, name, host, port, username, password, authenticates, model, enclosureColor, lastConnected, createdAt,
         usesHighPerformance, networkQuality, internetMaximumFrameRate, remoteProtocol, trustedFingerprint, keepsAlive,
-        disablesUDP, quality, observes, sharesClipboard, resolutionScale, displayID, usesHDR, receivesAudio, sendsAudio,
+        disablesUDP, reversesScrolling, quality, observes, sharesClipboard, resolutionScale, displayID, usesHDR, receivesAudio, sendsAudio,
         keyboardSources, windowWidth, windowHeight, locksPointer, usesNativeTouch,
     )
 }

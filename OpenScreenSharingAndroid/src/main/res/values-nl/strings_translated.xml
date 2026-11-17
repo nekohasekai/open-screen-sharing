@@ -105,6 +105,8 @@
     <string name="home_connection">Verbinding</string>
     <string name="home_disable_udp">UDP uitschakelen</string>
     <string name="home_keep_alive">Actief houden</string>
+    <string name="home_control">Control</string>
+    <string name="home_reverse_scroll_direction">Scrollrichting omkeren</string>
     <string name="home_couldnt_save">Kon \'%1$s\' niet bewaren</string>
     <string name="home_port">Poort</string>
     <string name="home_looking_up">Opzoeken…</string>

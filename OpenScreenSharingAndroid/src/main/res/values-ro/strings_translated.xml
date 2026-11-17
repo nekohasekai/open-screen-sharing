@@ -105,6 +105,8 @@
     <string name="home_connection">Conexiune</string>
     <string name="home_disable_udp">Dezactivează UDP</string>
     <string name="home_keep_alive">Menține activ</string>
+    <string name="home_control">Control</string>
+    <string name="home_reverse_scroll_direction">Inversează direcția de derulare</string>
     <string name="home_couldnt_save">Nu s-a putut salva „%1$s”</string>
     <string name="home_port">Port</string>
     <string name="home_looking_up">Căutare…</string>

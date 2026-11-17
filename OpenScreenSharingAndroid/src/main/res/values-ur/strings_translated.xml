@@ -105,6 +105,8 @@
     <string name="home_connection">کنکشن</string>
     <string name="home_disable_udp">UDP غیر فعال کریں</string>
     <string name="home_keep_alive">فعال رکھیں</string>
+    <string name="home_control">کنٹرول</string>
+    <string name="home_reverse_scroll_direction">اسکرول کی سمت الٹیں</string>
     <string name="home_couldnt_save">“⁨%1$s⁩” محفوظ نہیں کیا جا سکا</string>
     <string name="home_port">پورٹ</string>
     <string name="home_looking_up">تلاش کیا جا رہا ہے…</string>

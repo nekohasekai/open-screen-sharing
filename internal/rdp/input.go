@@ -493,7 +493,7 @@ func (c *Client) SendScroll(x, y int, deltaX, deltaY float64) error {
 	horizontal := c.session.inputFlags.Load()&inputFlagMouseHWheel != 0
 	c.input.access.Lock()
 	defer c.input.access.Unlock()
-	return c.input.scroll(wireX, wireY, deltaX*unitsPerPixel, -deltaY*unitsPerPixel, horizontal)
+	return c.input.scroll(wireX, wireY, -deltaX*unitsPerPixel, deltaY*unitsPerPixel, horizontal)
 }
 
 func (c *Client) SendText(text string) error {

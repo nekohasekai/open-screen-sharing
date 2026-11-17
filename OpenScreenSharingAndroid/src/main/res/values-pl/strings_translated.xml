@@ -105,6 +105,8 @@
     <string name="home_connection">Połączenie</string>
     <string name="home_disable_udp">Wyłącz UDP</string>
     <string name="home_keep_alive">Utrzymywanie aktywności</string>
+    <string name="home_control">Sterowanie</string>
+    <string name="home_reverse_scroll_direction">Odwróć kierunek przewijania</string>
     <string name="home_couldnt_save">Nie udało się zachować „%1$s”</string>
     <string name="home_port">Port</string>
     <string name="home_looking_up">Wyszukuję…</string>

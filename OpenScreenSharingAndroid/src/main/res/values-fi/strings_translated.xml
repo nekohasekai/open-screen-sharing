@@ -105,6 +105,8 @@
     <string name="home_connection">Yhteys</string>
     <string name="home_disable_udp">Poista UDP käytöstä</string>
     <string name="home_keep_alive">Pidä aktiivisena</string>
+    <string name="home_control">Ohjaus</string>
+    <string name="home_reverse_scroll_direction">Käännä vierityssuunta</string>
     <string name="home_couldnt_save">Kohteen “%1$s” tallentaminen ei onnistunut</string>
     <string name="home_port">Portti</string>
     <string name="home_looking_up">Haetaan…</string>

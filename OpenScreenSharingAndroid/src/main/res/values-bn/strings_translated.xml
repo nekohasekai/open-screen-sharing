@@ -105,6 +105,8 @@
     <string name="home_connection">কানেকশন</string>
     <string name="home_disable_udp">UDP অক্ষম করুন</string>
     <string name="home_keep_alive">সক্রিয় রাখুন</string>
+    <string name="home_control">কন্ট্রোল</string>
+    <string name="home_reverse_scroll_direction">স্ক্রলের দিক বিপরীত করুন</string>
     <string name="home_couldnt_save">“%1$s” সেভ করা যায়নি</string>
     <string name="home_port">পোর্ট</string>
     <string name="home_looking_up">খোঁজা হচ্ছে…</string>

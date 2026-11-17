@@ -105,6 +105,8 @@
     <string name="home_connection">ਕਨੈਕਸ਼ਨ</string>
     <string name="home_disable_udp">UDP ਬੰਦ ਕਰੋ</string>
     <string name="home_keep_alive">ਸਰਗਰਮ ਰੱਖੋ</string>
+    <string name="home_control">ਕੰਟਰੋਲ</string>
+    <string name="home_reverse_scroll_direction">ਸਕ੍ਰੋਲ ਦੀ ਦਿਸ਼ਾ ਉਲਟਾਓ</string>
     <string name="home_couldnt_save">“%1$s” ਨੂੰ ਰੱਖਿਅਤ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਿਆ</string>
     <string name="home_port">ਪੋਰਟ</string>
     <string name="home_looking_up">ਖੋਜਿਆ ਜਾ ਰਿਹਾ ਹੈ…</string>

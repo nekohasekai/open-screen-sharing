@@ -105,6 +105,8 @@
     <string name="home_connection">Sambungan</string>
     <string name="home_disable_udp">Nyahdayakan UDP</string>
     <string name="home_keep_alive">Kekal Aktif</string>
+    <string name="home_control">Kawalan</string>
+    <string name="home_reverse_scroll_direction">Terbalikkan Arah Tatal</string>
     <string name="home_couldnt_save">Tidak Dapat Menyimpan “%1$s”</string>
     <string name="home_port">Port</string>
     <string name="home_looking_up">Mencari…</string>

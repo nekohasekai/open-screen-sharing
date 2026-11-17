@@ -105,6 +105,8 @@
     <string name="home_connection">કનેક્શન</string>
     <string name="home_disable_udp">UDP અક્ષમ કરો</string>
     <string name="home_keep_alive">સક્રિય રાખો</string>
+    <string name="home_control">કંટ્રોલ</string>
+    <string name="home_reverse_scroll_direction">સ્ક્રોલની દિશા ઉલટાવો</string>
     <string name="home_couldnt_save">“%1$s” સેવ કરી શકાયું નહીં</string>
     <string name="home_port">પોર્ટ</string>
     <string name="home_looking_up">શોધ થઈ રહી છે…</string>

@@ -105,6 +105,8 @@
     <string name="home_connection">接続</string>
     <string name="home_disable_udp">UDPを無効にする</string>
     <string name="home_keep_alive">アクティブ状態を維持</string>
+    <string name="home_control">コントロール</string>
+    <string name="home_reverse_scroll_direction">スクロールの方向を反転</string>
     <string name="home_couldnt_save">“%1$s”を保存できませんでした</string>
     <string name="home_port">ポート</string>
     <string name="home_looking_up">検索中…</string>

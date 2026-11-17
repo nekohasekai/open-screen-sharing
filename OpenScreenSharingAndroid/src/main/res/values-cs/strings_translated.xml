@@ -105,6 +105,8 @@
     <string name="home_connection">Připojení</string>
     <string name="home_disable_udp">Vypnout UDP</string>
     <string name="home_keep_alive">Udržovat aktivní</string>
+    <string name="home_control">Ovládání</string>
+    <string name="home_reverse_scroll_direction">Obrátit směr posouvání</string>
     <string name="home_couldnt_save">„%1$s“ se nepodařilo uložit</string>
     <string name="home_port">Port</string>
     <string name="home_looking_up">Vyhledávání…</string>

@@ -23,6 +23,7 @@ nonisolated struct Computer: Codable, Identifiable, Hashable, FetchableRecord, P
     var trustedFingerprint = ""
     var keepsAlive = false
     var disablesUDP = false
+    var reversesScrolling = false
 
     var quality = SessionQuality.adaptive
     var observes = false

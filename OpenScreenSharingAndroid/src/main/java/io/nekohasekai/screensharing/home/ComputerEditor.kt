@@ -94,6 +94,7 @@ fun ComputerEditor(computer: Computer, setup: ComputerEditorSetup?, dismiss: () 
     var networkConfiguration by remember(computer.id) { mutableStateOf(computer.networkConfiguration) }
     var keepsAlive by remember(computer.id) { mutableStateOf(computer.keepsAlive) }
     var disablesUDP by remember(computer.id) { mutableStateOf(computer.disablesUDP) }
+    var reversesScrolling by remember(computer.id) { mutableStateOf(computer.reversesScrolling) }
     var problem by remember { mutableStateOf<EditorProblem?>(null) }
     var alert by remember { mutableStateOf<AlertState?>(null) }
     val nameFocus = remember { FocusRequester() }
@@ -138,6 +139,7 @@ fun ComputerEditor(computer: Computer, setup: ComputerEditorSetup?, dismiss: () 
                     usesHighPerformance = choice.usesHighPerformance,
                     keepsAlive = keepsAlive,
                     disablesUDP = disablesUDP,
+                    reversesScrolling = choice != ServerChoice.AppleVnc && reversesScrolling,
                 )
             }
         } catch (error: Exception) {
@@ -281,6 +283,12 @@ fun ComputerEditor(computer: Computer, setup: ComputerEditorSetup?, dismiss: () 
                     SwitchRow(stringResource(R.string.home_disable_udp), disablesUDP, onCheckedChange = { disablesUDP = it })
                 }
                 SwitchRow(stringResource(R.string.home_keep_alive), keepsAlive, onCheckedChange = { keepsAlive = it })
+            }
+        }
+        if (choice != ServerChoice.AppleVnc) {
+            SectionHeader(stringResource(R.string.home_control))
+            ListGroup {
+                SwitchRow(stringResource(R.string.home_reverse_scroll_direction), reversesScrolling, onCheckedChange = { reversesScrolling = it })
             }
         }
         Spacer(Modifier.height(8.dp))

@@ -105,6 +105,8 @@
     <string name="home_connection">Kapcsolat</string>
     <string name="home_disable_udp">UDP kikapcsolása</string>
     <string name="home_keep_alive">Aktív állapot fenntartása</string>
+    <string name="home_control">Vezérlés</string>
+    <string name="home_reverse_scroll_direction">Görgetési irány megfordítása</string>
     <string name="home_couldnt_save">Nem sikerült menteni a következőt: „%1$s”</string>
     <string name="home_port">Port</string>
     <string name="home_looking_up">Keresés…</string>

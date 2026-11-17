@@ -105,6 +105,8 @@
     <string name="home_connection">Kết nối</string>
     <string name="home_disable_udp">Tắt UDP</string>
     <string name="home_keep_alive">Duy trì hoạt động</string>
+    <string name="home_control">Điều khiển</string>
+    <string name="home_reverse_scroll_direction">Đảo ngược hướng cuộn</string>
     <string name="home_couldnt_save">Không thể lưu “%1$s”</string>
     <string name="home_port">Cổng</string>
     <string name="home_looking_up">Đang tra cứu…</string>

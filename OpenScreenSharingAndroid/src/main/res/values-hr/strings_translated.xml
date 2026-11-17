@@ -105,6 +105,8 @@
     <string name="home_connection">Veza</string>
     <string name="home_disable_udp">Onemogući UDP</string>
     <string name="home_keep_alive">Održavanje aktivnim</string>
+    <string name="home_control">Upravljanje</string>
+    <string name="home_reverse_scroll_direction">Obrni smjer pomicanja</string>
     <string name="home_couldnt_save">Nije moguće spremiti „%1$s“</string>
     <string name="home_port">Port</string>
     <string name="home_looking_up">Traženje…</string>

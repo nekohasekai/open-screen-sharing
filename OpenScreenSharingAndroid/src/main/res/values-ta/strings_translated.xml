@@ -105,6 +105,8 @@
     <string name="home_connection">இணைப்பு</string>
     <string name="home_disable_udp">UDP-ஐ முடக்கு</string>
     <string name="home_keep_alive">செயலில் வைத்திரு</string>
+    <string name="home_control">கட்டுப்பாடு</string>
+    <string name="home_reverse_scroll_direction">ஸ்க்ரோல் திசையைத் தலைகீழாக்கு</string>
     <string name="home_couldnt_save">“%1$s”-ஐச் சேமிக்க முடியவில்லை</string>
     <string name="home_port">போர்ட்</string>
     <string name="home_looking_up">தேடப்படுகிறது…</string>

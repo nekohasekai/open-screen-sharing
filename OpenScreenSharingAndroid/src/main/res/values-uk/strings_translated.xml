@@ -105,6 +105,8 @@
     <string name="home_connection">Зʼєднання</string>
     <string name="home_disable_udp">Вимкнути UDP</string>
     <string name="home_keep_alive">Підтримання активності</string>
+    <string name="home_control">Керування</string>
+    <string name="home_reverse_scroll_direction">Інвертувати напрямок прокручування</string>
     <string name="home_couldnt_save">Не вдалося зберегти «%1$s»</string>
     <string name="home_port">Порт</string>
     <string name="home_looking_up">Пошук…</string>

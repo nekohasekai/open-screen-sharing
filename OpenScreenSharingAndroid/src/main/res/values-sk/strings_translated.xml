@@ -105,6 +105,8 @@
     <string name="home_connection">Pripojenie</string>
     <string name="home_disable_udp">Vypnúť UDP</string>
     <string name="home_keep_alive">Udržiavať aktívne</string>
+    <string name="home_control">Ovládanie</string>
+    <string name="home_reverse_scroll_direction">Obrátiť smer posúvania</string>
     <string name="home_couldnt_save">Nepodarilo sa uložiť „%1$s“</string>
     <string name="home_port">Port</string>
     <string name="home_looking_up">Vyhľadávam…</string>

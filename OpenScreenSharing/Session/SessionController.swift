@@ -242,6 +242,7 @@ final class SessionController: Identifiable {
     private let virtualDisplayRequests = VirtualDisplayRequests()
     @PerceptionIgnored private(set) var sceneInBackground = false
     @PerceptionIgnored private var keepsAlive = false
+    @PerceptionIgnored private var reversesScrolling = false
     @PerceptionIgnored private var screenVisible = true
     @PerceptionIgnored private var localScreensAsleep = false
     @PerceptionIgnored nonisolated(unsafe) private var screenSleepObservers: [any NSObjectProtocol] = []
@@ -488,6 +489,7 @@ final class SessionController: Identifiable {
             networkConfiguration = computer.networkConfiguration
             keepsAlive = computer.keepsAlive
             disablesUDP = computer.disablesUDP
+            reversesScrolling = computer.reversesScrolling
         }
         hdrEnabled = hdrEnabled && networkSupportsHDR
         highPerformanceStartPending = usesHighPerformance
@@ -1865,15 +1867,19 @@ final class SessionController: Identifiable {
     func scroll(byPixels delta: CGPoint, phase: GesturePhase) {
         guard sendsGesturesToMac else { return }
         isScrollGliding = false
+        let direction: Double = reversesScrolling ? -1 : 1
         session?.sendScrollPhase(
-            x: Int(pointerPosition.x), y: Int(pointerPosition.y), deltaX: Double(delta.x), deltaY: Double(delta.y), phase: phase)
+            x: Int(pointerPosition.x), y: Int(pointerPosition.y), deltaX: Double(delta.x) * direction, deltaY: Double(delta.y) * direction,
+            phase: phase)
     }
 
     func startScrollMomentum(pixelsPerSecond velocity: CGPoint) {
         guard sendsGesturesToMac, hypot(velocity.x, velocity.y) > 50 else { return }
         isScrollGliding = true
+        let direction: Double = reversesScrolling ? -1 : 1
         session?.startScrollMomentum(
-            x: Int(pointerPosition.x), y: Int(pointerPosition.y), velocityX: Double(velocity.x), velocityY: Double(velocity.y))
+            x: Int(pointerPosition.x), y: Int(pointerPosition.y), velocityX: Double(velocity.x) * direction,
+            velocityY: Double(velocity.y) * direction)
     }
 
     func stopScrollMomentum() {
@@ -1898,7 +1904,9 @@ final class SessionController: Identifiable {
 
     func scroll(byPixels delta: CGPoint) {
         guard isControlling else { return }
-        session?.sendScroll(x: Int(pointerPosition.x), y: Int(pointerPosition.y), deltaX: Double(delta.x), deltaY: Double(delta.y))
+        let direction: Double = reversesScrolling ? -1 : 1
+        session?.sendScroll(
+            x: Int(pointerPosition.x), y: Int(pointerPosition.y), deltaX: Double(delta.x) * direction, deltaY: Double(delta.y) * direction)
     }
 
     private func clampToImage(_ point: CGPoint) -> CGPoint {

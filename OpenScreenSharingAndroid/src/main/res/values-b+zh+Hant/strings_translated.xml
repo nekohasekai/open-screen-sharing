@@ -105,6 +105,8 @@
     <string name="home_connection">連線</string>
     <string name="home_disable_udp">禁用 UDP</string>
     <string name="home_keep_alive">保持活動</string>
+    <string name="home_control">控制</string>
+    <string name="home_reverse_scroll_direction">反轉捲動方向</string>
     <string name="home_couldnt_save">無法儲存「%1$s」</string>
     <string name="home_port">連接埠</string>
     <string name="home_looking_up">查詢中…</string>

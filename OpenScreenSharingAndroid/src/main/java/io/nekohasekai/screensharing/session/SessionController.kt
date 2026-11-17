@@ -356,6 +356,7 @@ class SessionController(
     final override var sceneInBackground = false
         private set
     private var keepsAlive = false
+    private var reversesScrolling = false
     private var screenVisible = true
     var hasWindowFocus = false
     private var activeWhenBackgrounded = false
@@ -613,6 +614,7 @@ class SessionController(
             networkConfiguration = computer.networkConfiguration
             keepsAlive = computer.keepsAlive
             disablesUDP = computer.disablesUDP
+            reversesScrolling = computer.reversesScrolling
         }
         hdrEnabled = hdrEnabled && networkSupportsHDR
         highPerformanceStartPending = usesHighPerformance
@@ -2105,13 +2107,15 @@ class SessionController(
     ) {
         if (!sendsGesturesToMac) return
         isScrollGliding = false
-        session?.sendScrollPhase(pointerPosition.x.toInt(), pointerPosition.y.toInt(), delta.x.toDouble(), delta.y.toDouble(), phase)
+        val direction = if (reversesScrolling) -1.0 else 1.0
+        session?.sendScrollPhase(pointerPosition.x.toInt(), pointerPosition.y.toInt(), delta.x * direction, delta.y * direction, phase)
     }
 
     fun startScrollMomentum(velocity: Offset) {
         if (!sendsGesturesToMac || hypot(velocity.x, velocity.y) <= 50) return
         isScrollGliding = true
-        session?.startScrollMomentum(pointerPosition.x.toInt(), pointerPosition.y.toInt(), velocity.x.toDouble(), velocity.y.toDouble())
+        val direction = if (reversesScrolling) -1.0 else 1.0
+        session?.startScrollMomentum(pointerPosition.x.toInt(), pointerPosition.y.toInt(), velocity.x * direction, velocity.y * direction)
     }
 
     fun stopScrollMomentum() {
@@ -2135,7 +2139,8 @@ class SessionController(
 
     fun scroll(delta: Offset) {
         if (!isControlling) return
-        session?.sendScroll(pointerPosition.x.toInt(), pointerPosition.y.toInt(), delta.x.toDouble(), delta.y.toDouble())
+        val direction = if (reversesScrolling) -1.0 else 1.0
+        session?.sendScroll(pointerPosition.x.toInt(), pointerPosition.y.toInt(), delta.x * direction, delta.y * direction)
     }
 
     private fun clampToImage(point: Offset): Offset {
