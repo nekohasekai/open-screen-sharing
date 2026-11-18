@@ -1,14 +1,22 @@
-# Open Screen Sharing
+<p align="center">
+  <img src="OpenScreenSharing/Resources/AppIcon.icon/Assets/pager.svg" alt="" width="160">
+</p>
 
-A remote desktop client that doesn't suck.
+<h1 align="center">Open Screen Sharing</h1>
+
+<p align="center">A remote desktop client that doesn't suck.</p>
+
+<p align="center">
+  <a href="https://apps.apple.com/us/app/open-screen-sharing/id6818992574"><img src="assets/readme/app-store-badge.svg" alt="Download on the App Store" height="40"></a>
+  <a href="https://play.google.com/store/apps/details?id=io.nekohasekai.screensharing"><img src="assets/readme/google-play-badge.svg" alt="Get it on Google Play" height="40"></a>
+  <a href="https://github.com/nekohasekai/open-screen-sharing/releases/latest"><img src="assets/readme/github-releases-badge.svg" alt="Get it on GitHub Releases" height="40"></a>
+</p>
 
 ## Installation
 
 ### iOS
 
-[![Download on the App Store](assets/readme/app-store-badge.svg)](https://apps.apple.com/us/app/open-screen-sharing/id6818992574)
-
-The App Store version excludes the following features due to App Store restrictions, but you can **support my work** by purchasing it:
+The App Store version excludes the following features due to App Store restrictions, but you can **support my work** by purchasing it on the [App Store](https://apps.apple.com/us/app/open-screen-sharing/id6818992574):
 
 * **Dragging files directly from a remote Mac into other iOS/iPadOS apps:** relies on a private API.
 
@@ -32,9 +40,7 @@ Or download and install [OpenScreenSharing.pkg](https://github.com/nekohasekai/o
 
 ### Android
 
-[![Get it on Google Play](assets/readme/google-play-badge.svg)](https://play.google.com/store/apps/details?id=io.nekohasekai.screensharing)
-
-You can **support my work** by purchasing it on Google Play.
+You can **support my work** by purchasing it on [Google Play](https://play.google.com/store/apps/details?id=io.nekohasekai.screensharing).
 
 Or download the [APK](https://github.com/nekohasekai/open-screen-sharing/releases/latest/download/OpenScreenSharing-universal.apk) and install it directly.
 
@@ -57,6 +63,7 @@ You can also switch to the Nightly track in the App settings of the macOS app an
 * [x] Add support for Android
 * [x] Publish to Google Play
 * [ ] Publish to F-Droid
+* [ ] Add support for Linux / Windows?
 
 ## License
 
