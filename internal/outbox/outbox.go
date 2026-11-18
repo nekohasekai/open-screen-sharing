@@ -107,8 +107,7 @@ func (o *Outbox) take() ([][]byte, []chan error, bool) {
 
 type Writer struct {
 	conn    net.Conn
-	encode  func(wire []byte, data []byte) []byte
-	data    []byte
+	encode  func(wire []byte, messages [][]byte) []byte
 	wire    []byte
 	written atomic.Uint64
 }
@@ -117,7 +116,7 @@ func NewWriter(conn net.Conn) *Writer {
 	return &Writer{conn: conn}
 }
 
-func (w *Writer) SetEncoder(encode func(wire []byte, data []byte) []byte) {
+func (w *Writer) SetEncoder(encode func(wire []byte, messages [][]byte) []byte) {
 	w.encode = encode
 }
 
@@ -138,24 +137,15 @@ func (w *Writer) send(data []byte) error {
 	return nil
 }
 
-type MessageWriter interface {
-	WriteMessages(messages [][]byte) (int, error)
-}
-
 func (w *Writer) Write(messages [][]byte) error {
-	if framed, isFramed := w.conn.(MessageWriter); isFramed && w.encode == nil {
-		written, err := framed.WriteMessages(messages)
-		w.written.Add(uint64(written))
-		return err
+	w.wire = w.wire[:0]
+	if w.encode != nil {
+		w.wire = w.encode(w.wire, messages)
+	} else {
+		for _, message := range messages {
+			w.wire = append(w.wire, message...)
+		}
 	}
-	w.data = w.data[:0]
-	for _, message := range messages {
-		w.data = append(w.data, message...)
-	}
-	if w.encode == nil {
-		return w.send(w.data)
-	}
-	w.wire = w.encode(w.wire[:0], w.data)
 	return w.send(w.wire)
 }
 

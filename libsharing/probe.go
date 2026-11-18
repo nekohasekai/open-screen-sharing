@@ -60,7 +60,7 @@ func (r *ProbeRequest) probeServer(ctx context.Context, host string, port int32)
 			return &ServerProbe{ErrorCode: code, ErrorMessage: message}
 		}
 	}
-	info, err := rfb.Probe(ctx, rfb.Options{
+	methods, err := rfb.Probe(ctx, rfb.Options{
 		Address: net.JoinHostPort(host, strconv.Itoa(int(port))),
 		Logger:  newLogger(),
 	})
@@ -68,20 +68,19 @@ func (r *ProbeRequest) probeServer(ctx context.Context, host string, port int32)
 		code, message := classifyError(err)
 		return &ServerProbe{ErrorCode: code, ErrorMessage: message}
 	}
-	offered := append(slices.Clone(info.SecurityTypes), info.VeNCryptSubtypes...)
-	offers := func(securityTypes ...rfb.SecurityType) bool {
-		return slices.ContainsFunc(securityTypes, func(securityType rfb.SecurityType) bool {
-			return slices.Contains(offered, securityType)
+	offers := func(preferred []rfb.Method) bool {
+		return slices.ContainsFunc(preferred, func(method rfb.Method) bool {
+			return slices.Contains(methods, method)
 		})
 	}
 	return &ServerProbe{
 		Protocol:               ProtocolRFB,
 		Port:                   port,
-		SupportsAccount:        offers(rfb.SecurityAccount...) || offers(rfb.SecurityX509Plain, rfb.SecurityPlain) || info.RSAAESSubtype == rfb.RSAAESUserPassword,
-		SupportsRequestControl: offers(rfb.SecurityAskControl),
-		SupportsRequestObserve: offers(rfb.SecurityAskObserve),
-		SupportsVNCPassword:    offers(rfb.SecurityVNCPassword, rfb.SecurityX509VNC) || info.RSAAESSubtype == rfb.RSAAESPassword,
-		SupportsNoPassword:     offers(rfb.SecurityNone, rfb.SecurityX509None),
+		SupportsAccount:        offers(rfb.AccountMethods(host)),
+		SupportsRequestControl: slices.Contains(methods, rfb.Method{Type: rfb.SecurityAskControl}),
+		SupportsRequestObserve: slices.Contains(methods, rfb.Method{Type: rfb.SecurityAskObserve}),
+		SupportsVNCPassword:    offers(rfb.PasswordMethods),
+		SupportsNoPassword:     offers(rfb.NoPasswordMethods),
 	}
 }
 

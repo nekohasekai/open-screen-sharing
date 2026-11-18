@@ -3,51 +3,37 @@ package rfb
 import (
 	"context"
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"log/slog"
-	"net"
 	"slices"
-	"time"
 
 	"github.com/sagernet/sing/common"
-	E "github.com/sagernet/sing/common/exceptions"
 )
 
-func dial(ctx context.Context, options Options) (net.Conn, error) {
-	dialer := net.Dialer{
-		KeepAliveConfig: net.KeepAliveConfig{
-			Enable:   true,
-			Idle:     5 * time.Second,
-			Interval: 5 * time.Second,
-			Count:    3,
-		},
-	}
-	return dialer.DialContext(ctx, "tcp", options.Address)
-}
-
-func Probe(ctx context.Context, options Options) (ServerInfo, error) {
+func Probe(ctx context.Context, options Options) ([]Method, error) {
 	rsaAESIn := func(securityTypes []SecurityType) SecurityType {
 		return common.Find(rsaAESTypes, func(securityType SecurityType) bool {
 			return slices.Contains(securityTypes, securityType)
 		})
 	}
+	var subtypes []SecurityType
+	var rsaAESSubtype uint8
 	extend := func(h *handshake, direct bool) error {
 		var variant SecurityType
 		if !direct && slices.Contains(h.info.SecurityTypes, SecurityVeNCrypt) {
-			_, err := h.conn.Write([]byte{byte(SecurityVeNCrypt)})
+			err := h.writer.Write([][]byte{{byte(SecurityVeNCrypt)}})
 			if err != nil {
 				return err
 			}
-			err = h.readVeNCryptSubtypes()
+			subtypes, err = h.negotiateVeNCrypt()
 			if err != nil {
 				return err
 			}
-			variant = rsaAESIn(h.info.VeNCryptSubtypes)
+			variant = rsaAESIn(subtypes)
 			if variant == 0 {
 				return nil
 			}
-			_, err = h.conn.Write(binary.BigEndian.AppendUint32(nil, uint32(variant)))
+			err = h.writer.Write([][]byte{binary.BigEndian.AppendUint32(nil, uint32(variant))})
 			if err != nil {
 				return err
 			}
@@ -56,13 +42,13 @@ func Probe(ctx context.Context, options Options) (ServerInfo, error) {
 			if variant == 0 {
 				return nil
 			}
-			_, err := h.conn.Write([]byte{byte(variant)})
+			err := h.writer.Write([][]byte{{byte(variant)}})
 			if err != nil {
 				return err
 			}
 		}
 		var err error
-		h.info.RSAAESSubtype, _, err = h.startRSAAES(variant)
+		rsaAESSubtype, _, err = h.startRSAAES(variant)
 		return err
 	}
 	steps := func(direct bool) func(h *handshake) error {
@@ -87,15 +73,19 @@ func Probe(ctx context.Context, options Options) (ServerInfo, error) {
 		}
 	}
 	info, err := exchange(ctx, options, steps(false))
-	if err != nil || !slices.Contains(info.SecurityTypes, SecurityVeNCrypt) || rsaAESIn(info.SecurityTypes) == 0 || rsaAESIn(info.VeNCryptSubtypes) != 0 {
-		return info, err
-	}
-	direct, err := exchange(ctx, options, steps(true))
 	if err != nil {
-		return ServerInfo{}, err
+		return nil, err
 	}
-	info.RSAAESSubtype = direct.RSAAESSubtype
-	return info, nil
+	if slices.Contains(info.SecurityTypes, SecurityVeNCrypt) && rsaAESIn(info.SecurityTypes) != 0 && rsaAESIn(subtypes) == 0 {
+		_, err = exchange(ctx, options, steps(true))
+		if err != nil {
+			return nil, err
+		}
+	}
+	offered := common.Filter(info.SecurityTypes, func(securityType SecurityType) bool {
+		return securityType != SecurityVeNCrypt
+	})
+	return methodsOf(rsaAESSubtype, append(offered, subtypes...)...), nil
 }
 
 func CheckLogin(ctx context.Context, options Options) (ServerInfo, error) {
@@ -117,28 +107,15 @@ func exchange(ctx context.Context, options Options, steps func(h *handshake) err
 	if logger == nil {
 		logger = slog.New(slog.DiscardHandler)
 	}
-	var fallback securityFallback
-	for {
-		conn, err := dial(ctx, options)
-		if err != nil {
-			return ServerInfo{}, err
-		}
-		stop := context.AfterFunc(ctx, func() {
-			conn.Close()
-		})
-		h := &handshake{ctx: ctx, conn: conn, stream: newStream(conn), options: &options, logger: logger, fallback: &fallback}
-		err = steps(h)
-		conn.Close()
-		if !stop() {
-			err = E.Errors(ctx.Err(), err)
-		}
-		if errors.Is(err, errSecurityFallback) && ctx.Err() == nil {
-			logger.Debug("retry with another security type", "error", err)
-			continue
-		}
-		if err != nil {
-			return ServerInfo{}, err
-		}
-		return h.info, nil
+	var info ServerInfo
+	err := connect(ctx, &options, logger, func(h *handshake) error {
+		err := steps(h)
+		h.conn.Close()
+		info = h.info
+		return err
+	})
+	if err != nil {
+		return ServerInfo{}, err
 	}
+	return info, nil
 }

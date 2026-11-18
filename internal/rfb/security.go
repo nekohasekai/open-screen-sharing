@@ -3,7 +3,7 @@ package rfb
 import (
 	"context"
 	"crypto/des"
-	"errors"
+	"iter"
 	"math/bits"
 	"net"
 	"net/netip"
@@ -76,36 +76,51 @@ func (t SecurityType) String() string {
 	return "security(" + strconv.Itoa(int(t)) + ")"
 }
 
-var (
-	SecurityAccount        = []SecurityType{SecurityAppleRSA, SecurityAppleSRP, SecurityAppleDH, SecurityKerberos}
-	SecurityAskPermission  = []SecurityType{SecurityAskControl, SecurityAskObserve}
-	SecurityObserveRequest = []SecurityType{SecurityAskObserve, SecurityAskControl}
-	SecurityPasswordOnly   = []SecurityType{SecurityX509VNC, SecurityRSAAES256, SecurityRSAAES, SecurityRSAAES256Unencrypted, SecurityRSAAESUnencrypted, SecurityVNCPassword}
-	SecurityNoPassword     = []SecurityType{SecurityX509None, SecurityNone}
-)
+type Method struct {
+	Type          SecurityType
+	RSAAESSubtype uint8
+}
+
+func (m Method) String() string {
+	return m.Type.String()
+}
 
 var rsaAESTypes = []SecurityType{SecurityRSAAES256, SecurityRSAAES, SecurityRSAAES256Unencrypted, SecurityRSAAESUnencrypted}
 
-var veNCryptSubtypes = []SecurityType{SecurityPlain, SecurityX509None, SecurityX509VNC, SecurityX509Plain}
+func methodsOf(rsaAESSubtype uint8, securityTypes ...SecurityType) []Method {
+	return common.Map(securityTypes, func(securityType SecurityType) Method {
+		if slices.Contains(rsaAESTypes, securityType) {
+			return Method{Type: securityType, RSAAESSubtype: rsaAESSubtype}
+		}
+		return Method{Type: securityType}
+	})
+}
 
-// AccountSecurityTypes orders account logins the way ScreenSharing does: it
+var (
+	AskPermissionMethods  = methodsOf(0, SecurityAskControl, SecurityAskObserve)
+	ObserveRequestMethods = methodsOf(0, SecurityAskObserve, SecurityAskControl)
+	PasswordMethods       = methodsOf(RSAAESPassword, SecurityX509VNC, SecurityRSAAES256, SecurityRSAAES, SecurityRSAAES256Unencrypted, SecurityRSAAESUnencrypted, SecurityVNCPassword)
+	NoPasswordMethods     = methodsOf(0, SecurityX509None, SecurityNone)
+)
+
+// AccountMethods orders account logins the way ScreenSharing does: it
 // tries Kerberos first only for .local host names (ScreenSharing 776.27,
 // macOS 27.0.1 26A434, UUID EC0B2C20-F816-3FCE-822D-F9403C09EB50,
 // -[SSSessionView shouldPreferKerberosWithAuthTypes:wasBTMM:] 0x1cc0894bc,
 // -[SSSessionView orderedArrayOfAuthTypesForMethod:preferKerberos:serverAllowedTypes:] 0x1cc089768).
-func AccountSecurityTypes(host string) []SecurityType {
+func AccountMethods(host string) []Method {
 	if strings.HasSuffix(strings.ToLower(strings.TrimSuffix(host, ".")), ".local") {
-		return []SecurityType{
+		return methodsOf(RSAAESUserPassword,
 			SecurityKerberos, SecurityAppleRSA, SecurityAppleSRP,
 			SecurityX509Plain, SecurityRSAAES256, SecurityRSAAES, SecurityRSAAES256Unencrypted, SecurityRSAAESUnencrypted,
 			SecurityAppleDH, SecurityPlain,
-		}
+		)
 	}
-	return []SecurityType{
+	return methodsOf(RSAAESUserPassword,
 		SecurityAppleRSA, SecurityAppleSRP,
 		SecurityX509Plain, SecurityRSAAES256, SecurityRSAAES, SecurityRSAAES256Unencrypted, SecurityRSAAESUnencrypted,
 		SecurityAppleDH, SecurityKerberos, SecurityPlain,
-	}
+	)
 }
 
 type authenticator func(h *handshake) ([]byte, error)
@@ -115,7 +130,6 @@ var authenticators = map[SecurityType]authenticator{
 	SecurityVNCPassword:          authenticateVNCPassword,
 	SecurityRSAAES:               authenticateRSAAES,
 	SecurityRSAAESUnencrypted:    authenticateRSAAES,
-	SecurityVeNCrypt:             authenticateVeNCrypt,
 	SecurityAppleDH:              authenticateAppleDH,
 	SecurityAskObserve:           authenticateAppleDH,
 	SecurityAskControl:           authenticateAppleDH,
@@ -124,6 +138,10 @@ var authenticators = map[SecurityType]authenticator{
 	SecurityAppleSRP:             authenticateAppleSRP,
 	SecurityRSAAES256:            authenticateRSAAES,
 	SecurityRSAAES256Unencrypted: authenticateRSAAES,
+	SecurityPlain:                authenticatePlain,
+	SecurityX509None:             overTLS(authenticateNone),
+	SecurityX509VNC:              overTLS(authenticateVNCPassword),
+	SecurityX509Plain:            overTLS(authenticatePlain),
 }
 
 var ErrUnsupportedServer = E.New("rfb: unsupported server")
@@ -137,57 +155,54 @@ const kerberosTimeout = 5 * time.Second
 var errSecurityFallback = E.New("rfb: retry with another security type")
 
 type securityFallback struct {
-	excluded   []SecurityType
+	excluded   []Method
 	unverified bool
 }
 
-func (h *handshake) carrier(candidate SecurityType) (SecurityType, bool) {
-	carrier := candidate
-	if candidate >= SecurityPlain {
-		if !slices.Contains(veNCryptSubtypes, candidate) {
-			return 0, false
-		}
-		carrier = SecurityVeNCrypt
+func (h *handshake) permitted(candidate Method) bool {
+	if h.options.AllowUnverifiedLogin || candidate.Type != SecurityAppleDH && candidate.Type != SecurityPlain {
+		return true
 	}
-	return carrier, slices.Contains(h.info.SecurityTypes, carrier)
+	h.fallback.unverified = true
+	return false
 }
 
-func (h *handshake) gated(candidate SecurityType) bool {
-	return !h.options.AllowUnverifiedLogin && (candidate == SecurityAppleDH || candidate == SecurityPlain)
+func (h *handshake) offeredMethods() iter.Seq[Method] {
+	return func(yield func(Method) bool) {
+		for _, candidate := range h.preferred {
+			if !slices.Contains(h.info.SecurityTypes, carrier(candidate.Type)) || !h.permitted(candidate) {
+				continue
+			}
+			if !yield(candidate) {
+				return
+			}
+		}
+	}
 }
 
-func (h *handshake) fallBack(excluded func(SecurityType) bool, cause error) error {
+func (h *handshake) fallBack(excluded func(Method) bool, cause error) error {
 	h.fallback.excluded = append(h.fallback.excluded, common.Filter(h.preferred, excluded)...)
-	for _, candidate := range h.preferred {
-		_, offered := h.carrier(candidate)
-		if !offered || excluded(candidate) {
-			continue
-		}
-		if !h.gated(candidate) {
-			return E.Cause1(errSecurityFallback, cause)
-		}
-		h.fallback.unverified = true
+	h.preferred = common.Filter(h.preferred, func(method Method) bool {
+		return !excluded(method)
+	})
+	for range h.offeredMethods() {
+		return E.Cause1(errSecurityFallback, cause)
 	}
-	if h.fallback.unverified && !errors.Is(cause, ErrUnverifiedServer) {
+	if h.fallback.unverified {
 		return E.Extend(ErrUnverifiedServer, cause)
 	}
 	return cause
 }
 
-func (h *handshake) chooseSecurityType() (SecurityType, error) {
+func (h *handshake) chooseSecurityType() (Method, error) {
 	offered := h.info.SecurityTypes
 	var kerberosErr error
-	for _, candidate := range h.preferred {
-		carrier, found := h.carrier(candidate)
-		_, implemented := authenticators[carrier]
-		if !implemented || !found {
+	for candidate := range h.offeredMethods() {
+		_, implemented := authenticators[candidate.Type]
+		if !implemented {
 			continue
 		}
-		if h.gated(candidate) {
-			h.fallback.unverified = true
-			continue
-		}
-		switch candidate {
+		switch candidate.Type {
 		case SecurityAppleRSA:
 			// ScreenSharing drops type 33 from an Apple server that offers
 			// neither 35 nor 36 (ScreenSharing 776.27, macOS 27.0.1 26A434,
@@ -210,17 +225,17 @@ func (h *handshake) chooseSecurityType() (SecurityType, error) {
 				continue
 			}
 		}
-		return carrier, nil
+		return candidate, nil
 	}
 	offeredNames := strings.Join(F.MapToString(offered), ", ")
 	if h.fallback.unverified {
-		return 0, E.Extend(ErrUnverifiedServer, "it offers security types ", offeredNames)
+		return Method{}, E.Extend(ErrUnverifiedServer, "it offers security types ", offeredNames)
 	}
 	err := E.Extend(ErrUnsupportedServer, "it offers security types ", offeredNames, "; none of ", strings.Join(F.MapToString(h.preferred), ", "))
 	if kerberosErr != nil {
-		return 0, E.Errors(err, kerberosErr)
+		return Method{}, E.Errors(err, kerberosErr)
 	}
-	return 0, err
+	return Method{}, err
 }
 
 func authenticateNone(*handshake) ([]byte, error) {
@@ -244,8 +259,7 @@ func authenticateVNCPassword(h *handshake) ([]byte, error) {
 	response := make([]byte, 16)
 	block.Encrypt(response[:8], challenge[:8])
 	block.Encrypt(response[8:], challenge[8:])
-	_, err = h.conn.Write(response)
-	return nil, err
+	return nil, h.writer.Write([][]byte{response})
 }
 
 func credentialBlock(username, password string) ([]byte, error) {

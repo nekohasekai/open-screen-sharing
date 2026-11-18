@@ -3,16 +3,18 @@ package rfb
 import (
 	"context"
 	"encoding/binary"
+	"errors"
 	"fmt"
-	"io"
 	"log/slog"
 	"net"
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/nekohasekai/open-screen-sharing/internal/gss"
+	"github.com/nekohasekai/open-screen-sharing/internal/outbox"
 	"github.com/sagernet/sing/common"
 	E "github.com/sagernet/sing/common/exceptions"
 )
@@ -35,19 +37,17 @@ func (v ProtocolVersion) apple() bool {
 }
 
 type ServerInfo struct {
-	Version          ProtocolVersion
-	Dialect          Dialect
-	SecurityTypes    []SecurityType
-	VeNCryptSubtypes []SecurityType
-	RSAAESSubtype    uint8
-	SecurityType     SecurityType
-	Name             string
-	Width            int
-	Height           int
-	PixelFormat      PixelFormat
-	Flags            uint32
-	Commands         [16]byte
-	Extended         bool
+	Version       ProtocolVersion
+	Dialect       Dialect
+	SecurityTypes []SecurityType
+	SecurityType  SecurityType
+	Name          string
+	Width         int
+	Height        int
+	PixelFormat   PixelFormat
+	Flags         uint32
+	Commands      [16]byte
+	Extended      bool
 }
 
 const (
@@ -71,33 +71,52 @@ func (s *ServerInfo) MaximumVirtualDisplays() int {
 }
 
 type handshake struct {
-	ctx          context.Context
-	conn         net.Conn
-	stream       *stream
-	options      *Options
-	logger       *slog.Logger
-	info         ServerInfo
-	securityType SecurityType
-	method       SecurityType
-	preferred    []SecurityType
-	fallback     *securityFallback
-	wrapKey      []byte
-	kerberos     *gss.Initiator
-	selected     func(SecurityType)
+	ctx       context.Context
+	conn      net.Conn
+	stream    *stream
+	writer    *outbox.Writer
+	options   *Options
+	logger    *slog.Logger
+	info      ServerInfo
+	method    Method
+	preferred []Method
+	fallback  *securityFallback
+	wrapKey   []byte
+	kerberos  *gss.Initiator
+	selected  func(SecurityType)
 }
 
-type layeredConn struct {
-	net.Conn
-	reader io.Reader
-}
-
-func (c *layeredConn) Read(data []byte) (int, error) {
-	return c.reader.Read(data)
-}
-
-func (h *handshake) upgrade(conn net.Conn) {
-	h.conn = conn
-	h.stream = newStream(conn)
+func connect(ctx context.Context, options *Options, logger *slog.Logger, attempt func(h *handshake) error) error {
+	dialer := net.Dialer{
+		KeepAliveConfig: net.KeepAliveConfig{
+			Enable:   true,
+			Idle:     5 * time.Second,
+			Interval: 5 * time.Second,
+			Count:    3,
+		},
+	}
+	var fallback securityFallback
+	for {
+		conn, err := dialer.DialContext(ctx, "tcp", options.Address)
+		if err != nil {
+			return err
+		}
+		stop := context.AfterFunc(ctx, func() {
+			conn.Close()
+		})
+		err = attempt(&handshake{ctx: ctx, conn: conn, stream: newStream(conn), writer: outbox.NewWriter(conn), options: options, logger: logger, fallback: &fallback})
+		if !stop() {
+			err = E.Errors(ctx.Err(), err)
+		}
+		if err == nil {
+			return nil
+		}
+		conn.Close()
+		if !errors.Is(err, errSecurityFallback) || ctx.Err() != nil {
+			return err
+		}
+		logger.Debug("retry with another security type", "error", err)
+	}
 }
 
 func (h *handshake) negotiateVersion() error {
@@ -123,7 +142,7 @@ func (h *handshake) negotiateVersion() error {
 	default:
 		client = ProtocolVersion{3, 3}
 	}
-	_, err = fmt.Fprintf(h.conn, "RFB %s\n", client)
+	err = h.writer.Write([][]byte{fmt.Appendf(nil, "RFB %s\n", client)})
 	if err != nil {
 		return err
 	}
@@ -175,42 +194,47 @@ func (h *handshake) readSecurityTypes() error {
 }
 
 func (h *handshake) authenticate() error {
-	preferred := h.options.SecurityTypes
+	preferred := h.options.Methods
 	if len(preferred) == 0 {
 		host, _, _ := net.SplitHostPort(h.options.Address)
-		preferred = AccountSecurityTypes(host)
+		preferred = AccountMethods(host)
 	}
-	h.preferred = common.Filter(preferred, func(securityType SecurityType) bool {
-		return !slices.Contains(h.fallback.excluded, securityType)
+	h.preferred = common.Filter(preferred, func(method Method) bool {
+		return !slices.Contains(h.fallback.excluded, method)
 	})
 	err := h.readSecurityTypes()
 	if err != nil {
 		return err
 	}
-	h.securityType, err = h.chooseSecurityType()
+	h.method, err = h.chooseSecurityType()
 	if h.kerberos != nil {
 		defer h.kerberos.Close()
 	}
 	if err != nil {
 		return err
 	}
-	if h.info.Version.Minor != 3 && h.securityType != SecurityAppleRSA && h.securityType != SecurityAppleSRP {
-		_, err = h.conn.Write([]byte{byte(h.securityType)})
+	h.info.SecurityType = carrier(h.method.Type)
+	if h.info.Version.Minor != 3 && h.info.SecurityType != SecurityAppleRSA && h.info.SecurityType != SecurityAppleSRP {
+		err = h.writer.Write([][]byte{{byte(h.info.SecurityType)}})
 		if err != nil {
 			return err
 		}
 	}
-	h.info.SecurityType = h.securityType
-	h.method = h.securityType
-	h.logger.Debug("security", "offered", h.info.SecurityTypes, "selected", h.securityType)
+	h.logger.Debug("security", "offered", h.info.SecurityTypes, "selected", h.info.SecurityType)
+	if h.info.SecurityType == SecurityVeNCrypt {
+		h.method, err = h.chooseVeNCryptSubtype()
+		if err != nil {
+			return E.Cause(err, "authenticate with ", h.info.SecurityType)
+		}
+	}
 	if h.selected != nil {
-		h.selected(h.securityType)
+		h.selected(h.method.Type)
 	}
-	h.wrapKey, err = authenticators[h.securityType](h)
+	h.wrapKey, err = authenticators[h.method.Type](h)
 	if err != nil {
-		return E.Cause(err, "authenticate with ", h.securityType)
+		return E.Cause(err, "authenticate with ", h.info.SecurityType)
 	}
-	if h.method == SecurityNone && h.info.Version.Minor < 8 {
+	if h.method.Type == SecurityNone && h.info.Version.Minor < 8 {
 		return nil
 	}
 	result, err := h.stream.u32()
@@ -225,7 +249,7 @@ func (h *handshake) securityResult(result uint32) error {
 		return nil
 	}
 	cause := ErrAuthenticationFailed
-	if h.securityType == SecurityAskControl || h.securityType == SecurityAskObserve {
+	if h.method.Type == SecurityAskControl || h.method.Type == SecurityAskObserve {
 		cause = ErrPermissionDenied
 	}
 	if h.info.Version.Minor == 8 {
@@ -242,7 +266,7 @@ func (h *handshake) initialize() error {
 		// _RFBAuthenticateCore 0x1cc1407fc, 0x1cc1408b0, 0x1cc140998..0x1cc1409a4).
 		clientInit = 0xc1
 	}
-	_, err := h.conn.Write([]byte{clientInit})
+	err := h.writer.Write([][]byte{{clientInit}})
 	if err != nil {
 		return err
 	}

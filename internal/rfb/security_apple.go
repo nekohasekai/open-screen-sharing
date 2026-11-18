@@ -83,7 +83,7 @@ func authenticateAppleDH(h *handshake) ([]byte, error) {
 	key := md5.Sum(shared.FillBytes(make([]byte, keyLength)))
 
 	username, password := h.options.Username, h.options.Password
-	if h.securityType != SecurityAppleDH {
+	if h.method.Type != SecurityAppleDH {
 		username, password = h.options.ClientName, ""
 	}
 	credentials, err := credentialBlock(username, password)
@@ -95,7 +95,7 @@ func authenticateAppleDH(h *handshake) ([]byte, error) {
 		return nil, err
 	}
 	response := append(credentials, clientPublic.FillBytes(make([]byte, keyLength))...)
-	_, err = h.conn.Write(response)
+	err = h.writer.Write([][]byte{response})
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func readSizedMessage(h *handshake, limit int) ([]byte, error) {
 }
 
 func requestRSAKey(h *handshake) (*rsa.PublicKey, []byte, error) {
-	_, err := h.conn.Write(append([]byte{byte(SecurityAppleRSA)}, rsaEnvelope(0, []byte{0, 0})...))
+	err := h.writer.Write([][]byte{append([]byte{byte(SecurityAppleRSA)}, rsaEnvelope(0, []byte{0, 0})...)})
 	if err != nil {
 		return nil, nil, err
 	}
@@ -180,7 +180,7 @@ func authenticateAppleRSA(h *handshake) ([]byte, error) {
 	body := binary.BigEndian.AppendUint16(nil, uint16(len(encrypted)))
 	body = append(body, encrypted...)
 	body = append(body, make([]byte, 384)...)
-	_, err = h.conn.Write(rsaEnvelope(2, body))
+	err = h.writer.Write([][]byte{rsaEnvelope(2, body)})
 	if err != nil {
 		return nil, err
 	}
@@ -206,8 +206,7 @@ func authenticateAppleRSA(h *handshake) ([]byte, error) {
 		if len(envelope) < 1076-8 {
 			envelope = append(envelope, make([]byte, 1076-8-len(envelope))...)
 		}
-		_, writeErr := h.conn.Write(rsaEnvelope(2, envelope))
-		return writeErr
+		return h.writer.Write([][]byte{rsaEnvelope(2, envelope)})
 	})
 }
 
@@ -242,7 +241,7 @@ func authenticateAppleRSAPlain(h *handshake, publicKey *rsa.PublicKey) ([]byte, 
 	body := append(credentials, 0, 0)
 	binary.LittleEndian.PutUint16(body[len(credentials):], uint16(len(encryptedKey)))
 	body = append(body, encryptedKey...)
-	_, err = h.conn.Write(rsaEnvelope(1, body))
+	err = h.writer.Write([][]byte{rsaEnvelope(1, body)})
 	if err != nil {
 		return nil, err
 	}
@@ -260,7 +259,7 @@ func authenticateAppleSRP(h *handshake) ([]byte, error) {
 	// _RFBAuthenticateCore 0x1cc13f8c0..0x1cc13f8f4).
 	identity := srpIdentityMessage(h.options.Username)
 	message := append([]byte{byte(SecurityAppleSRP)}, binary.BigEndian.AppendUint32(nil, uint32(len(identity)))...)
-	_, err := h.conn.Write(append(message, identity...))
+	err := h.writer.Write([][]byte{append(message, identity...)})
 	if err != nil {
 		return nil, err
 	}
@@ -284,8 +283,7 @@ func authenticateAppleSRP(h *handshake) ([]byte, error) {
 		h.logger.Debug("type 36 reply", "bytes", len(reply), "head", fmt.Sprintf("%x", reply[:min(len(reply), 16)]))
 		return reply[4:], nil
 	}, func(fields []byte) error {
-		_, writeErr := h.conn.Write(srpEnvelope(fields))
-		return writeErr
+		return h.writer.Write([][]byte{srpEnvelope(fields)})
 	})
 }
 

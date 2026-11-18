@@ -80,7 +80,7 @@ type Options struct {
 	Username string
 	Password string
 
-	SecurityTypes        []SecurityType
+	Methods              []Method
 	ClientName           string
 	AllowUnverifiedLogin bool
 	VerifyServerKey      func(fingerprint string, authenticated bool) error

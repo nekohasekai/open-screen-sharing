@@ -296,15 +296,15 @@ func rfbOptions(o *SessionOptions, seen func(fingerprint string)) (rfb.Options, 
 	}
 	switch o.LoginType {
 	case LoginAccount:
-		options.SecurityTypes = rfb.AccountSecurityTypes(o.Host)
+		options.Methods = rfb.AccountMethods(o.Host)
 	case LoginRequestControl:
-		options.SecurityTypes = rfb.SecurityAskPermission
+		options.Methods = rfb.AskPermissionMethods
 	case LoginRequestObserve:
-		options.SecurityTypes = rfb.SecurityObserveRequest
+		options.Methods = rfb.ObserveRequestMethods
 	case LoginVNCPassword:
-		options.SecurityTypes = rfb.SecurityPasswordOnly
+		options.Methods = rfb.PasswordMethods
 	case LoginNone:
-		options.SecurityTypes = rfb.SecurityNoPassword
+		options.Methods = rfb.NoPasswordMethods
 	default:
 		return options, E.New("unknown login type ", o.LoginType)
 	}

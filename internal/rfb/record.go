@@ -59,6 +59,7 @@ type recordEncoder struct {
 	mode     cipher.BlockMode
 	hash     hash.Hash
 	sequence uint32
+	data     []byte
 }
 
 func (e *recordEncoder) rekey(keys recordKeys) error {
@@ -71,7 +72,12 @@ func (e *recordEncoder) rekey(keys recordKeys) error {
 	return nil
 }
 
-func (e *recordEncoder) encode(wire []byte, data []byte) []byte {
+func (e *recordEncoder) encode(wire []byte, messages [][]byte) []byte {
+	e.data = e.data[:0]
+	for _, message := range messages {
+		e.data = append(e.data, message...)
+	}
+	data := e.data
 	for len(data) > 0 {
 		chunk := min(len(data), recordMaximumBody)
 		wire = e.seal(wire, data[:chunk])

@@ -14,7 +14,6 @@ import (
 	"io"
 	"math"
 	"math/big"
-	"net"
 	"slices"
 
 	E "github.com/sagernet/sing/common/exceptions"
@@ -127,65 +126,57 @@ func incrementNonce(nonce *[16]byte) {
 	}
 }
 
-type rsaAESConn struct {
-	net.Conn
-	reader   io.Reader
-	in       *eax
-	out      *eax
-	inNonce  [16]byte
-	outNonce [16]byte
-	header   [2]byte
-	message  []byte
-	pending  []byte
-	frames   []byte
+type rsaAESReader struct {
+	source  io.Reader
+	in      *eax
+	nonce   [16]byte
+	header  [2]byte
+	message []byte
+	pending []byte
 }
 
-func (c *rsaAESConn) Read(data []byte) (int, error) {
-	for len(c.pending) == 0 {
-		_, err := io.ReadFull(c.reader, c.header[:])
+func (r *rsaAESReader) Read(data []byte) (int, error) {
+	for len(r.pending) == 0 {
+		_, err := io.ReadFull(r.source, r.header[:])
 		if err != nil {
 			return 0, err
 		}
-		length := int(binary.BigEndian.Uint16(c.header[:])) + 16
-		c.message = slices.Grow(c.message[:0], length)[:length]
-		_, err = io.ReadFull(c.reader, c.message)
+		length := int(binary.BigEndian.Uint16(r.header[:])) + 16
+		r.message = slices.Grow(r.message[:0], length)[:length]
+		_, err = io.ReadFull(r.source, r.message)
 		if err == io.EOF {
 			err = io.ErrUnexpectedEOF
 		}
 		if err != nil {
 			return 0, err
 		}
-		c.pending, err = c.in.open(c.message[:0], c.inNonce[:], c.message, c.header[:])
+		r.pending, err = r.in.open(r.message[:0], r.nonce[:], r.message, r.header[:])
 		if err != nil {
 			return 0, err
 		}
-		incrementNonce(&c.inNonce)
+		incrementNonce(&r.nonce)
 	}
-	n := copy(data, c.pending)
-	c.pending = c.pending[n:]
+	n := copy(data, r.pending)
+	r.pending = r.pending[n:]
 	return n, nil
 }
 
-func (c *rsaAESConn) Write(data []byte) (int, error) {
-	_, err := c.WriteMessages([][]byte{data})
-	if err != nil {
-		return 0, err
-	}
-	return len(data), nil
+type rsaAESEncoder struct {
+	out   *eax
+	nonce [16]byte
 }
 
-func (c *rsaAESConn) WriteMessages(messages [][]byte) (int, error) {
-	c.frames = c.frames[:0]
+func (e *rsaAESEncoder) encode(wire []byte, messages [][]byte) []byte {
 	for _, message := range messages {
 		for chunk := range slices.Chunk(message, rsaAESMessageSize) {
 			var header [2]byte
 			binary.BigEndian.PutUint16(header[:], uint16(len(chunk)))
-			c.frames = append(c.frames, header[:]...)
-			c.frames = c.out.seal(c.frames, c.outNonce[:], chunk, header[:])
-			incrementNonce(&c.outNonce)
+			wire = append(wire, header[:]...)
+			wire = e.out.seal(wire, e.nonce[:], chunk, header[:])
+			incrementNonce(&e.nonce)
 		}
 	}
-	return c.Conn.Write(c.frames)
+	return wire
 }
 
 func (h *handshake) startRSAAES(variant SecurityType) (uint8, string, error) {
@@ -242,7 +233,7 @@ func (h *handshake) startRSAAES(variant SecurityType) (uint8, string, error) {
 	message := slices.Clone(clientPublic)
 	message = binary.BigEndian.AppendUint16(message, uint16(len(encryptedRandom)))
 	message = append(message, encryptedRandom...)
-	_, err = h.conn.Write(message)
+	err = h.writer.Write([][]byte{message})
 	if err != nil {
 		return 0, "", err
 	}
@@ -273,9 +264,10 @@ func (h *handshake) startRSAAES(variant SecurityType) (uint8, string, error) {
 	if err != nil {
 		return 0, "", err
 	}
-	h.upgrade(&rsaAESConn{Conn: h.conn, reader: h.stream.raw, in: in, out: out})
+	h.stream.source = &rsaAESReader{source: h.stream.raw, in: in}
+	h.writer.SetEncoder((&rsaAESEncoder{out: out}).encode)
 
-	_, err = h.conn.Write(digest(clientPublic, serverPublic))
+	err = h.writer.Write([][]byte{digest(clientPublic, serverPublic)})
 	if err != nil {
 		return 0, "", err
 	}
@@ -297,20 +289,18 @@ func (h *handshake) startRSAAES(variant SecurityType) (uint8, string, error) {
 }
 
 func authenticateRSAAES(h *handshake) ([]byte, error) {
-	conn, stream := h.conn, h.stream
-	subtype, serverFingerprint, err := h.startRSAAES(h.method)
+	subtype, serverFingerprint, err := h.startRSAAES(h.method.Type)
 	if err != nil {
 		return nil, err
 	}
-	isRSAAES := func(securityType SecurityType) bool {
-		return slices.Contains(rsaAESTypes, securityType)
-	}
-	username, password := h.options.Username, h.options.Password
-	switch {
-	case subtype == RSAAESUserPassword && username == "":
-		return nil, h.fallBack(isRSAAES, E.Extend(ErrUnsupportedServer, "its RSA-AES login asks for a user name"))
-	case subtype == RSAAESPassword && username != "":
-		return nil, h.fallBack(isRSAAES, E.Extend(ErrUnsupportedServer, "its RSA-AES login asks for only a password"))
+	if subtype != h.method.RSAAESSubtype {
+		cause := E.Extend(ErrUnsupportedServer, "its RSA-AES login asks for a user name")
+		if subtype == RSAAESPassword {
+			cause = E.Extend(ErrUnsupportedServer, "its RSA-AES login asks for only a password")
+		}
+		return nil, h.fallBack(func(method Method) bool {
+			return slices.Contains(rsaAESTypes, method.Type)
+		}, cause)
 	}
 	if h.options.VerifyServerKey != nil {
 		err = h.options.VerifyServerKey(serverFingerprint, false)
@@ -318,6 +308,7 @@ func authenticateRSAAES(h *handshake) ([]byte, error) {
 			return nil, err
 		}
 	}
+	username, password := h.options.Username, h.options.Password
 	if len(username) > 255 {
 		return nil, E.New("rfb: user name of ", len(username), " bytes is over the 255-byte limit")
 	}
@@ -327,12 +318,13 @@ func authenticateRSAAES(h *handshake) ([]byte, error) {
 	credentials := append([]byte{byte(len(username))}, username...)
 	credentials = append(credentials, byte(len(password)))
 	credentials = append(credentials, password...)
-	_, err = h.conn.Write(credentials)
+	err = h.writer.Write([][]byte{credentials})
 	if err != nil {
 		return nil, err
 	}
-	if h.method == SecurityRSAAESUnencrypted || h.method == SecurityRSAAES256Unencrypted {
-		h.conn, h.stream = conn, stream
+	if h.method.Type == SecurityRSAAESUnencrypted || h.method.Type == SecurityRSAAES256Unencrypted {
+		h.stream.source = h.stream.raw
+		h.writer.SetEncoder(nil)
 	}
 	return nil, nil
 }

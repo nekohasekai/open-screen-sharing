@@ -11,7 +11,7 @@ func authenticateKerberos(h *handshake) ([]byte, error) {
 	// with its own before the token exchange; it then sends the session key
 	// wrapped with confidentiality (screensharingd 756.36.5.2, macOS 27.0.1 26A434,
 	// 0x100014070..0x100014098, 0x100014a24..0x100014a3c, 0x10001528c..0x1000152c0).
-	_, err := h.conn.Write(make([]byte, 4))
+	err := h.writer.Write([][]byte{make([]byte, 4)})
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func authenticateKerberos(h *handshake) ([]byte, error) {
 			}
 			break
 		}
-		_, err = h.conn.Write(append(binary.BigEndian.AppendUint32(nil, uint32(len(output))), output...))
+		err = h.writer.Write([][]byte{append(binary.BigEndian.AppendUint32(nil, uint32(len(output))), output...)})
 		if err != nil {
 			return nil, err
 		}
