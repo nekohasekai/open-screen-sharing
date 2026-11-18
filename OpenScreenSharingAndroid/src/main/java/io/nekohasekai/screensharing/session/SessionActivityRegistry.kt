@@ -4,16 +4,11 @@ import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -24,6 +19,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import io.nekohasekai.screensharing.App
 import io.nekohasekai.screensharing.R
 import io.nekohasekai.screensharing.app.ContinuedTask
+import io.nekohasekai.screensharing.app.RuntimePermission
 import io.nekohasekai.screensharing.model.PreferenceStore
 
 object SessionActivityRegistry {
@@ -61,6 +57,8 @@ object SessionActivityRegistry {
 
     var keepsAlive by mutableStateOf(false)
         private set
+
+    val notificationsPermission = RuntimePermission(Manifest.permission.POST_NOTIFICATIONS, Build.VERSION_CODES.TIRAMISU) { refresh() }
 
     internal val sessionEntries: List<SessionEntry> get() = sessions
     internal val taskEntries: List<ContinuedTask> get() = tasks
@@ -175,6 +173,12 @@ object SessionActivityRegistry {
         }
     }
 
+    suspend fun requestNotifications(requester: RuntimePermission.Requester) {
+        if (notificationsPermission.isGranted || PreferenceStore.value<Boolean>(ASKED_NOTIFICATIONS) == true) return
+        PreferenceStore.set(ASKED_NOTIFICATIONS, true)
+        requester.request()
+    }
+
     internal fun serviceCreated(service: SessionService) {
         this.service = service
         starting = false
@@ -195,21 +199,6 @@ object SessionActivityRegistry {
     internal fun foregroundFailed() {
         startBlocked = true
         keepsAlive = false
-    }
-}
-
-@Composable
-fun SessionNotificationsRequest() {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
-        SessionActivityRegistry.refresh()
-    }
-    LaunchedEffect(launcher) {
-        val context = App.instance
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return@LaunchedEffect
-        if (PreferenceStore.value<Boolean>(ASKED_NOTIFICATIONS) == true) return@LaunchedEffect
-        PreferenceStore.set(ASKED_NOTIFICATIONS, true)
-        launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 }
 

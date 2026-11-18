@@ -20,9 +20,6 @@ import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.core.content.IntentCompat
 import androidx.core.net.toUri
@@ -41,12 +38,11 @@ import io.nekohasekai.screensharing.model.AppSettings
 import io.nekohasekai.screensharing.model.KeyShortcuts
 import io.nekohasekai.screensharing.session.MicrophoneSender
 import io.nekohasekai.screensharing.session.ScreenPicture
+import io.nekohasekai.screensharing.session.SessionActivityRegistry
 import io.nekohasekai.screensharing.session.SessionController
-import io.nekohasekai.screensharing.session.SessionNotificationsRequest
 import io.nekohasekai.screensharing.session.SessionPhase
 import io.nekohasekai.screensharing.session.SessionRoute
 import io.nekohasekai.screensharing.session.WindowCredentials
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class SessionActivity : ComponentActivity() {
@@ -62,12 +58,12 @@ class SessionActivity : ComponentActivity() {
 
     private var controller: SessionController? = null
     private var screenView: RemoteScreenView? = null
-    private var asksForNotifications by mutableStateOf(false)
     private var handledKeyCode: Int? = null
     private var mouseBackReleasedAt: Long? = null
 
     private val localNetworkAccess = LocalNetworkAccess.permission.requester(this)
     private val microphonePermission = MicrophoneSender.permission.requester(this)
+    private val notificationsPermission = SessionActivityRegistry.notificationsPermission.requester(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge(SystemBarStyle.dark(android.graphics.Color.TRANSPARENT), SystemBarStyle.dark(android.graphics.Color.TRANSPARENT))
@@ -117,6 +113,7 @@ class SessionActivity : ComponentActivity() {
         }
         controller.onClose = { finishAndRemoveTask() }
         controller.microphonePermission = microphonePermission
+        controller.notificationsPermission = notificationsPermission
         if (controller.phase == SessionPhase.Idle) {
             lifecycleScope.launch {
                 LocalNetworkAccess.request(controller.route.host, localNetworkAccess)
@@ -136,7 +133,6 @@ class SessionActivity : ComponentActivity() {
                         }
                     }
                 }
-                if (asksForNotifications) SessionNotificationsRequest()
                 StorageNoticeHost()
             }
         }
@@ -176,12 +172,6 @@ class SessionActivity : ComponentActivity() {
                                 }
                         }
                 }
-            }
-        }
-        lifecycleScope.launch {
-            snapshotFlow { controller.phase }.first { it == SessionPhase.Connected }
-            if (io.nekohasekai.screensharing.demo.Demo.current == null) {
-                asksForNotifications = true
             }
         }
     }

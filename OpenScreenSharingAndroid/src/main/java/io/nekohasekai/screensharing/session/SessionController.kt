@@ -285,6 +285,7 @@ class SessionController(
     var alert: AlertState? by mutableStateOf(null)
     var notice: SessionNotice? by mutableStateOf(null)
     var microphonePermission: RuntimePermission.Requester? = null
+    var notificationsPermission: RuntimePermission.Requester? = null
     var isClosing: Boolean by mutableStateOf(false)
         private set
     var dropTarget: DropTarget? by mutableStateOf(null)
@@ -376,7 +377,9 @@ class SessionController(
     private var restoresDisplay = false
     private var assistCursorShown = false
     private var highPerformanceStartPending = false
-    internal var awaitsDisplayArea by mutableStateOf(false)
+    private var awaitsDisplayArea by mutableStateOf(false)
+    private var awaitsPermissions by mutableStateOf(false)
+    private var permissionsTask: Job? = null
     private var awaitsVirtualDisplay = false
         set(value) {
             field = value
@@ -683,6 +686,7 @@ class SessionController(
     fun abort() {
         releaseAllKeys()
         isClosing = true
+        permissionsTask?.cancel()
         teardown()
         phase = SessionPhase.Disconnected
         endBackgroundTask()
@@ -902,7 +906,10 @@ class SessionController(
                 newPhase = SessionPhase.Failed(SessionFailure(SessionFailure.Kind.ConnectionLost, failure.message))
             }
         }
-        if (newPhase == SessionPhase.Connected && prepareCursorAssets()) return
+        if (newPhase == SessionPhase.Connected) {
+            requestPermissions()
+            if (prepareCursorAssets()) return
+        }
         this.phase = newPhase
         when (newPhase) {
             SessionPhase.Connected -> {
@@ -957,6 +964,27 @@ class SessionController(
 
             else -> {}
         }
+    }
+
+    internal fun awaitDisplayArea() {
+        requestPermissions()
+        awaitsDisplayArea = true
+    }
+
+    private fun requestPermissions() {
+        if (permissionsTask != null || io.nekohasekai.screensharing.demo.Demo.current != null) return
+        awaitsPermissions = true
+        permissionsTask =
+            App.scope.launch(Dispatchers.Main) {
+                notificationsPermission?.let { SessionActivityRegistry.requestNotifications(it) }
+                if (sendsAudio && microphonePermission?.request() == false) {
+                    sendsAudio = false
+                    rememberState()
+                    alertMicrophoneDenied()
+                    snapshotFlow { alert }.first { it == null }
+                }
+                awaitsPermissions = false
+            }
     }
 
     private fun prepareCursorAssets(): Boolean {
@@ -1757,7 +1785,7 @@ class SessionController(
                 SessionPhase.Idle, SessionPhase.Disconnected, is SessionPhase.Failed -> false
                 else -> awaitsDisplayArea
             }
-            if (!established || credentialPrompt != null) return ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            if (!established || credentialPrompt != null || awaitsPermissions) return ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             val followsWindow = wantsVirtualDisplay && (capabilities.isEmpty || SessionCapabilities.VirtualDisplay in capabilities)
             val size = imageSize
             if (!followsWindow && size.width > 0 && size.height > 0) {
@@ -2861,7 +2889,7 @@ class SessionEventSink(
     }
 
     fun sessionAwaitsDisplay() {
-        onMain { it.awaitsDisplayArea = true }
+        onMain { it.awaitDisplayArea() }
     }
 
     fun sessionNeedsFramebuffer(
