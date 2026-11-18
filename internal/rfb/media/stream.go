@@ -52,15 +52,18 @@ const (
 	// macOS 27.0.1 26A434, UUID 44908B06-F788-3822-ABC4-2285001F6A8D,
 	// SendFrameBuffer 0x100021f1c..0x100021f40, 0x100023a14..0x100023a94).
 	restartLimit = 3 * time.Second
+
+	restartAttempts = 2
 )
 
-var ErrStreamSilent = E.New("media: the server closed its media ports and did not announce them again")
+var ErrStreamSilent = E.New("media: the server stopped sending media and did not resume")
 
 type StreamConfig struct {
-	Offer  *Offer
-	Remote netip.Addr
-	Local  netip.Addr
-	Sink   Sink
+	Offer   *Offer
+	Remote  netip.Addr
+	Local   netip.Addr
+	Sink    Sink
+	Restart func() bool
 }
 
 type StreamStats struct {
@@ -98,6 +101,8 @@ type Stream struct {
 	rate                rateFeedback
 	lastKeyframeRequest time.Time
 	refusedAt           time.Time
+	answeredAt          time.Time
+	restarts            int
 	restartExpected     bool
 	displaysAsleep      bool
 	stats               StreamStats
@@ -144,6 +149,7 @@ func (s *Stream) HandleRectangle(payload []byte) error {
 			s.rate.restart()
 			s.stats.OneWayDelay = 0
 			s.awaitPacketsLocked()
+			s.answeredAt = time.Now()
 			s.access.Unlock()
 		case *ServerError:
 			err = message
@@ -259,6 +265,7 @@ func (s *Stream) refused(target *leg, err error) bool {
 
 func (s *Stream) awaitPacketsLocked() {
 	s.refusedAt = time.Time{}
+	s.answeredAt = time.Time{}
 	for _, target := range []*leg{s.video, s.audio} {
 		if target != nil {
 			target.heard = false
@@ -426,8 +433,14 @@ func (s *Stream) receiveVideo(video *leg) {
 		buf.ReleaseMulti(datagrams)
 		s.access.Lock()
 		silent := !s.refusedAt.IsZero() && now.Sub(s.refusedAt) > restartLimit
+		unheard := !video.heard && !s.restartExpected && !s.displaysAsleep && !s.answeredAt.IsZero() && now.Sub(s.answeredAt) > restartLimit
+		if unheard {
+			s.answeredAt = time.Time{}
+			s.restarts++
+			silent = silent || s.restarts > restartAttempts
+		}
 		s.access.Unlock()
-		if silent {
+		if silent || unheard && !s.config.Restart() {
 			s.stop(ErrStreamSilent)
 			return
 		}
@@ -472,6 +485,7 @@ func (s *Stream) handleVideoDatagram(video *leg, assembler **videoAssembler, dat
 	video.lastHeardAt = now
 	video.heard = true
 	s.refusedAt = time.Time{}
+	s.restarts = 0
 	s.stats.VideoPackets++
 	s.stats.VideoBytes += uint64(len(datagram))
 	s.stats.VideoPacketsExpected += uint64(video.source(packet.ssrc).record(packet.sequence, packet.timestamp, videoClockRate, now))

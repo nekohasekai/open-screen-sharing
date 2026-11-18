@@ -74,8 +74,16 @@ type heldDisplayChange struct {
 	message   []byte
 }
 
+// screensharingd announces the media ports once for each display configuration it handles,
+// about 1.4 s after that configuration's reconfigure, so the announcement for one handled
+// during an earlier restart can follow that restart's answer. The Agent then replaces a
+// running sender on the viewer's offer, and avconferenced fails every send of the new one
+// with EHOSTUNREACH until a display configuration releases it (ScreensharingAgent 766.12,
+// macOS 27.2.1 26B131, UUID 4095B66E-DC85-344B-874D-12AB31FE99CE, log "stop video sending"
+// in SetServerStreamConfiguration; AVConference 2260.15.1, macOS 27.2.1 26B131,
+// _VCTransportStreamVTPSendOnePacket "VTP_Send failed with errno=65").
 func (c *Client) holdsDisplayChangesLocked() bool {
-	return c.preparing || c.media != nil && (c.media.starting || c.media.unanswered)
+	return c.preparing || c.media != nil && (c.media.starting || c.media.reconfiguring || c.media.unanswered)
 }
 
 func (c *Client) sendDisplayChangeLocked(message []byte, selection bool) error {
@@ -93,6 +101,7 @@ func (c *Client) sendDisplayChangeLocked(message []byte, selection bool) error {
 	// -[SSAgentVirtualDisplay updateDisplayInfo:dynamicResolution:updateDisplayModes:]
 	// 0x100003908..0x100003994).
 	if !selection && c.media != nil {
+		c.media.reconfiguring = true
 		c.media.stream.ExpectRestart()
 	}
 	return c.send(message)
@@ -103,6 +112,7 @@ func (c *Client) releaseDisplayChangesLocked() error {
 	c.heldDisplay = nil
 	for _, change := range held {
 		if !change.selection && c.media != nil {
+			c.media.reconfiguring = true
 			c.media.stream.ExpectRestart()
 		}
 		err := c.send(change.message)

@@ -16,6 +16,7 @@ type mediaSession struct {
 	stream          *media.Stream
 	sink            media.Sink
 	starting        bool
+	reconfiguring   bool
 	unanswered      bool
 	reoffer         bool
 	portsSeen       bool
@@ -159,6 +160,15 @@ func (c *Client) startMediaSessionLocked(offer *media.Offer, sink media.Sink, pr
 	session.stream = media.NewStream(media.StreamConfig{
 		Offer: offer, Remote: remote, Local: local,
 		Sink: &mediaSink{Sink: sink, client: c, session: session},
+		Restart: func() bool {
+			c.access.Lock()
+			defer c.access.Unlock()
+			if c.media != session || c.virtualDisplay == nil {
+				return false
+			}
+			c.logger.Warn("media stream is silent after the answer, reconfiguring the virtual display")
+			return c.reconfigureVirtualDisplayLocked() == nil
+		},
 	})
 	c.access.Lock()
 	c.media = session
@@ -253,6 +263,7 @@ func (c *Client) receiveMediaStream() error {
 		switch messageType {
 		case 1:
 			session.portsSeen = true
+			session.reconfiguring = false
 			// ScreenSharing ignores a ports message while mediaStreamMessage1Received is set,
 			// and clears the flag on the answer (ScreenSharing 776.27, macOS 27.0.1 26A434,
 			// UUID EC0B2C20-F816-3FCE-822D-F9403C09EB50, -[SSSession handleAVCMediaEncoding:]
