@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
+	"io"
 	"log/slog"
 	"net"
+	"slices"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -33,17 +35,19 @@ func (v ProtocolVersion) apple() bool {
 }
 
 type ServerInfo struct {
-	Version       ProtocolVersion
-	Dialect       Dialect
-	SecurityTypes []SecurityType
-	SecurityType  SecurityType
-	Name          string
-	Width         int
-	Height        int
-	PixelFormat   PixelFormat
-	Flags         uint32
-	Commands      [16]byte
-	Extended      bool
+	Version          ProtocolVersion
+	Dialect          Dialect
+	SecurityTypes    []SecurityType
+	VeNCryptSubtypes []SecurityType
+	RSAAESSubtype    uint8
+	SecurityType     SecurityType
+	Name             string
+	Width            int
+	Height           int
+	PixelFormat      PixelFormat
+	Flags            uint32
+	Commands         [16]byte
+	Extended         bool
 }
 
 const (
@@ -74,9 +78,26 @@ type handshake struct {
 	logger       *slog.Logger
 	info         ServerInfo
 	securityType SecurityType
+	method       SecurityType
+	preferred    []SecurityType
+	fallback     *securityFallback
 	wrapKey      []byte
 	kerberos     *gss.Initiator
 	selected     func(SecurityType)
+}
+
+type layeredConn struct {
+	net.Conn
+	reader io.Reader
+}
+
+func (c *layeredConn) Read(data []byte) (int, error) {
+	return c.reader.Read(data)
+}
+
+func (h *handshake) upgrade(conn net.Conn) {
+	h.conn = conn
+	h.stream = newStream(conn)
 }
 
 func (h *handshake) negotiateVersion() error {
@@ -159,11 +180,14 @@ func (h *handshake) authenticate() error {
 		host, _, _ := net.SplitHostPort(h.options.Address)
 		preferred = AccountSecurityTypes(host)
 	}
+	h.preferred = common.Filter(preferred, func(securityType SecurityType) bool {
+		return !slices.Contains(h.fallback.excluded, securityType)
+	})
 	err := h.readSecurityTypes()
 	if err != nil {
 		return err
 	}
-	h.securityType, err = h.chooseSecurityType(preferred)
+	h.securityType, err = h.chooseSecurityType()
 	if h.kerberos != nil {
 		defer h.kerberos.Close()
 	}
@@ -177,6 +201,7 @@ func (h *handshake) authenticate() error {
 		}
 	}
 	h.info.SecurityType = h.securityType
+	h.method = h.securityType
 	h.logger.Debug("security", "offered", h.info.SecurityTypes, "selected", h.securityType)
 	if h.selected != nil {
 		h.selected(h.securityType)
@@ -185,7 +210,7 @@ func (h *handshake) authenticate() error {
 	if err != nil {
 		return E.Cause(err, "authenticate with ", h.securityType)
 	}
-	if h.securityType == SecurityNone && h.info.Version.Minor < 8 {
+	if h.method == SecurityNone && h.info.Version.Minor < 8 {
 		return nil
 	}
 	result, err := h.stream.u32()

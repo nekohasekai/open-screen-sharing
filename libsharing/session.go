@@ -278,9 +278,9 @@ func rfbOptions(o *SessionOptions, seen func(fingerprint string)) (rfb.Options, 
 		Password:             o.Password,
 		ClientName:           o.ClientName,
 		AllowUnverifiedLogin: o.AllowUnverifiedLogin,
-		VerifyServerKey: func(fingerprint string) error {
+		VerifyServerKey: func(fingerprint string, authenticated bool) error {
 			seen(fingerprint)
-			if trusted != "" && !strings.EqualFold(fingerprint, trusted) {
+			if !authenticated && trusted != "" && !strings.EqualFold(fingerprint, trusted) {
 				return E.Extend(rfb.ErrServerKeyChanged, "fingerprint ", fingerprint, " is not the trusted ", trusted)
 			}
 			return nil
@@ -302,9 +302,9 @@ func rfbOptions(o *SessionOptions, seen func(fingerprint string)) (rfb.Options, 
 	case LoginRequestObserve:
 		options.SecurityTypes = rfb.SecurityObserveRequest
 	case LoginVNCPassword:
-		options.SecurityTypes = []rfb.SecurityType{rfb.SecurityVNCPassword}
+		options.SecurityTypes = rfb.SecurityPasswordOnly
 	case LoginNone:
-		options.SecurityTypes = []rfb.SecurityType{rfb.SecurityNone}
+		options.SecurityTypes = rfb.SecurityNoPassword
 	default:
 		return options, E.New("unknown login type ", o.LoginType)
 	}

@@ -138,7 +138,16 @@ func (w *Writer) send(data []byte) error {
 	return nil
 }
 
+type MessageWriter interface {
+	WriteMessages(messages [][]byte) (int, error)
+}
+
 func (w *Writer) Write(messages [][]byte) error {
+	if framed, isFramed := w.conn.(MessageWriter); isFramed && w.encode == nil {
+		written, err := framed.WriteMessages(messages)
+		w.written.Add(uint64(written))
+		return err
+	}
 	w.data = w.data[:0]
 	for _, message := range messages {
 		w.data = append(w.data, message...)

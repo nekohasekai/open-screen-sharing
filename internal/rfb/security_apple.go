@@ -24,6 +24,11 @@ import (
 	E "github.com/sagernet/sing/common/exceptions"
 )
 
+func fingerprint(data []byte) string {
+	sum := sha256.Sum256(data)
+	return strings.ToUpper(hex.EncodeToString(sum[:]))
+}
+
 func randomBytes(length int) []byte {
 	data := make([]byte, length)
 	rand.Read(data)
@@ -156,12 +161,11 @@ func authenticateAppleRSA(h *handshake) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	sum := sha256.Sum256(der)
-	fingerprint := strings.ToUpper(hex.EncodeToString(sum[:]))
-	h.logger.Debug("server RSA key", "bits", publicKey.N.BitLen(), "fingerprint", fingerprint)
+	serverFingerprint := fingerprint(der)
+	h.logger.Debug("server RSA key", "bits", publicKey.N.BitLen(), "fingerprint", serverFingerprint)
 	if !slices.Contains(h.info.SecurityTypes, SecurityAppleSRP) {
 		if h.options.VerifyServerKey != nil {
-			err = h.options.VerifyServerKey(fingerprint)
+			err = h.options.VerifyServerKey(serverFingerprint, false)
 			if err != nil {
 				return nil, err
 			}

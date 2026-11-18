@@ -83,7 +83,7 @@ type Options struct {
 	SecurityTypes        []SecurityType
 	ClientName           string
 	AllowUnverifiedLogin bool
-	VerifyServerKey      func(fingerprint string) error
+	VerifyServerKey      func(fingerprint string, authenticated bool) error
 
 	Quality             Quality
 	Mode                Mode

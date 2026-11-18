@@ -167,29 +167,36 @@ func Dial(ctx context.Context, options Options, handler Handler) (*Client, error
 		writerDone:      make(chan struct{}),
 	}
 	handler.StateChanged(StateConnecting)
-	conn, err := dial(ctx, options)
-	if err != nil {
-		cancelLifetime(err)
-		return nil, err
-	}
-	client.conn = conn
-	stop := context.AfterFunc(ctx, func() {
+	var fallback securityFallback
+	for {
+		conn, err := dial(ctx, options)
+		if err != nil {
+			cancelLifetime(err)
+			return nil, err
+		}
+		client.conn = conn
+		stop := context.AfterFunc(ctx, func() {
+			conn.Close()
+		})
+		err = client.setup(ctx, &fallback)
+		if !stop() {
+			err = E.Errors(ctx.Err(), err)
+		}
+		if err == nil {
+			return client, nil
+		}
 		conn.Close()
-	})
-	err = client.setup(ctx)
-	if !stop() {
-		err = E.Errors(ctx.Err(), err)
-	}
-	if err != nil {
+		if errors.Is(err, errSecurityFallback) && ctx.Err() == nil {
+			logger.Debug("retry with another security type", "error", err)
+			continue
+		}
 		cancelLifetime(err)
 		if client.outbox != nil {
 			client.outbox.Abort(err)
 		}
-		conn.Close()
 		client.abandonMedia()
 		return nil, err
 	}
-	return client, nil
 }
 
 func (c *Client) abandonMedia() {
@@ -205,9 +212,8 @@ func (c *Client) abandonMedia() {
 	}
 }
 
-func (c *Client) setup(ctx context.Context) error {
-	c.stream = newStream(c.conn)
-	h := &handshake{ctx: ctx, conn: c.conn, stream: c.stream, options: &c.options, logger: c.logger}
+func (c *Client) setup(ctx context.Context, fallback *securityFallback) error {
+	h := &handshake{ctx: ctx, conn: c.conn, stream: newStream(c.conn), options: &c.options, logger: c.logger, fallback: fallback}
 	err := h.negotiateVersion()
 	if err != nil {
 		return err
@@ -227,6 +233,7 @@ func (c *Client) setup(ctx context.Context) error {
 		return err
 	}
 	c.info = h.info
+	c.stream = h.stream
 	copy(c.wrapKey[:], h.wrapKey)
 	_, err = c.resizeLocked(c.info.Width, c.info.Height)
 	if err != nil {
@@ -239,7 +246,7 @@ func (c *Client) setup(ctx context.Context) error {
 		}
 	}
 	c.outbox = outbox.New()
-	c.writer = outbox.NewWriter(c.conn)
+	c.writer = outbox.NewWriter(h.conn)
 	if c.info.Dialect == DialectApple {
 		err = c.startApple()
 	} else {

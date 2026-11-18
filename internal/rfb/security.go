@@ -3,6 +3,7 @@ package rfb
 import (
 	"context"
 	"crypto/des"
+	"errors"
 	"math/bits"
 	"net"
 	"net/netip"
@@ -12,34 +13,59 @@ import (
 	"time"
 
 	"github.com/nekohasekai/open-screen-sharing/internal/gss"
+	"github.com/sagernet/sing/common"
 	E "github.com/sagernet/sing/common/exceptions"
 	F "github.com/sagernet/sing/common/format"
 )
 
-type SecurityType uint8
+type SecurityType uint32
 
 const (
-	SecurityNone        SecurityType = 1
-	SecurityVNCPassword SecurityType = 2
-	SecurityAppleDH     SecurityType = 30
-	SecurityAskObserve  SecurityType = 31
-	SecurityAskControl  SecurityType = 32
-	SecurityAppleRSA    SecurityType = 33
-	SecurityApplePSK    SecurityType = 34
-	SecurityKerberos    SecurityType = 35
-	SecurityAppleSRP    SecurityType = 36
+	SecurityNone                 SecurityType = 1
+	SecurityVNCPassword          SecurityType = 2
+	SecurityRSAAES               SecurityType = 5
+	SecurityRSAAESUnencrypted    SecurityType = 6
+	SecurityVeNCrypt             SecurityType = 19
+	SecurityAppleDH              SecurityType = 30
+	SecurityAskObserve           SecurityType = 31
+	SecurityAskControl           SecurityType = 32
+	SecurityAppleRSA             SecurityType = 33
+	SecurityApplePSK             SecurityType = 34
+	SecurityKerberos             SecurityType = 35
+	SecurityAppleSRP             SecurityType = 36
+	SecurityRSAAES256            SecurityType = 129
+	SecurityRSAAES256Unencrypted SecurityType = 130
+	SecurityPlain                SecurityType = 256
+	SecurityTLSNone              SecurityType = 257
+	SecurityTLSVNC               SecurityType = 258
+	SecurityTLSPlain             SecurityType = 259
+	SecurityX509None             SecurityType = 260
+	SecurityX509VNC              SecurityType = 261
+	SecurityX509Plain            SecurityType = 262
 )
 
 var securityNames = map[SecurityType]string{
-	SecurityNone:        "none",
-	SecurityVNCPassword: "vnc-password",
-	SecurityAppleDH:     "apple-dh",
-	SecurityAskObserve:  "ask-observe",
-	SecurityAskControl:  "ask-control",
-	SecurityAppleRSA:    "apple-rsa-srp",
-	SecurityApplePSK:    "apple-psk",
-	SecurityKerberos:    "kerberos",
-	SecurityAppleSRP:    "apple-srp",
+	SecurityNone:                 "none",
+	SecurityVNCPassword:          "vnc-password",
+	SecurityRSAAES:               "rsa-aes",
+	SecurityRSAAESUnencrypted:    "rsa-aes-unencrypted",
+	SecurityVeNCrypt:             "vencrypt",
+	SecurityAppleDH:              "apple-dh",
+	SecurityAskObserve:           "ask-observe",
+	SecurityAskControl:           "ask-control",
+	SecurityAppleRSA:             "apple-rsa-srp",
+	SecurityApplePSK:             "apple-psk",
+	SecurityKerberos:             "kerberos",
+	SecurityAppleSRP:             "apple-srp",
+	SecurityRSAAES256:            "rsa-aes-256",
+	SecurityRSAAES256Unencrypted: "rsa-aes-256-unencrypted",
+	SecurityPlain:                "plain",
+	SecurityTLSNone:              "tls-none",
+	SecurityTLSVNC:               "tls-vnc",
+	SecurityTLSPlain:             "tls-plain",
+	SecurityX509None:             "x509-none",
+	SecurityX509VNC:              "x509-vnc",
+	SecurityX509Plain:            "x509-plain",
 }
 
 func (t SecurityType) String() string {
@@ -54,7 +80,13 @@ var (
 	SecurityAccount        = []SecurityType{SecurityAppleRSA, SecurityAppleSRP, SecurityAppleDH, SecurityKerberos}
 	SecurityAskPermission  = []SecurityType{SecurityAskControl, SecurityAskObserve}
 	SecurityObserveRequest = []SecurityType{SecurityAskObserve, SecurityAskControl}
+	SecurityPasswordOnly   = []SecurityType{SecurityX509VNC, SecurityRSAAES256, SecurityRSAAES, SecurityRSAAES256Unencrypted, SecurityRSAAESUnencrypted, SecurityVNCPassword}
+	SecurityNoPassword     = []SecurityType{SecurityX509None, SecurityNone}
 )
+
+var rsaAESTypes = []SecurityType{SecurityRSAAES256, SecurityRSAAES, SecurityRSAAES256Unencrypted, SecurityRSAAESUnencrypted}
+
+var veNCryptSubtypes = []SecurityType{SecurityPlain, SecurityX509None, SecurityX509VNC, SecurityX509Plain}
 
 // AccountSecurityTypes orders account logins the way ScreenSharing does: it
 // tries Kerberos first only for .local host names (ScreenSharing 776.27,
@@ -63,22 +95,35 @@ var (
 // -[SSSessionView orderedArrayOfAuthTypesForMethod:preferKerberos:serverAllowedTypes:] 0x1cc089768).
 func AccountSecurityTypes(host string) []SecurityType {
 	if strings.HasSuffix(strings.ToLower(strings.TrimSuffix(host, ".")), ".local") {
-		return []SecurityType{SecurityKerberos, SecurityAppleRSA, SecurityAppleSRP, SecurityAppleDH}
+		return []SecurityType{
+			SecurityKerberos, SecurityAppleRSA, SecurityAppleSRP,
+			SecurityX509Plain, SecurityRSAAES256, SecurityRSAAES, SecurityRSAAES256Unencrypted, SecurityRSAAESUnencrypted,
+			SecurityAppleDH, SecurityPlain,
+		}
 	}
-	return SecurityAccount
+	return []SecurityType{
+		SecurityAppleRSA, SecurityAppleSRP,
+		SecurityX509Plain, SecurityRSAAES256, SecurityRSAAES, SecurityRSAAES256Unencrypted, SecurityRSAAESUnencrypted,
+		SecurityAppleDH, SecurityKerberos, SecurityPlain,
+	}
 }
 
 type authenticator func(h *handshake) ([]byte, error)
 
 var authenticators = map[SecurityType]authenticator{
-	SecurityNone:        authenticateNone,
-	SecurityVNCPassword: authenticateVNCPassword,
-	SecurityAppleDH:     authenticateAppleDH,
-	SecurityAskObserve:  authenticateAppleDH,
-	SecurityAskControl:  authenticateAppleDH,
-	SecurityAppleRSA:    authenticateAppleRSA,
-	SecurityKerberos:    authenticateKerberos,
-	SecurityAppleSRP:    authenticateAppleSRP,
+	SecurityNone:                 authenticateNone,
+	SecurityVNCPassword:          authenticateVNCPassword,
+	SecurityRSAAES:               authenticateRSAAES,
+	SecurityRSAAESUnencrypted:    authenticateRSAAES,
+	SecurityVeNCrypt:             authenticateVeNCrypt,
+	SecurityAppleDH:              authenticateAppleDH,
+	SecurityAskObserve:           authenticateAppleDH,
+	SecurityAskControl:           authenticateAppleDH,
+	SecurityAppleRSA:             authenticateAppleRSA,
+	SecurityKerberos:             authenticateKerberos,
+	SecurityAppleSRP:             authenticateAppleSRP,
+	SecurityRSAAES256:            authenticateRSAAES,
+	SecurityRSAAES256Unencrypted: authenticateRSAAES,
 }
 
 var ErrUnsupportedServer = E.New("rfb: unsupported server")
@@ -89,13 +134,57 @@ var ErrServerKeyChanged = E.New("rfb: the server key changed")
 
 const kerberosTimeout = 5 * time.Second
 
-func (h *handshake) chooseSecurityType(preferred []SecurityType) (SecurityType, error) {
+var errSecurityFallback = E.New("rfb: retry with another security type")
+
+type securityFallback struct {
+	excluded   []SecurityType
+	unverified bool
+}
+
+func (h *handshake) carrier(candidate SecurityType) (SecurityType, bool) {
+	carrier := candidate
+	if candidate >= SecurityPlain {
+		if !slices.Contains(veNCryptSubtypes, candidate) {
+			return 0, false
+		}
+		carrier = SecurityVeNCrypt
+	}
+	return carrier, slices.Contains(h.info.SecurityTypes, carrier)
+}
+
+func (h *handshake) gated(candidate SecurityType) bool {
+	return !h.options.AllowUnverifiedLogin && (candidate == SecurityAppleDH || candidate == SecurityPlain)
+}
+
+func (h *handshake) fallBack(excluded func(SecurityType) bool, cause error) error {
+	h.fallback.excluded = append(h.fallback.excluded, common.Filter(h.preferred, excluded)...)
+	for _, candidate := range h.preferred {
+		_, offered := h.carrier(candidate)
+		if !offered || excluded(candidate) {
+			continue
+		}
+		if !h.gated(candidate) {
+			return E.Cause1(errSecurityFallback, cause)
+		}
+		h.fallback.unverified = true
+	}
+	if h.fallback.unverified && !errors.Is(cause, ErrUnverifiedServer) {
+		return E.Extend(ErrUnverifiedServer, cause)
+	}
+	return cause
+}
+
+func (h *handshake) chooseSecurityType() (SecurityType, error) {
 	offered := h.info.SecurityTypes
-	var unverified bool
 	var kerberosErr error
-	for _, candidate := range preferred {
-		_, implemented := authenticators[candidate]
-		if !implemented || !slices.Contains(offered, candidate) {
+	for _, candidate := range h.preferred {
+		carrier, found := h.carrier(candidate)
+		_, implemented := authenticators[carrier]
+		if !implemented || !found {
+			continue
+		}
+		if h.gated(candidate) {
+			h.fallback.unverified = true
 			continue
 		}
 		switch candidate {
@@ -104,11 +193,6 @@ func (h *handshake) chooseSecurityType(preferred []SecurityType) (SecurityType, 
 			// neither 35 nor 36 (ScreenSharing 776.27, macOS 27.0.1 26A434,
 			// UUID EC0B2C20-F816-3FCE-822D-F9403C09EB50, 0x1cc08a038..0x1cc08a09c).
 			if h.info.Dialect == DialectApple && !slices.Contains(offered, SecurityAppleSRP) && !slices.Contains(offered, SecurityKerberos) {
-				continue
-			}
-		case SecurityAppleDH:
-			if !h.options.AllowUnverifiedLogin {
-				unverified = true
 				continue
 			}
 		case SecurityKerberos:
@@ -126,13 +210,13 @@ func (h *handshake) chooseSecurityType(preferred []SecurityType) (SecurityType, 
 				continue
 			}
 		}
-		return candidate, nil
+		return carrier, nil
 	}
 	offeredNames := strings.Join(F.MapToString(offered), ", ")
-	if unverified {
+	if h.fallback.unverified {
 		return 0, E.Extend(ErrUnverifiedServer, "it offers security types ", offeredNames)
 	}
-	err := E.Extend(ErrUnsupportedServer, "it offers security types ", offeredNames, "; none of ", strings.Join(F.MapToString(preferred), ", "))
+	err := E.Extend(ErrUnsupportedServer, "it offers security types ", offeredNames, "; none of ", strings.Join(F.MapToString(h.preferred), ", "))
 	if kerberosErr != nil {
 		return 0, E.Errors(err, kerberosErr)
 	}
