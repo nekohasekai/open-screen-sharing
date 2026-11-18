@@ -2,7 +2,6 @@ package io.nekohasekai.screensharing.sessionui
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
-import android.content.res.Configuration
 import android.graphics.Point
 import android.os.Build
 import android.os.Handler
@@ -166,7 +165,8 @@ class ScreenWindowTracker(
             else -> if (windowCoversScreen(activity)) ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE else null
         }
         val requested = SessionOrientation.update(activity, orientation)
-        val landscape = view.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val window = view.rootView
+        val landscape = window.width > window.height
         awaitsRotation = (requested || awaitsRotation) && orientation?.let { !SessionOrientation.allows(it, landscape) } ?: false
         if (!awaitsRotation) {
             handler.removeCallbacks(rotationRefused)
