@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">‏Mac کے لیے نیٹو ٹچ</string>
     <string name="screen_native_touch_supported">Apple VNC کے ذریعے macOS 27.3 یا اس کے بعد کے ورژن والے Mac سے کنیکٹ کرنے پر نیٹو ٹچ سپورٹ ہوتا ہے۔</string>
     <string name="screen_native_touch_detail">Apple VNC کے ذریعے macOS 27.3 یا اس کے بعد کے ورژن والے Mac سے کنیکٹ کرنے پر، آپ %1$s › %2$s آن کر سکتے ہیں۔</string>
+    <string name="screen_know_your_rights">اپنے حقوق جانیں</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing ایک **آزاد اور اوپن سورس سافٹ ویئر** ہے، اور یہ Mac اور iOS کے لیے بھی دستیاب ہے۔ اگر آپ کو کوئی مسئلہ پیش آئے یا آپ کے پاس کوئی خیال ہو، تو مجھے بگ رپورٹس اور تجاویز موصول ہونے پر خوشی ہوگی، اور آپ براہِ راست تعاون بھی کر سکتے ہیں۔</string>
+    <string name="screen_open_github_repository">GitHub ریپوزٹری کھولیں</string>
     <string name="screen_next_tip">اگلا مشورہ</string>
     <string name="screen_tips">مشورے</string>
     <string name="screen_show_tips">مشورے دکھائیں</string>

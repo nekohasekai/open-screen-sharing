@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Izvorni dodir za Mac računalo</string>
     <string name="screen_native_touch_supported">Izvorni dodir podržan je kada se putem Apple VNC-a povežete s Mac računalom sa sustavom macOS 27.3 ili novijim.</string>
     <string name="screen_native_touch_detail">Kada se putem Apple VNC-a povežete s Mac računalom sa sustavom macOS 27.3 ili novijim, možete uključiti %1$s › %2$s.</string>
+    <string name="screen_know_your_rights">Upoznajte svoja prava</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing je **slobodni softver otvorenog koda**, a dostupan je i za Mac i iOS. Ako naiđete na problem ili imate ideju, rado ću primiti prijave pogrešaka i prijedloge, a možete i izravno pridonijeti.</string>
+    <string name="screen_open_github_repository">Otvori GitHub repozitorij</string>
     <string name="screen_next_tip">Sljedeći savjet</string>
     <string name="screen_tips">Savjeti</string>
     <string name="screen_show_tips">Prikaži savjete</string>

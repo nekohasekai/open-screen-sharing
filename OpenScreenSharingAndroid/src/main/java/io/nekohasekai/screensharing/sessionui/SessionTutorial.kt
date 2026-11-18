@@ -1,10 +1,14 @@
 package io.nekohasekai.screensharing.sessionui
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.graphics.Paint
+import android.widget.Toast
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,10 +31,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.outlined.DesktopMac
 import androidx.compose.material.icons.outlined.TextFields
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -65,13 +71,19 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toAndroidRectF
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.net.toUri
 import androidx.window.core.layout.WindowSizeClass
 import io.nekohasekai.screensharing.R
 import io.nekohasekai.screensharing.app.AppTheme
@@ -83,10 +95,13 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
+private const val SOURCE_CODE = "https://github.com/nekohasekai/open-screen-sharing"
+
 enum class SessionTutorial(val rawValue: String) {
     PressToDrag("pressToDrag"),
     CustomInput("customInput"),
     NativeTouch("nativeTouch"),
+    KnowYourRights("knowYourRights"),
     ;
 
     companion object {
@@ -101,6 +116,7 @@ enum class SessionTutorial(val rawValue: String) {
 @Composable
 fun SessionTutorialView(pages: List<SessionTutorial>, onDone: () -> Unit) {
     if (pages.isEmpty()) return
+    val context = LocalContext.current
     var index by rememberSaveable { mutableIntStateOf(0) }
     val current = index.coerceIn(0, pages.lastIndex)
     val page = pages[current]
@@ -109,15 +125,31 @@ fun SessionTutorialView(pages: List<SessionTutorial>, onDone: () -> Unit) {
         windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND)
     val isLast = current == pages.lastIndex
 
-    val button: @Composable () -> Unit = {
-        Button(
-            onClick = {
-                AppSettings.seenTutorials = AppSettings.seenTutorials + page.rawValue
-                if (isLast) onDone() else index = current + 1
-            },
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(stringResource(if (isLast) R.string.ok else R.string.screen_next_tip))
+    val buttons: @Composable () -> Unit = {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (page == SessionTutorial.KnowYourRights) {
+                OutlinedButton(
+                    onClick = {
+                        try {
+                            context.startActivity(Intent(Intent.ACTION_VIEW, SOURCE_CODE.toUri()))
+                        } catch (_: ActivityNotFoundException) {
+                            Toast.makeText(context, context.getString(R.string.settings_couldnt_open_link), Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(stringResource(R.string.screen_open_github_repository))
+                }
+            }
+            Button(
+                onClick = {
+                    AppSettings.seenTutorials = AppSettings.seenTutorials + page.rawValue
+                    if (isLast) onDone() else index = current + 1
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(if (isLast) R.string.ok else R.string.screen_next_tip))
+            }
         }
     }
 
@@ -138,11 +170,11 @@ fun SessionTutorialView(pages: List<SessionTutorial>, onDone: () -> Unit) {
                     .verticalScroll(rememberScrollState())
                     .padding(20.dp),
             ) {
-                if (stacked) {
+                if (stacked || page == SessionTutorial.KnowYourRights) {
                     Column(Modifier.width(ILLUSTRATION_WIDTH.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         TutorialIllustration(pages, current)
                         TutorialText(page)
-                        button()
+                        buttons()
                     }
                 } else {
                     Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
@@ -158,7 +190,7 @@ fun SessionTutorialView(pages: List<SessionTutorial>, onDone: () -> Unit) {
                                     .weight(1f)
                                     .heightIn(min = 16.dp),
                             )
-                            button()
+                            buttons()
                         }
                     }
                 }
@@ -170,19 +202,21 @@ fun SessionTutorialView(pages: List<SessionTutorial>, onDone: () -> Unit) {
 @Composable
 private fun TutorialIllustration(pages: List<SessionTutorial>, index: Int) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        AppTheme(darkTheme = true) {
-            Crossfade(
-                pages[index],
-                Modifier
-                    .size(ILLUSTRATION_WIDTH.dp, ILLUSTRATION_HEIGHT.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .clearAndSetSemantics {},
-                label = "illustration",
-            ) { page ->
+        val systemDark = isSystemInDarkTheme()
+        Crossfade(
+            pages[index],
+            Modifier
+                .size(ILLUSTRATION_WIDTH.dp, if (pages[index] == SessionTutorial.KnowYourRights) 108.dp else ILLUSTRATION_HEIGHT.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .clearAndSetSemantics {},
+            label = "illustration",
+        ) { page ->
+            AppTheme(darkTheme = page != SessionTutorial.KnowYourRights || systemDark) {
                 when (page) {
                     SessionTutorial.PressToDrag -> PressToDragIllustration()
                     SessionTutorial.CustomInput -> CustomInputIllustration()
                     SessionTutorial.NativeTouch -> NativeTouchIllustration()
+                    SessionTutorial.KnowYourRights -> KnowYourRightsIllustration()
                 }
             }
         }
@@ -219,10 +253,19 @@ private fun TutorialText(page: SessionTutorial) {
         } else {
             stringResource(R.string.screen_native_touch_detail, stringResource(R.string.model_control), stringResource(R.string.chrome_native_touch))
         }
+        SessionTutorial.KnowYourRights -> stringResource(R.string.screen_know_your_rights) to stringResource(R.string.screen_know_your_rights_detail)
     }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(title, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface)
-        Text(detail, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            buildAnnotatedString {
+                detail.split("**").forEachIndexed { i, part ->
+                    if (i % 2 == 1) withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(part) } else append(part)
+                }
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
@@ -471,6 +514,37 @@ private fun DrawScope.drawNativeTouch(t: Float) {
             with(TutorialPalette) {
                 drawFinger(nativeTouchFocus + nativeTouchDirection * (sign * spread), radius, min(appear, 1 - lift))
             }
+        }
+    }
+}
+
+@Composable
+private fun KnowYourRightsIllustration() {
+    val colors = MaterialTheme.colorScheme
+    val tileColor = if (isSystemInDarkTheme()) colors.surfaceContainerHighest else colors.surfaceContainerLowest
+    val tile: @Composable (@Composable () -> Unit) -> Unit = { icon ->
+        Box(
+            Modifier
+                .size(76.dp)
+                .background(tileColor, RoundedCornerShape(16.dp)),
+            contentAlignment = Alignment.Center,
+        ) {
+            icon()
+        }
+    }
+    Row(
+        Modifier.fillMaxSize(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        tile {
+            Icon(painterResource(R.drawable.ic_github_mark), contentDescription = null, Modifier.size(38.dp), tint = colors.onSurface)
+        }
+        tile {
+            Icon(Icons.Outlined.DesktopMac, contentDescription = null, Modifier.size(40.dp), tint = colors.onSurface)
+        }
+        tile {
+            Icon(painterResource(R.drawable.ic_iphone), contentDescription = null, Modifier.size(40.dp), tint = colors.onSurface)
         }
     }
 }

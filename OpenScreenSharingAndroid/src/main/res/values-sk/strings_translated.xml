@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Natívny dotyk pre Mac</string>
     <string name="screen_native_touch_supported">Natívny dotyk je podporovaný pri pripojení cez Apple VNC k Macu so systémom macOS 27.3 alebo novším.</string>
     <string name="screen_native_touch_detail">Pri pripojení cez Apple VNC k Macu so systémom macOS 27.3 alebo novším môžete zapnúť %1$s › %2$s.</string>
+    <string name="screen_know_your_rights">Poznajte svoje práva</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing je **slobodný a otvorený softvér** a je dostupný aj pre Mac a iOS. Ak narazíte na problém alebo máte nápad, privítam hlásenia chýb aj návrhy a môžete tiež priamo prispieť.</string>
+    <string name="screen_open_github_repository">Otvoriť repozitár na GitHube</string>
     <string name="screen_next_tip">Ďalší tip</string>
     <string name="screen_tips">Tipy</string>
     <string name="screen_show_tips">Zobraziť tipy</string>

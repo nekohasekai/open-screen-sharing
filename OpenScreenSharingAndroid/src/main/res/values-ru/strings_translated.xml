@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Нативный сенсорный ввод для Mac</string>
     <string name="screen_native_touch_supported">Нативный сенсорный ввод поддерживается при подключении через Apple VNC к Mac с macOS 27.3 или новее.</string>
     <string name="screen_native_touch_detail">При подключении через Apple VNC к Mac с macOS 27.3 или новее можно включить «%1$s» &gt; «%2$s».</string>
+    <string name="screen_know_your_rights">Знайте свои права</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing — **свободное и открытое программное обеспечение**, которое также доступно для Mac и iOS. Если вы столкнулись с проблемой или у вас есть идея, я с радостью приму сообщения об ошибках и предложения, а также вы можете напрямую внести свой вклад.</string>
+    <string name="screen_open_github_repository">Открыть репозиторий GitHub</string>
     <string name="screen_next_tip">Следующий совет</string>
     <string name="screen_tips">Советы</string>
     <string name="screen_show_tips">Показать советы</string>

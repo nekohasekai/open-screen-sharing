@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Natiivi kosketus Macille</string>
     <string name="screen_native_touch_supported">Natiivia kosketusta tuetaan, kun yhdistät Apple VNC:llä Maciin, jossa on macOS 27.3 tai uudempi.</string>
     <string name="screen_native_touch_detail">Kun yhdistät Apple VNC:llä Maciin, jossa on macOS 27.3 tai uudempi, voit laittaa %1$s › %2$s päälle.</string>
+    <string name="screen_know_your_rights">Tunne oikeutesi</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing on **vapaa ja avoimen lähdekoodin ohjelmisto**, ja se on saatavilla myös Macille ja iOS:lle. Jos kohtaat ongelman tai sinulla on idea, otan mielelläni vastaan virheraportteja ja ehdotuksia, ja voit myös osallistua kehitykseen suoraan.</string>
+    <string name="screen_open_github_repository">Avaa GitHub-repositorio</string>
     <string name="screen_next_tip">Seuraava vinkki</string>
     <string name="screen_tips">Vinkit</string>
     <string name="screen_show_tips">Näytä vinkit</string>

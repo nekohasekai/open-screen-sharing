@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Mac-এর জন্য নেটিভ টাচ</string>
     <string name="screen_native_touch_supported">Apple VNC দিয়ে macOS 27.3 বা তার পরের ভার্সন চালিত Mac-এ কানেক্ট করলে নেটিভ টাচ সাপোর্ট করে।</string>
     <string name="screen_native_touch_detail">Apple VNC দিয়ে macOS 27.3 বা তার পরের ভার্সন চালিত Mac-এ কানেক্ট করলে %1$s › %2$s চালু করতে পারবেন।</string>
+    <string name="screen_know_your_rights">আপনার অধিকার জানুন</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing একটি **মুক্ত ও ওপেন সোর্স সফটওয়্যার**, এবং এটি Mac ও iOS-এর জন্যও পাওয়া যায়। কোনো সমস্যায় পড়লে বা কোনো আইডিয়া থাকলে, বাগ রিপোর্ট ও পরামর্শ পেলে আমি খুশি হব, আর আপনি চাইলে সরাসরি অবদানও রাখতে পারেন।</string>
+    <string name="screen_open_github_repository">GitHub রিপোজিটরি খুলুন</string>
     <string name="screen_next_tip">পরবর্তী টিপ</string>
     <string name="screen_tips">টিপস</string>
     <string name="screen_show_tips">টিপস দেখান</string>

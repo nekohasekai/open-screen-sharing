@@ -219,6 +219,9 @@
     <string name="screen_native_touch_for_mac">Mac 原生觸控</string>
     <string name="screen_native_touch_supported">透過 Apple VNC 連線到執行 macOS 27.3 或以上版本的 Mac 時，可以使用原生觸控。</string>
     <string name="screen_native_touch_detail">透過 Apple VNC 連線到執行 macOS 27.3 或以上版本的 Mac 時，可以開啟「%1$s」&gt;「%2$s」。</string>
+    <string name="screen_know_your_rights">了解你的權利</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing 是**自由及開放原始碼軟體**，而且也有 Mac 和 iOS 版本。如果遇到問題或有任何想法，歡迎向我回報錯誤或提出建議，也歡迎直接參與貢獻。</string>
+    <string name="screen_open_github_repository">打開 GitHub 存放庫</string>
     <string name="screen_next_tip">下一則提示</string>
     <string name="screen_tips">提示</string>
     <string name="screen_show_tips">顯示提示</string>

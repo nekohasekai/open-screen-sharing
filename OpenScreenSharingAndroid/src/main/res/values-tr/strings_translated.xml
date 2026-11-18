@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Mac için Yerel Dokunma</string>
     <string name="screen_native_touch_supported">macOS 27.3 veya sonrasını çalıştıran bir Mac’e Apple VNC ile bağlandığınızda yerel dokunma desteklenir.</string>
     <string name="screen_native_touch_detail">macOS 27.3 veya sonrasını çalıştıran bir Mac’e Apple VNC ile bağlandığınızda %1$s › %2$s seçeneğini açabilirsiniz.</string>
+    <string name="screen_know_your_rights">Haklarınızı Bilin</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing **özgür ve açık kaynaklı** bir yazılımdır ve Mac ile iOS için de kullanılabilir. Bir sorunla karşılaşırsanız veya bir fikriniz varsa hata bildirimlerinizi ve önerilerinizi memnuniyetle karşılarım; ayrıca doğrudan katkıda da bulunabilirsiniz.</string>
+    <string name="screen_open_github_repository">GitHub Deposunu Aç</string>
     <string name="screen_next_tip">Sonraki İpucu</string>
     <string name="screen_tips">İpuçları</string>
     <string name="screen_show_tips">İpuçlarını Göster</string>

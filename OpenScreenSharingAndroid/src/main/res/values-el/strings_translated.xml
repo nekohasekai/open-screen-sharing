@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Εγγενής αφή για το Mac</string>
     <string name="screen_native_touch_supported">Η εγγενής αφή υποστηρίζεται όταν συνδέεστε μέσω Apple VNC σε Mac με macOS 27.3 ή νεότερη έκδοση.</string>
     <string name="screen_native_touch_detail">Όταν συνδέεστε μέσω Apple VNC σε Mac με macOS 27.3 ή νεότερη έκδοση, μπορείτε να ενεργοποιήσετε το %1$s › %2$s.</string>
+    <string name="screen_know_your_rights">Γνωρίστε τα δικαιώματά σας</string>
+    <string name="screen_know_your_rights_detail">Το Open Screen Sharing είναι **ελεύθερο λογισμικό ανοιχτού κώδικα** και είναι επίσης διαθέσιμο για Mac και iOS. Αν αντιμετωπίσετε κάποιο πρόβλημα ή έχετε μια ιδέα, θα χαρώ να λάβω αναφορές σφαλμάτων και προτάσεις, ενώ μπορείτε επίσης να συνεισφέρετε απευθείας.</string>
+    <string name="screen_open_github_repository">Άνοιγμα αποθετηρίου GitHub</string>
     <string name="screen_next_tip">Επόμενη συμβουλή</string>
     <string name="screen_tips">Συμβουλές</string>
     <string name="screen_show_tips">Εμφάνιση συμβουλών</string>

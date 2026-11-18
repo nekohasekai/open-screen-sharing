@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Native Touch-Eingabe für den Mac</string>
     <string name="screen_native_touch_supported">Native Touch-Eingabe wird unterstützt, wenn du dich über Apple VNC mit einem Mac mit macOS 27.3 oder neuer verbindest.</string>
     <string name="screen_native_touch_detail">Wenn du dich über Apple VNC mit einem Mac mit macOS 27.3 oder neuer verbindest, kannst du „%1$s“ &gt; „%2$s“ aktivieren.</string>
+    <string name="screen_know_your_rights">Kenne deine Rechte</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing ist **freie und quelloffene Software** und auch für Mac und iOS verfügbar. Wenn du auf ein Problem stößt oder eine Idee hast, freue ich mich über Fehlerberichte und Vorschläge, und du kannst auch gerne direkt etwas beitragen.</string>
+    <string name="screen_open_github_repository">GitHub-Repository öffnen</string>
     <string name="screen_next_tip">Nächster Tipp</string>
     <string name="screen_tips">Tipps</string>
     <string name="screen_show_tips">Tipps anzeigen</string>

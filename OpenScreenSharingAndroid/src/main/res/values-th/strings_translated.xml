@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">การสัมผัสแบบเนทีฟสำหรับ Mac</string>
     <string name="screen_native_touch_supported">รองรับการสัมผัสแบบเนทีฟเมื่อเชื่อมต่อผ่าน Apple VNC กับ Mac ที่ใช้ macOS 27.3 หรือใหม่กว่า</string>
     <string name="screen_native_touch_detail">เมื่อเชื่อมต่อผ่าน Apple VNC กับ Mac ที่ใช้ macOS 27.3 หรือใหม่กว่า คุณสามารถเปิด %1$s › %2$s ได้</string>
+    <string name="screen_know_your_rights">รู้จักสิทธิ์ของคุณ</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing เป็น**ซอฟต์แวร์เสรีและโอเพนซอร์ส** และยังมีให้ใช้งานบน Mac และ iOS ด้วย หากคุณพบปัญหาหรือมีไอเดีย ยินดีรับรายงานบั๊กและคำแนะนำเสมอ และคุณยังสามารถร่วมพัฒนาโดยตรงได้ด้วย</string>
+    <string name="screen_open_github_repository">เปิดรีโพสิทอรี GitHub</string>
     <string name="screen_next_tip">เคล็ดลับถัดไป</string>
     <string name="screen_tips">เคล็ดลับ</string>
     <string name="screen_show_tips">แสดงเคล็ดลับ</string>

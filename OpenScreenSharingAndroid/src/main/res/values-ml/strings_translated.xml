@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Mac-നുള്ള നേറ്റീവ് ടച്ച്</string>
     <string name="screen_native_touch_supported">Apple VNC വഴി macOS 27.3 അല്ലെങ്കിൽ അതിനുശേഷമുള്ള പതിപ്പുള്ള Mac-ലേക്ക് കണക്റ്റ് ചെയ്യുമ്പോൾ നേറ്റീവ് ടച്ച് പിന്തുണയ്ക്കുന്നു.</string>
     <string name="screen_native_touch_detail">Apple VNC വഴി macOS 27.3 അല്ലെങ്കിൽ അതിനുശേഷമുള്ള പതിപ്പുള്ള Mac-ലേക്ക് കണക്റ്റ് ചെയ്യുമ്പോൾ, %1$s › %2$s ഓണാക്കാം.</string>
+    <string name="screen_know_your_rights">നിങ്ങളുടെ അവകാശങ്ങൾ അറിയൂ</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing **സ്വതന്ത്ര ഓപ്പൺ സോഴ്സ് സോഫ്റ്റ്‌വെയറാണ്**, ഇത് Mac-നും iOS-നും ലഭ്യമാണ്. എന്തെങ്കിലും പ്രശ്നം നേരിട്ടാലോ ആശയമുണ്ടെങ്കിലോ, ബഗ് റിപ്പോർട്ടുകളും നിർദ്ദേശങ്ങളും സ്വീകരിക്കാൻ എനിക്ക് സന്തോഷമേയുള്ളൂ, നിങ്ങൾക്ക് നേരിട്ട് സംഭാവന ചെയ്യാനും സ്വാഗതം.</string>
+    <string name="screen_open_github_repository">GitHub റിപ്പോസിറ്ററി തുറക്കൂ</string>
     <string name="screen_next_tip">അടുത്ത നുറുങ്ങ്</string>
     <string name="screen_tips">നുറുങ്ങുകൾ</string>
     <string name="screen_show_tips">നുറുങ്ങുകൾ കാണിക്കൂ</string>

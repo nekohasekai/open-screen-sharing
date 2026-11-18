@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Mac үшін нативті жанасу</string>
     <string name="screen_native_touch_supported">Apple VNC арқылы macOS 27.3 немесе одан кейінгі нұсқасы орнатылған Mac компьютеріне қосылғанда нативті жанасуға қолдау көрсетіледі.</string>
     <string name="screen_native_touch_detail">Apple VNC арқылы macOS 27.3 немесе одан кейінгі нұсқасы орнатылған Mac компьютеріне қосылғанда, %1$s › %2$s параметрін қоса аласыз.</string>
+    <string name="screen_know_your_rights">Құқықтарыңызды біліңіз</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing — **еркін әрі ашық бастапқы кодты бағдарламалық жасақтама**, ол Mac және iOS үшін де қолжетімді. Егер мәселеге тап болсаңыз немесе идеяңыз болса, қате туралы есептер мен ұсыныстарды қуана қабылдаймын, сондай-ақ тікелей үлес қосуыңызға да болады.</string>
+    <string name="screen_open_github_repository">GitHub репозиторийін ашу</string>
     <string name="screen_next_tip">Келесі кеңес</string>
     <string name="screen_tips">Кеңестер</string>
     <string name="screen_show_tips">Кеңестерді көрсету</string>

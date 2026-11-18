@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Vietinis lietimas „Mac” kompiuteryje</string>
     <string name="screen_native_touch_supported">Vietinis lietimas palaikomas, kai per „Apple VNC” jungiatės prie „Mac” kompiuterio su „macOS 27.3” ar naujesne versija.</string>
     <string name="screen_native_touch_detail">Kai per „Apple VNC” jungiatės prie „Mac” kompiuterio su „macOS 27.3” ar naujesne versija, galite įjungti „%1$s” › „%2$s”.</string>
+    <string name="screen_know_your_rights">Žinokite savo teises</string>
+    <string name="screen_know_your_rights_detail">„Open Screen Sharing“ yra **laisvoji ir atvirojo kodo programinė įranga**, ji taip pat prieinama „Mac“ ir „iOS“ įrenginiams. Jei susidūrėte su problema ar turite idėją, mielai priimsiu pranešimus apie klaidas ir pasiūlymus, taip pat kviečiu prisidėti tiesiogiai.</string>
+    <string name="screen_open_github_repository">Atidaryti „GitHub“ saugyklą</string>
     <string name="screen_next_tip">Kitas patarimas</string>
     <string name="screen_tips">Patarimai</string>
     <string name="screen_show_tips">Rodyti patarimus</string>

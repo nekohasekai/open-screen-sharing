@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Macக்கான நேட்டிவ் தொடுதல்</string>
     <string name="screen_native_touch_supported">Apple VNC மூலம் macOS 27.3 அல்லது அதற்குப் பிந்தைய பதிப்பு உள்ள Macஉடன் இணைக்கும்போது நேட்டிவ் தொடுதல் ஆதரிக்கப்படும்.</string>
     <string name="screen_native_touch_detail">Apple VNC மூலம் macOS 27.3 அல்லது அதற்குப் பிந்தைய பதிப்பு உள்ள Macஉடன் இணைக்கும்போது, %1$s › %2$s என்பதை இயக்கலாம்.</string>
+    <string name="screen_know_your_rights">உங்கள் உரிமைகளை அறிந்துகொள்ளுங்கள்</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing ஒரு **கட்டற்ற மற்றும் திறந்த மூல மென்பொருள்**, மேலும் இது Mac மற்றும் iOSக்கும் கிடைக்கிறது. உங்களுக்கு ஏதேனும் சிக்கல் ஏற்பட்டாலோ யோசனை இருந்தாலோ, பிழை அறிக்கைகளையும் பரிந்துரைகளையும் மகிழ்ச்சியுடன் வரவேற்கிறேன், நீங்கள் நேரடியாகப் பங்களிக்கவும் வரவேற்கப்படுகிறீர்கள்.</string>
+    <string name="screen_open_github_repository">GitHub களஞ்சியத்தைத் திற</string>
     <string name="screen_next_tip">அடுத்த உதவிக்குறிப்பு</string>
     <string name="screen_tips">உதவிக்குறிப்புகள்</string>
     <string name="screen_show_tips">உதவிக்குறிப்புகளைக் காட்டு</string>

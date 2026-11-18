@@ -6,6 +6,7 @@ enum SessionTutorial: String, CaseIterable, Codable, Identifiable {
     case dictation
     case customInput
     case nativeTouch
+    case knowYourRights
 
     var id: Self { self }
 
@@ -16,7 +17,7 @@ enum SessionTutorial: String, CaseIterable, Codable, Identifiable {
         return allCases.filter { tutorial in
             guard !AppSettings.shared.seenTutorials.contains(tutorial) else { return false }
             switch tutorial {
-            case .pressToDrag, .customInput, .nativeTouch: return true
+            case .pressToDrag, .customInput, .nativeTouch, .knowYourRights: return true
             case .pointerLock, .dictation: return isPad
             }
         }
@@ -26,12 +27,16 @@ enum SessionTutorial: String, CaseIterable, Codable, Identifiable {
 
 #if os(iOS)
 struct SessionTutorialView: View {
+    private static let repositoryURL = URL(string: "https://github.com/nekohasekai/open-screen-sharing")!
+
     let pages: [SessionTutorial]
     let onDone: () -> Void
     private let settings = AppSettings.shared
     @State private var index = 0
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
+    @Environment(\.openURL) private var openURL
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         let page = pages[index]
@@ -39,32 +44,47 @@ struct SessionTutorialView: View {
             Color.black.opacity(0.45)
                 .ignoresSafeArea()
             Group {
-                if horizontalSizeClass == .compact && verticalSizeClass == .regular {
-                    VStack(alignment: .leading, spacing: 16) {
-                        illustration(page)
-                        text(page)
-                        button(page)
-                    }
-                    .frame(width: 310)
-                } else {
-                    HStack(alignment: .top, spacing: 24) {
-                        illustration(page)
-                        VStack(alignment: .leading, spacing: 0) {
-                            text(page)
-                            Spacer(minLength: 16)
-                            button(page)
+                if #available(iOS 16, *) {
+                    ViewThatFits(in: .vertical) {
+                        card(page)
+                        ScrollView {
+                            card(page)
                         }
-                        .frame(width: 244)
-                        .frame(maxHeight: .infinity)
                     }
-                    .fixedSize(horizontal: false, vertical: true)
+                } else {
+                    card(page)
                 }
             }
-            .padding(20)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 30, style: .continuous))
             .dynamicTypeSize(...DynamicTypeSize.xxLarge)
             .padding(16)
         }
+    }
+
+    private func card(_ page: SessionTutorial) -> some View {
+        Group {
+            if page == .knowYourRights || horizontalSizeClass == .compact && verticalSizeClass == .regular {
+                VStack(alignment: .leading, spacing: 16) {
+                    illustration(page)
+                    text(page)
+                    buttons(page)
+                }
+                .frame(width: 310)
+            } else {
+                HStack(alignment: .top, spacing: 24) {
+                    illustration(page)
+                    VStack(alignment: .leading, spacing: 0) {
+                        text(page)
+                        Spacer(minLength: 16)
+                        buttons(page)
+                    }
+                    .frame(width: 244)
+                    .frame(maxHeight: .infinity)
+                }
+                .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(20)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 30, style: .continuous))
     }
 
     private func illustration(_ page: SessionTutorial) -> some View {
@@ -76,11 +96,12 @@ struct SessionTutorialView: View {
                 case .dictation: DictationIllustration()
                 case .customInput: CustomInputIllustration()
                 case .nativeTouch: NativeTouchIllustration()
+                case .knowYourRights: KnowYourRightsIllustration()
                 }
             }
-            .frame(width: 310, height: 210)
+            .frame(width: 310, height: page == .knowYourRights ? 108 : 210)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .environment(\.colorScheme, .dark)
+            .environment(\.colorScheme, page == .knowYourRights ? colorScheme : .dark)
             .accessibilityHidden(true)
             .id(page)
             if pages.count > 1 {
@@ -142,28 +163,50 @@ struct SessionTutorialView: View {
                 }
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+            case .knowYourRights:
+                Text("Know Your Rights")
+                    .font(.title2.bold())
+                Text(
+                    "Open Screen Sharing is **free and open-source software**, and is also available for Mac and Android. If you run into a problem or have an idea, I’d welcome bug reports and suggestions, and you’re also welcome to contribute directly."
+                )
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
             }
         }
         .fixedSize(horizontal: false, vertical: true)
     }
 
-    private func button(_ page: SessionTutorial) -> some View {
+    private func buttons(_ page: SessionTutorial) -> some View {
         let isLast = index == pages.count - 1
-        return Button {
-            settings.seenTutorials.insert(page)
-            if isLast {
-                onDone()
-            } else {
-                withAnimation { index += 1 }
+        return VStack(spacing: 10) {
+            if page == .knowYourRights {
+                Button {
+                    openURL(Self.repositoryURL)
+                } label: {
+                    Text("Open GitHub Repository")
+                        .font(.body.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.capsule)
+                .controlSize(.large)
             }
-        } label: {
-            (isLast ? Text("OK") : Text("Next Tip"))
-                .font(.body.weight(.semibold))
-                .frame(maxWidth: .infinity)
+            Button {
+                settings.seenTutorials.insert(page)
+                if isLast {
+                    onDone()
+                } else {
+                    withAnimation { index += 1 }
+                }
+            } label: {
+                (isLast ? Text("OK") : Text("Next Tip"))
+                    .font(.body.weight(.semibold))
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .buttonBorderShape(.capsule)
+            .controlSize(.large)
         }
-        .buttonStyle(.borderedProminent)
-        .buttonBorderShape(.capsule)
-        .controlSize(.large)
     }
 }
 
@@ -410,6 +453,37 @@ private struct NativeTouchIllustration: View {
                     radius: radius)
             }
         }
+    }
+}
+
+private struct KnowYourRightsIllustration: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        HStack(spacing: 16) {
+            tile {
+                Image("GitHubMark")
+                    .resizable()
+                    .frame(width: 38, height: 38)
+            }
+            tile {
+                Image(systemName: "desktopcomputer")
+                    .font(.system(size: 32, weight: .medium))
+            }
+            tile {
+                Image("AndroidLogo")
+                    .resizable()
+                    .frame(width: 40, height: 40)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func tile<Icon: View>(@ViewBuilder icon: () -> Icon) -> some View {
+        icon()
+            .foregroundStyle(.primary)
+            .frame(width: 76, height: 76)
+            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(colorScheme == .dark ? Color(white: 0.26) : .white))
     }
 }
 

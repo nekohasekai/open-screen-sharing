@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">מגע מקורי עבור ה-Mac</string>
     <string name="screen_native_touch_supported">מגע מקורי נתמך בעת התחברות באמצעות Apple VNC ל-Mac עם macOS 27.3 ואילך.</string>
     <string name="screen_native_touch_detail">בעת התחברות באמצעות Apple VNC ל-Mac עם macOS 27.3 ואילך, אפשר להפעיל את ״%1$s״ › ״%2$s״.</string>
+    <string name="screen_know_your_rights">הזכויות שלך</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing היא **תוכנה חופשית וקוד פתוח**, וזמינה גם ל-Mac ול-iOS. אם נתקלים בבעיה או שיש רעיון, אשמח לקבל דיווחי באגים והצעות, ואפשר גם לתרום ישירות.</string>
+    <string name="screen_open_github_repository">פתיחת מאגר GitHub</string>
     <string name="screen_next_tip">העצה הבאה</string>
     <string name="screen_tips">עצות</string>
     <string name="screen_show_tips">הצגת עצות</string>

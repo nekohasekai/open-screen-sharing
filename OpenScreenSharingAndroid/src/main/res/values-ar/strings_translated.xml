@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">اللمس الأصلي لجهاز Mac</string>
     <string name="screen_native_touch_supported">يتوفر دعم اللمس الأصلي عند الاتصال عبر Apple VNC بجهاز Mac يعمل بنظام macOS 27.3 أو أحدث.</string>
     <string name="screen_native_touch_detail">عند الاتصال عبر Apple VNC بجهاز Mac يعمل بنظام macOS 27.3 أو أحدث، يمكنك تشغيل %1$s &gt; %2$s.</string>
+    <string name="screen_know_your_rights">اعرف حقوقك</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing **برنامج حر ومفتوح المصدر**، ويتوفر أيضًا لأجهزة Mac وiOS. إذا واجهت مشكلة أو كانت لديك فكرة، فيسعدني تلقي تقارير الأخطاء والاقتراحات، كما يُرحَّب بمساهمتك المباشرة أيضًا.</string>
+    <string name="screen_open_github_repository">فتح مستودع GitHub</string>
     <string name="screen_next_tip">النصيحة التالية</string>
     <string name="screen_tips">النصائح</string>
     <string name="screen_show_tips">إظهار النصائح</string>

@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Natív érintés a Mac számára</string>
     <string name="screen_native_touch_supported">A natív érintés akkor támogatott, ha Apple VNC-n keresztül macOS 27.3 vagy újabb rendszert futtató Machez csatlakozik.</string>
     <string name="screen_native_touch_detail">Ha Apple VNC-n keresztül macOS 27.3 vagy újabb rendszert futtató Machez csatlakozik, bekapcsolhatja a(z) %1$s › %2$s lehetőséget.</string>
+    <string name="screen_know_your_rights">Ismerje meg a jogait</string>
+    <string name="screen_know_your_rights_detail">Az Open Screen Sharing **szabad és nyílt forráskódú szoftver**, amely Macre és iOS-re is elérhető. Ha problémába ütközik, vagy ötlete van, szívesen fogadom a hibajelentéseket és a javaslatokat, és közvetlenül is hozzájárulhat a fejlesztéshez.</string>
+    <string name="screen_open_github_repository">GitHub-tároló megnyitása</string>
     <string name="screen_next_tip">Következő tipp</string>
     <string name="screen_tips">Tippek</string>
     <string name="screen_show_tips">Tippek megjelenítése</string>

@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Indbygget berøring til Mac</string>
     <string name="screen_native_touch_supported">Indbygget berøring understøttes, når du opretter forbindelse med Apple VNC til en Mac med macOS 27.3 eller nyere.</string>
     <string name="screen_native_touch_detail">Når du opretter forbindelse med Apple VNC til en Mac med macOS 27.3 eller nyere, kan du slå %1$s › %2$s til.</string>
+    <string name="screen_know_your_rights">Kend dine rettigheder</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing er **fri og open source-software** og findes også til Mac og iOS. Hvis du støder på et problem eller har en idé, vil jeg sætte pris på fejlrapporter og forslag, og du er også velkommen til at bidrage direkte.</string>
+    <string name="screen_open_github_repository">Åbn GitHub-repositoriet</string>
     <string name="screen_next_tip">Næste tip</string>
     <string name="screen_tips">Tips</string>
     <string name="screen_show_tips">Vis tips</string>

@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Atingere nativă pentru Mac</string>
     <string name="screen_native_touch_supported">Atingerea nativă este acceptată când te conectezi prin Apple VNC la un Mac cu macOS 27.3 sau o versiune ulterioară.</string>
     <string name="screen_native_touch_detail">Când te conectezi prin Apple VNC la un Mac cu macOS 27.3 sau o versiune ulterioară, poți activa %1$s › %2$s.</string>
+    <string name="screen_know_your_rights">Cunoașteți-vă drepturile</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing este **software liber și cu sursă deschisă**, disponibil de asemenea pentru Mac și iOS. Dacă întâmpinați o problemă sau aveți o idee, primesc cu plăcere rapoarte de erori și sugestii, iar contribuțiile directe sunt, de asemenea, binevenite.</string>
+    <string name="screen_open_github_repository">Deschideți depozitul GitHub</string>
     <string name="screen_next_tip">Sfatul următor</string>
     <string name="screen_tips">Sfaturi</string>
     <string name="screen_show_tips">Afișați sfaturile</string>

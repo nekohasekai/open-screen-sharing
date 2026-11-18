@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Native aanraking voor Mac</string>
     <string name="screen_native_touch_supported">Native aanraking wordt ondersteund als je via Apple VNC verbinding maakt met een Mac met macOS 27.3 of nieuwer.</string>
     <string name="screen_native_touch_detail">Als je via Apple VNC verbinding maakt met een Mac met macOS 27.3 of nieuwer, kun je %1$s › %2$s inschakelen.</string>
+    <string name="screen_know_your_rights">Ken je rechten</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing is **vrije en opensourcesoftware** en is ook beschikbaar voor Mac en iOS. Als je tegen een probleem aanloopt of een idee hebt, ontvang ik graag bugmeldingen en suggesties, en je bent ook welkom om direct bij te dragen.</string>
+    <string name="screen_open_github_repository">Open GitHub-repository</string>
     <string name="screen_next_tip">Volgende tip</string>
     <string name="screen_tips">Tips</string>
     <string name="screen_show_tips">Toon tips</string>

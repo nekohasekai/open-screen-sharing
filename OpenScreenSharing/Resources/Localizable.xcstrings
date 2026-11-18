@@ -46260,6 +46260,310 @@
         }
       }
     },
+    "Know Your Rights" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اعرف حقوقك"
+          }
+        },
+        "bg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Познавайте правата си"
+          }
+        },
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "আপনার অধিকার জানুন"
+          }
+        },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coneix els teus drets"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Znejte svá práva"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kend dine rettigheder"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kenne deine Rechte"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Γνωρίστε τα δικαιώματά σας"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conoce tus derechos"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conoce tus derechos"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tunne oikeutesi"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connaissez vos droits"
+          }
+        },
+        "fr-CA" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connaissez vos droits"
+          }
+        },
+        "gu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "તમારા અધિકારો જાણો"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "הזכויות שלך"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अपने अधिकार जानें"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upoznajte svoja prava"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ismerje meg a jogait"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ketahui Hak Anda"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conosci i tuoi diritti"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あなたの権利について"
+          }
+        },
+        "kk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Құқықтарыңызды біліңіз"
+          }
+        },
+        "kn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ನಿಮ್ಮ ಹಕ್ಕುಗಳನ್ನು ತಿಳಿಯಿರಿ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 권리 알아보기"
+          }
+        },
+        "lt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Žinokite savo teises"
+          }
+        },
+        "ml" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "നിങ്ങളുടെ അവകാശങ്ങൾ അറിയൂ"
+          }
+        },
+        "mr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "तुमचे हक्क जाणून घ्या"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ketahui Hak Anda"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kjenn dine rettigheter"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ken je rechten"
+          }
+        },
+        "or" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ଆପଣଙ୍କ ଅଧିକାର ଜାଣନ୍ତୁ"
+          }
+        },
+        "pa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ਆਪਣੇ ਅਧਿਕਾਰ ਜਾਣੋ"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poznaj swoje prawa"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conheça Seus Direitos"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conheça os seus direitos"
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cunoașteți-vă drepturile"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Знайте свои права"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poznajte svoje práva"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poznajte svoje pravice"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Känn till dina rättigheter"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "உங்கள் உரிமைகளை அறிந்துகொள்ளுங்கள்"
+          }
+        },
+        "te" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "మీ హక్కులను తెలుసుకోండి"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "รู้จักสิทธิ์ของคุณ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haklarınızı Bilin"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Знайте свої права"
+          }
+        },
+        "ur" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اپنے حقوق جانیں"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiểu rõ quyền của bạn"
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "了解你的權利"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "了解您的权利"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "了解你的權利"
+          }
+        }
+      }
+    },
     "Language" : {
       "localizations" : {
         "ar" : {
@@ -61760,6 +62064,614 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "開啟"
+          }
+        }
+      }
+    },
+    "Open GitHub Repository" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "فتح مستودع GitHub"
+          }
+        },
+        "bg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отвори хранилището в GitHub"
+          }
+        },
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub রিপোজিটরি খুলুন"
+          }
+        },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obre el repositori de GitHub"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otevřít repozitář na GitHubu"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Åbn GitHub-repositoriet"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub-Repository öffnen"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Άνοιγμα αποθετηρίου GitHub"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir repositorio de GitHub"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir repositorio de GitHub"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avaa GitHub-repositorio"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir le dépôt GitHub"
+          }
+        },
+        "fr-CA" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir le dépôt GitHub"
+          }
+        },
+        "gu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub રિપોઝિટરી ખોલો"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "פתיחת מאגר GitHub"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub रिपॉज़िटरी खोलें"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otvori GitHub repozitorij"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub-tároló megnyitása"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buka Repositori GitHub"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri il repository GitHub"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHubリポジトリを開く"
+          }
+        },
+        "kk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub репозиторийін ашу"
+          }
+        },
+        "kn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub ರೆಪೊಸಿಟರಿ ತೆರೆಯಿರಿ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub 저장소 열기"
+          }
+        },
+        "lt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atidaryti „GitHub“ saugyklą"
+          }
+        },
+        "ml" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub റിപ്പോസിറ്ററി തുറക്കൂ"
+          }
+        },
+        "mr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub रिपॉझिटरी उघडा"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buka Repositori GitHub"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Åpne GitHub-repositoriet"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open GitHub-repository"
+          }
+        },
+        "or" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub ରିପୋଜିଟୋରୀ ଖୋଲନ୍ତୁ"
+          }
+        },
+        "pa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub ਰਿਪੋਜ਼ਟਰੀ ਖੋਲ੍ਹੋ"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otwórz repozytorium GitHub"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir Repositório do GitHub"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir repositório do GitHub"
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deschideți depozitul GitHub"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть репозиторий GitHub"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otvoriť repozitár na GitHube"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odpri repozitorij na GitHubu"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öppna GitHub-repositoriet"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub களஞ்சியத்தைத் திற"
+          }
+        },
+        "te" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub రిపోజిటరీని తెరవండి"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เปิดรีโพสิทอรี GitHub"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub Deposunu Aç"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відкрити репозиторій GitHub"
+          }
+        },
+        "ur" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GitHub ریپوزٹری کھولیں"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mở kho lưu trữ GitHub"
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟 GitHub 存放庫"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开 GitHub 存储库"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打開 GitHub 存放庫"
+          }
+        }
+      }
+    },
+    "Open Screen Sharing is **free and open-source software**, and is also available for Mac and Android. If you run into a problem or have an idea, I’d welcome bug reports and suggestions, and you’re also welcome to contribute directly." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing **برنامج حر ومفتوح المصدر**، ويتوفر أيضًا لأجهزة Mac وAndroid. إذا واجهت مشكلة أو كانت لديك فكرة، فيسعدني تلقي تقارير الأخطاء والاقتراحات، كما يُرحَّب بمساهمتك المباشرة أيضًا."
+          }
+        },
+        "bg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing е **свободен софтуер с отворен код** и се предлага също за Mac и Android. Ако срещнете проблем или имате идея, ще се радвам на сигнали за грешки и предложения, а сте добре дошли и да допринесете директно."
+          }
+        },
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing একটি **মুক্ত ও ওপেন সোর্স সফটওয়্যার**, এবং এটি Mac ও Android-এর জন্যও পাওয়া যায়। কোনো সমস্যায় পড়লে বা কোনো আইডিয়া থাকলে, বাগ রিপোর্ট ও পরামর্শ পেলে আমি খুশি হব, আর আপনি চাইলে সরাসরি অবদানও রাখতে পারেন।"
+          }
+        },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing és **programari lliure i de codi obert**, i també està disponible per a Mac i Android. Si trobes algun problema o tens alguna idea, m’agradarà rebre informes d’errors i suggeriments, i també pots contribuir-hi directament."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing je **svobodný a otevřený software** a je k dispozici také pro Mac a Android. Pokud narazíte na problém nebo máte nápad, uvítám hlášení chyb i návrhy a klidně můžete přispět i přímo."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing er **fri og open source-software** og findes også til Mac og Android. Hvis du støder på et problem eller har en idé, vil jeg sætte pris på fejlrapporter og forslag, og du er også velkommen til at bidrage direkte."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing ist **freie und quelloffene Software** und auch für Mac und Android verfügbar. Wenn du auf ein Problem stößt oder eine Idee hast, freue ich mich über Fehlerberichte und Vorschläge, und du kannst auch gerne direkt etwas beitragen."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το Open Screen Sharing είναι **ελεύθερο λογισμικό ανοιχτού κώδικα** και είναι επίσης διαθέσιμο για Mac και Android. Αν αντιμετωπίσετε κάποιο πρόβλημα ή έχετε μια ιδέα, θα χαρώ να λάβω αναφορές σφαλμάτων και προτάσεις, ενώ μπορείτε επίσης να συνεισφέρετε απευθείας."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing es **software libre y de código abierto**, y también está disponible para Mac y Android. Si encuentras algún problema o tienes una idea, me encantaría recibir informes de errores y sugerencias, y también puedes contribuir directamente."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing es **software libre y de código abierto**, y también está disponible para Mac y Android. Si encuentras algún problema o tienes una idea, me encantaría recibir reportes de errores y sugerencias, y también puedes contribuir directamente."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing on **vapaa ja avoimen lähdekoodin ohjelmisto**, ja se on saatavilla myös Macille ja Androidille. Jos kohtaat ongelman tai sinulla on idea, otan mielelläni vastaan virheraportteja ja ehdotuksia, ja voit myös osallistua kehitykseen suoraan."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing est un **logiciel libre et open source**, également disponible pour Mac et Android. Si vous rencontrez un problème ou avez une idée, j’accueillerai volontiers vos signalements de bugs et vos suggestions, et vous pouvez aussi contribuer directement."
+          }
+        },
+        "fr-CA" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing est un **logiciel libre et à code source ouvert**, également offert pour Mac et Android. Si vous rencontrez un problème ou avez une idée, j’accueillerai volontiers vos rapports de bogues et vos suggestions, et vous pouvez aussi contribuer directement."
+          }
+        },
+        "gu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing **મુક્ત અને ઓપન સોર્સ સૉફ્ટવેર** છે, અને તે Mac અને Android માટે પણ ઉપલબ્ધ છે. જો તમને કોઈ સમસ્યા આવે અથવા કોઈ વિચાર હોય, તો બગ રિપોર્ટ અને સૂચનો મળવાથી મને આનંદ થશે, અને તમે સીધું યોગદાન પણ આપી શકો છો."
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing היא **תוכנה חופשית וקוד פתוח**, וזמינה גם ל-Mac ול-Android. אם נתקלים בבעיה או שיש רעיון, אשמח לקבל דיווחי באגים והצעות, ואפשר גם לתרום ישירות."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing एक **मुक्त और ओपन सोर्स सॉफ़्टवेयर** है, और यह Mac और Android के लिए भी उपलब्ध है। अगर आपको कोई समस्या आती है या आपके पास कोई आइडिया है, तो मुझे बग रिपोर्ट और सुझाव पाकर खुशी होगी, और आप सीधे योगदान भी दे सकते हैं।"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing je **slobodni softver otvorenog koda**, a dostupan je i za Mac i Android. Ako naiđete na problem ili imate ideju, rado ću primiti prijave pogrešaka i prijedloge, a možete i izravno pridonijeti."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az Open Screen Sharing **szabad és nyílt forráskódú szoftver**, amely Macre és Androidra is elérhető. Ha problémába ütközik, vagy ötlete van, szívesen fogadom a hibajelentéseket és a javaslatokat, és közvetlenül is hozzájárulhat a fejlesztéshez."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing adalah **perangkat lunak bebas dan sumber terbuka**, dan juga tersedia untuk Mac dan Android. Jika Anda mengalami masalah atau punya ide, saya dengan senang hati menerima laporan bug dan saran, dan Anda juga dipersilakan untuk berkontribusi secara langsung."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing è **software libero e open source**, ed è disponibile anche per Mac e Android. Se riscontri un problema o hai un’idea, sarei felice di ricevere segnalazioni di bug e suggerimenti, e puoi anche contribuire direttamente."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharingは**フリーかつオープンソースのソフトウェア**で、Mac版とAndroid版も提供しています。問題が発生した場合やアイデアがある場合は、バグ報告や提案をお寄せいただけるとうれしいです。開発に直接コントリビュートしていただくことも歓迎します。"
+          }
+        },
+        "kk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing — **еркін әрі ашық бастапқы кодты бағдарламалық жасақтама**, ол Mac және Android үшін де қолжетімді. Егер мәселеге тап болсаңыз немесе идеяңыз болса, қате туралы есептер мен ұсыныстарды қуана қабылдаймын, сондай-ақ тікелей үлес қосуыңызға да болады."
+          }
+        },
+        "kn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing **ಮುಕ್ತ ಮತ್ತು ಓಪನ್ ಸೋರ್ಸ್ ಸಾಫ್ಟ್‌ವೇರ್** ಆಗಿದ್ದು, Mac ಮತ್ತು Androidಗೂ ಲಭ್ಯವಿದೆ. ನಿಮಗೆ ಏನಾದರೂ ಸಮಸ್ಯೆ ಎದುರಾದರೆ ಅಥವಾ ಯಾವುದಾದರೂ ಐಡಿಯಾ ಇದ್ದರೆ, ಬಗ್ ವರದಿಗಳು ಮತ್ತು ಸಲಹೆಗಳನ್ನು ಸ್ವೀಕರಿಸಲು ನನಗೆ ಸಂತೋಷವಾಗುತ್ತದೆ, ಮತ್ತು ನೀವು ನೇರವಾಗಿ ಕೊಡುಗೆ ನೀಡಲೂ ಸ್ವಾಗತ."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing은 **자유-오픈 소스 소프트웨어**이며, Mac 및 Android용으로도 제공됩니다. 문제가 발생하거나 아이디어가 있다면 버그 리포트와 제안을 보내 주시면 감사하겠습니다. 직접 기여해 주시는 것도 환영합니다."
+          }
+        },
+        "lt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Open Screen Sharing“ yra **laisvoji ir atvirojo kodo programinė įranga**, ji taip pat prieinama „Mac“ ir „Android“ įrenginiams. Jei susidūrėte su problema ar turite idėją, mielai priimsiu pranešimus apie klaidas ir pasiūlymus, taip pat kviečiu prisidėti tiesiogiai."
+          }
+        },
+        "ml" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing **സ്വതന്ത്ര ഓപ്പൺ സോഴ്സ് സോഫ്റ്റ്‌വെയറാണ്**, ഇത് Mac-നും Android-നും ലഭ്യമാണ്. എന്തെങ്കിലും പ്രശ്നം നേരിട്ടാലോ ആശയമുണ്ടെങ്കിലോ, ബഗ് റിപ്പോർട്ടുകളും നിർദ്ദേശങ്ങളും സ്വീകരിക്കാൻ എനിക്ക് സന്തോഷമേയുള്ളൂ, നിങ്ങൾക്ക് നേരിട്ട് സംഭാവന ചെയ്യാനും സ്വാഗതം."
+          }
+        },
+        "mr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing हे **मुक्त आणि ओपन सोर्स सॉफ्टवेअर** आहे, आणि ते Mac आणि Android साठीही उपलब्ध आहे. तुम्हाला एखादी समस्या आली किंवा एखादी कल्पना असेल, तर बग रिपोर्ट आणि सूचना मिळाल्यास मला आनंद होईल, आणि तुम्ही थेट योगदानही देऊ शकता."
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing ialah **perisian bebas dan sumber terbuka**, dan turut tersedia untuk Mac dan Android. Jika anda menghadapi masalah atau mempunyai idea, saya mengalu-alukan laporan pepijat dan cadangan, dan anda juga dialu-alukan untuk menyumbang secara langsung."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing er **fri programvare med åpen kildekode** og finnes også for Mac og Android. Hvis du støter på et problem eller har en idé, setter jeg stor pris på feilrapporter og forslag, og du er også velkommen til å bidra direkte."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing is **vrije en opensourcesoftware** en is ook beschikbaar voor Mac en Android. Als je tegen een probleem aanloopt of een idee hebt, ontvang ik graag bugmeldingen en suggesties, en je bent ook welkom om direct bij te dragen."
+          }
+        },
+        "or" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing ଏକ **ମୁକ୍ତ ଓ ଓପନ୍ ସୋର୍ସ୍ ସଫ୍ଟୱେର୍**, ଏବଂ ଏହା Mac ଓ Android ପାଇଁ ମଧ୍ୟ ଉପଲବ୍ଧ। ଯଦି ଆପଣ କୌଣସି ସମସ୍ୟାର ସମ୍ମୁଖୀନ ହୁଅନ୍ତି କିମ୍ବା ଆପଣଙ୍କର କୌଣସି ଧାରଣା ଅଛି, ତେବେ ବଗ୍ ରିପୋର୍ଟ ଓ ପରାମର୍ଶ ପାଇଲେ ମୁଁ ଖୁସି ହେବି, ଏବଂ ଆପଣ ସିଧାସଳଖ ଯୋଗଦାନ ମଧ୍ୟ ଦେଇପାରିବେ।"
+          }
+        },
+        "pa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing ਇੱਕ **ਮੁਕਤ ਅਤੇ ਓਪਨ ਸੋਰਸ ਸਾਫ਼ਟਵੇਅਰ** ਹੈ, ਅਤੇ ਇਹ Mac ਅਤੇ Android ਲਈ ਵੀ ਉਪਲਬਧ ਹੈ। ਜੇ ਤੁਹਾਨੂੰ ਕੋਈ ਸਮੱਸਿਆ ਆਉਂਦੀ ਹੈ ਜਾਂ ਤੁਹਾਡੇ ਕੋਲ ਕੋਈ ਵਿਚਾਰ ਹੈ, ਤਾਂ ਬੱਗ ਰਿਪੋਰਟਾਂ ਅਤੇ ਸੁਝਾਅ ਮਿਲਣ ’ਤੇ ਮੈਨੂੰ ਖ਼ੁਸ਼ੀ ਹੋਵੇਗੀ, ਅਤੇ ਤੁਸੀਂ ਸਿੱਧੇ ਤੌਰ ’ਤੇ ਯੋਗਦਾਨ ਵੀ ਪਾ ਸਕਦੇ ਹੋ।"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing to **wolne i otwarte oprogramowanie**, dostępne również na Maca i Androida. Jeśli napotkasz problem lub masz pomysł, chętnie przyjmę zgłoszenia błędów i sugestie, a jeśli chcesz, możesz też bezpośrednio wnieść swój wkład."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Open Screen Sharing é um **software livre e de código aberto**, e também está disponível para Mac e Android. Se você encontrar algum problema ou tiver uma ideia, ficarei feliz em receber relatórios de bugs e sugestões, e você também pode contribuir diretamente."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Open Screen Sharing é **software livre e de código aberto** e também está disponível para Mac e Android. Se encontrar algum problema ou tiver uma ideia, terei todo o gosto em receber relatórios de erros e sugestões, e também pode contribuir diretamente."
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing este **software liber și cu sursă deschisă**, disponibil de asemenea pentru Mac și Android. Dacă întâmpinați o problemă sau aveți o idee, primesc cu plăcere rapoarte de erori și sugestii, iar contribuțiile directe sunt, de asemenea, binevenite."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing — **свободное и открытое программное обеспечение**, которое также доступно для Mac и Android. Если вы столкнулись с проблемой или у вас есть идея, я с радостью приму сообщения об ошибках и предложения, а также вы можете напрямую внести свой вклад."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing je **slobodný a otvorený softvér** a je dostupný aj pre Mac a Android. Ak narazíte na problém alebo máte nápad, privítam hlásenia chýb aj návrhy a môžete tiež priamo prispieť."
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing je **prosto in odprtokodno programje**, na voljo pa je tudi za Mac in Android. Če naletite na težavo ali imate idejo, z veseljem sprejmem poročila o napakah in predloge, lahko pa tudi neposredno prispevate."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing är **fri och öppen programvara** och finns även för Mac och Android. Om du stöter på ett problem eller har en idé tar jag gärna emot felrapporter och förslag, och du är också välkommen att bidra direkt."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing ஒரு **கட்டற்ற மற்றும் திறந்த மூல மென்பொருள்**, மேலும் இது Mac மற்றும் Androidக்கும் கிடைக்கிறது. உங்களுக்கு ஏதேனும் சிக்கல் ஏற்பட்டாலோ யோசனை இருந்தாலோ, பிழை அறிக்கைகளையும் பரிந்துரைகளையும் மகிழ்ச்சியுடன் வரவேற்கிறேன், நீங்கள் நேரடியாகப் பங்களிக்கவும் வரவேற்கப்படுகிறீர்கள்."
+          }
+        },
+        "te" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing **స్వేచ్ఛా మరియు ఓపెన్ సోర్స్ సాఫ్ట్‌వేర్**, ఇది Mac మరియు Androidకు కూడా అందుబాటులో ఉంది. మీకు ఏదైనా సమస్య ఎదురైనా లేదా ఏదైనా ఆలోచన ఉన్నా, బగ్ రిపోర్ట్‌లు, సూచనలు పంపితే నేను సంతోషిస్తాను, అలాగే మీరు నేరుగా సహకారం అందించడానికి కూడా స్వాగతం."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing เป็น**ซอฟต์แวร์เสรีและโอเพนซอร์ส** และยังมีให้ใช้งานบน Mac และ Android ด้วย หากคุณพบปัญหาหรือมีไอเดีย ยินดีรับรายงานบั๊กและคำแนะนำเสมอ และคุณยังสามารถร่วมพัฒนาโดยตรงได้ด้วย"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing **özgür ve açık kaynaklı** bir yazılımdır ve Mac ile Android için de kullanılabilir. Bir sorunla karşılaşırsanız veya bir fikriniz varsa hata bildirimlerinizi ve önerilerinizi memnuniyetle karşılarım; ayrıca doğrudan katkıda da bulunabilirsiniz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing — **вільне та відкрите програмне забезпечення**, яке також доступне для Mac і Android. Якщо ви зіткнулися з проблемою або маєте ідею, я з радістю прийму повідомлення про помилки та пропозиції, а також ви можете безпосередньо долучитися до розробки."
+          }
+        },
+        "ur" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing ایک **آزاد اور اوپن سورس سافٹ ویئر** ہے، اور یہ Mac اور Android کے لیے بھی دستیاب ہے۔ اگر آپ کو کوئی مسئلہ پیش آئے یا آپ کے پاس کوئی خیال ہو، تو مجھے بگ رپورٹس اور تجاویز موصول ہونے پر خوشی ہوگی، اور آپ براہِ راست تعاون بھی کر سکتے ہیں۔"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing là **phần mềm tự do nguồn mở** và cũng có sẵn cho Mac và Android. Nếu bạn gặp sự cố hoặc có ý tưởng, tôi rất hoan nghênh các báo cáo lỗi và góp ý, và bạn cũng có thể đóng góp trực tiếp."
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing 是**自由及開放原始碼軟件**，而且亦有 Mac 和 Android 版本。如遇到問題或有任何想法，歡迎向我回報錯誤或提出建議，亦歡迎直接參與貢獻。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing 是**自由和开源软件**，而且还有 Mac 和 Android 版本。如遇到问题或有想法，希望可以向我提交错误报告或改进建议，也可以直接提出贡献。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Screen Sharing 是**自由及開放原始碼軟體**，而且也有 Mac 和 Android 版本。如果遇到問題或有任何想法，歡迎向我回報錯誤或提出建議，也歡迎直接參與貢獻。"
           }
         }
       }

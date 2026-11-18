@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Sentuhan Asli untuk Mac</string>
     <string name="screen_native_touch_supported">Sentuhan asli didukung saat Anda terhubung dengan Apple VNC ke Mac dengan macOS 27.3 atau lebih baru.</string>
     <string name="screen_native_touch_detail">Saat Anda terhubung dengan Apple VNC ke Mac dengan macOS 27.3 atau lebih baru, Anda dapat menyalakan %1$s › %2$s.</string>
+    <string name="screen_know_your_rights">Ketahui Hak Anda</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing adalah **perangkat lunak bebas dan sumber terbuka**, dan juga tersedia untuk Mac dan iOS. Jika Anda mengalami masalah atau punya ide, saya dengan senang hati menerima laporan bug dan saran, dan Anda juga dipersilakan untuk berkontribusi secara langsung.</string>
+    <string name="screen_open_github_repository">Buka Repositori GitHub</string>
     <string name="screen_next_tip">Kiat Berikutnya</string>
     <string name="screen_tips">Kiat</string>
     <string name="screen_show_tips">Tampilkan Kiat</string>

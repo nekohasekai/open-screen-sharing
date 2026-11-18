@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Toque nativo para o Mac</string>
     <string name="screen_native_touch_supported">O toque nativo é suportado quando estabelece ligação via Apple VNC a um Mac com macOS 27.3 ou posterior.</string>
     <string name="screen_native_touch_detail">Ao estabelecer ligação via Apple VNC a um Mac com macOS 27.3 ou posterior, pode ativar %1$s › %2$s.</string>
+    <string name="screen_know_your_rights">Conheça os seus direitos</string>
+    <string name="screen_know_your_rights_detail">O Open Screen Sharing é **software livre e de código aberto** e também está disponível para Mac e iOS. Se encontrar algum problema ou tiver uma ideia, terei todo o gosto em receber relatórios de erros e sugestões, e também pode contribuir diretamente.</string>
+    <string name="screen_open_github_repository">Abrir repositório do GitHub</string>
     <string name="screen_next_tip">Dica seguinte</string>
     <string name="screen_tips">Dicas</string>
     <string name="screen_show_tips">Mostrar dicas</string>

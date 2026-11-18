@@ -217,6 +217,9 @@
     <string name="screen_native_touch_for_mac">Tacte natiu per al Mac</string>
     <string name="screen_native_touch_supported">El tacte natiu és compatible quan et connectes amb Apple VNC a un Mac amb el macOS 27.3 o posterior.</string>
     <string name="screen_native_touch_detail">Quan et connectes amb Apple VNC a un Mac amb el macOS 27.3 o posterior, pots activar %1$s › %2$s.</string>
+    <string name="screen_know_your_rights">Coneix els teus drets</string>
+    <string name="screen_know_your_rights_detail">Open Screen Sharing és **programari lliure i de codi obert**, i també està disponible per a Mac i iOS. Si trobes algun problema o tens alguna idea, m’agradarà rebre informes d’errors i suggeriments, i també pots contribuir-hi directament.</string>
+    <string name="screen_open_github_repository">Obre el repositori de GitHub</string>
     <string name="screen_next_tip">Consell següent</string>
     <string name="screen_tips">Consells</string>
     <string name="screen_show_tips">Mostra els consells</string>
