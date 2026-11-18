@@ -6,7 +6,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
     case audio, sendAudio
     case nativeTouch
     case observe = "control"
-    case pointerLock, keyboard, quickInput
+    case pointerLock, keyboard, trackpad, quickInput
     case missionControl, appWindows, showDesktop, launchpad
     case clipboard
     case debugInfo
@@ -27,6 +27,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
         case .pointerLock: "Pointer Lock"
         case .nativeTouch: "Native Touch"
         case .keyboard: "Keyboard"
+        case .trackpad: "Trackpad"
         case .quickInput: "Quick Input"
         case .missionControl, .appWindows, .showDesktop, .launchpad: systemCommand!.title
         case .clipboard: "Clipboard"
@@ -48,6 +49,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
         case .pointerLock: "computermouse"
         case .nativeTouch: "hand.tap"
         case .keyboard: "keyboard"
+        case .trackpad: "rectangle.and.hand.point.up.left"
         case .quickInput: "text.insert"
         case .missionControl, .appWindows, .showDesktop, .launchpad: systemCommand!.systemImage
         case .clipboard: if #available(iOS 16, *) { "list.clipboard" } else { "doc.on.clipboard" }
@@ -59,7 +61,9 @@ enum SessionCommand: String, CaseIterable, Identifiable {
         switch self {
         case .zoomMode, .scale, .displays, .quality, .resolution, .hdr: .view
         case .audio, .sendAudio: .sound
-        case .observe, .pointerLock, .nativeTouch, .keyboard, .quickInput, .missionControl, .appWindows, .showDesktop, .launchpad: .control
+        case .observe, .pointerLock, .nativeTouch, .keyboard, .trackpad, .quickInput, .missionControl, .appWindows, .showDesktop,
+            .launchpad:
+            .control
         case .clipboard: .clipboard
         case .debugInfo: .debug
         }
@@ -82,9 +86,9 @@ enum SessionCommand: String, CaseIterable, Identifiable {
             .debugInfo:
             true
         #if os(iOS)
-        case .keyboard, .nativeTouch: true
+        case .keyboard, .nativeTouch, .trackpad: true
         #else
-        case .keyboard, .nativeTouch: false
+        case .keyboard, .nativeTouch, .trackpad: false
         #endif
         }
     }
@@ -106,7 +110,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
             return controller.usesHighPerformance && controller.displaySupportsHDR && offers(.highPerformance)
                 && controller.networkSupportsHDR
         case .observe: return offers(.control) && offers(.observe)
-        case .keyboard, .quickInput: return offers(.control)
+        case .keyboard, .trackpad, .quickInput: return offers(.control)
         case .nativeTouch: return capabilities.contains(.touch)
         #if os(iOS)
         case .pointerLock: return offers(.control) && PointerLock.hasMouse
@@ -128,7 +132,7 @@ enum SessionCommand: String, CaseIterable, Identifiable {
         case .hdr: return controller.canUseHDR
         case .observe: return controller.capabilities.contains(.control)
         case .pointerLock: return controller.canLockPointer
-        case .nativeTouch, .keyboard, .quickInput, .missionControl, .appWindows, .showDesktop, .launchpad:
+        case .nativeTouch, .keyboard, .trackpad, .quickInput, .missionControl, .appWindows, .showDesktop, .launchpad:
             return controller.isControlling
         }
     }
@@ -241,10 +245,16 @@ struct SessionCommandView: View {
                 }
             } label: {
                 Label(
-                    controller.isKeyboardVisible ? "Hide Keyboard" : "Show Keyboard",
-                    systemImage: controller.isKeyboardVisible ? "keyboard.chevron.compact.down" : "keyboard"
+                    controller.showsKeyboard ? "Hide Keyboard" : "Show Keyboard",
+                    systemImage: controller.showsKeyboard ? "keyboard.chevron.compact.down" : "keyboard"
                 )
             }
+        case .trackpad:
+            #if os(iOS)
+            toggle(isOn: Binding(get: { controller.isTrackpadVisible }, set: { controller.setTrackpadVisible($0) }))
+            #else
+            EmptyView()
+            #endif
         case .missionControl, .appWindows, .showDesktop, .launchpad:
             let systemCommand = command.systemCommand!
             Button {

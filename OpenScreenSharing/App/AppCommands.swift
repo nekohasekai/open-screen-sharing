@@ -229,7 +229,7 @@ private struct ControlCommandItems: View {
                     .modifier(ActionShortcut(action: .pointerLock))
                     .disabled(session.map { !SessionCommand.pointerLock.isOffered(by: $0) || !$0.canLockPointer } ?? true)
                 #if os(iOS)
-                Button(session?.isKeyboardVisible == true ? "Hide Keyboard" : "Show Keyboard") { session?.toggleKeyboard() }
+                Button(session?.showsKeyboard == true ? "Hide Keyboard" : "Show Keyboard") { session?.toggleKeyboard() }
                     .modifier(ActionShortcut(action: .keyboard))
                     .disabled(!controlling)
                 #endif
