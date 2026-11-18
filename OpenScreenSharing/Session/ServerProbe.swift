@@ -85,6 +85,23 @@ nonisolated enum ServerProber {
         }
     }
 
+    static func closeExistingConnectionOverSSH(host: String, username: String, password: String) async -> String? {
+        let request = UncheckedSendable(value: LibsharingNewProbeRequest()!)
+        return await withTaskCancellationHandler {
+            await Task.detached(priority: .userInitiated) { () -> String? in
+                LibsharingLog.installed
+                do {
+                    try request.value.closeExistingConnectionOverSSH(host, username: username, password: password)
+                    return nil
+                } catch {
+                    return error.localizedDescription
+                }
+            }.value
+        } onCancel: {
+            request.value.cancel()
+        }
+    }
+
     private static func failure(code: Int32, message: String, fingerprint: String) -> SessionFailure {
         switch code {
         case LibsharingErrorAuthentication: SessionFailure(.authenticationFailed, message: message)

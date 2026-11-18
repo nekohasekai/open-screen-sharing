@@ -32,5 +32,6 @@ fun SessionFailure.title(computerName: String, remoteProtocol: RemoteProtocol): 
             MediaFailure.Kind.Refused -> resources.getString(R.string.home_failure_high_performance_refused, computerName)
             else -> resources.getString(R.string.home_failure_high_performance_stopped)
         }
+        SessionFailure.Kind.CloseExistingConnectionFailed -> resources.getString(R.string.home_failure_close_existing_connection, computerName)
     }
 }

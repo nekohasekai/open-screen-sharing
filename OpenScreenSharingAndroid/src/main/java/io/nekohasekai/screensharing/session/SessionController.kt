@@ -401,6 +401,7 @@ class SessionController(
     private var allowsUnverifiedLogin = false
     private var passwordUpdate: PasswordUpdate = PasswordUpdate.Keep
     private var usedSavedPassword = false
+    private var retriesBusyAfterSSH = false
     private var device: DeviceInfo? = route.model?.let { DeviceInfo(it, "") }
 
     init {
@@ -624,6 +625,8 @@ class SessionController(
         hasPicture = false
         pipeline.setExpectsVideo(usesHighPerformance && io.nekohasekai.screensharing.demo.Demo.current == null)
         pipeline.setSchedulesPresentation(networkConfiguration.schedulesPresentation)
+        val retryBusyAfterSSH = retriesBusyAfterSSH
+        retriesBusyAfterSSH = false
         val configuration =
             SessionConfiguration(
                 address = route.address,
@@ -651,6 +654,7 @@ class SessionController(
                 networkConfiguration = networkConfiguration,
                 keepsAlive = keepsAlive,
                 disablesUDP = disablesUDP,
+                retriesBusyAfterSSH = retryBusyAfterSSH,
             )
         val sink = SessionEventSink(this, pipeline)
         val session = io.nekohasekai.screensharing.demo.Demo.current?.makeSession(this, sink) ?: LibsharingRemoteSession(configuration, sink)
@@ -710,6 +714,39 @@ class SessionController(
     fun allowUnverifiedLogin() {
         allowsUnverifiedLogin = true
         retry()
+    }
+
+    val canCloseExistingConnectionOverSSH: Boolean
+        get() = route.remoteProtocol == RemoteProtocol.Vnc && route.port == route.remoteProtocol.defaultPort
+
+    fun closeExistingConnectionOverSSHAndRetry() {
+        if (!canCloseExistingConnectionOverSSH) return
+        val account = credentials as? SessionCredentials.Account
+        if (account == null || account.username.isEmpty()) {
+            phase = SessionPhase.Failed(
+                SessionFailure(
+                    SessionFailure.Kind.CloseExistingConnectionFailed,
+                    "signing in via SSH requires an account user name and password",
+                ),
+            )
+            return
+        }
+        probeTask?.cancel()
+        awaitsDisplayArea = false
+        phase = SessionPhase.Connecting
+        probeTask =
+            App.scope.launch(Dispatchers.Main) {
+                val error = ServerProber.closeExistingConnectionOverSSH(route.host, account.username, account.password)
+                if (!isActive) return@launch
+                probeTask = null
+                if (phase != SessionPhase.Connecting) return@launch
+                if (error != null) {
+                    phase = SessionPhase.Failed(SessionFailure(SessionFailure.Kind.CloseExistingConnectionFailed, error))
+                    return@launch
+                }
+                retriesBusyAfterSSH = true
+                retry()
+            }
     }
 
     fun retry() {

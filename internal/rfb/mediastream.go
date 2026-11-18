@@ -104,11 +104,9 @@ func (c *Client) endMediaSession(session *mediaSession, cause error) {
 		c.logger.Debug("return to RFB pictures", "error", err)
 	}
 	c.mediaLifecycle.Unlock()
-	defer func() {
-		c.access.Lock()
-		c.mediaStopping = false
-		c.access.Unlock()
-	}()
+	c.access.Lock()
+	c.mediaStopping = false
+	c.access.Unlock()
 	session.notifyStopped(cause)
 }
 

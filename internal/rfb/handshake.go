@@ -253,7 +253,14 @@ func (h *handshake) securityResult(result uint32) error {
 		cause = ErrPermissionDenied
 	}
 	if h.info.Version.Minor == 8 {
-		return E.Cause1(cause, h.readReason())
+		reason := h.readReason()
+		if reason.Error() == "" {
+			return cause
+		}
+		return E.Cause1(cause, reason)
+	}
+	if result == 1 {
+		return cause
 	}
 	return E.Extend(cause, "result ", result)
 }

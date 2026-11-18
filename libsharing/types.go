@@ -151,6 +151,8 @@ type SessionOptions struct {
 
 	DisableUDP bool
 
+	RetryBusyHighPerformance bool
+
 	CacheDirectory string
 }
 

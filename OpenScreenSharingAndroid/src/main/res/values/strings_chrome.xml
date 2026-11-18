@@ -51,5 +51,6 @@
     <string name="chrome_mac_reinstalled">This is expected after the Mac is reinstalled. If it wasn’t, another device may be pretending to be this Mac.</string>
     <string name="chrome_unverified_server">This computer only offers an older sign-in method that can’t confirm its identity. If another device is pretending to be this computer, it could see your password.</string>
     <string name="chrome_connect_anyway">Connect anyway</string>
+    <string name="chrome_close_existing_connection_ssh_retry">Close existing connection via SSH and retry</string>
 
 </resources>

@@ -6,6 +6,7 @@ import (
 	"io"
 	"math"
 	"net"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -63,18 +64,22 @@ type Session struct {
 	options SessionOptions
 	handler SessionHandler
 
-	access        sync.Mutex
-	remote        remote
-	cancel        context.CancelFunc
-	resizing      bool
-	attached      *bgra.Image
-	prompts       map[int64]chan int32
-	nextPrompt    int64
-	ending        bool
-	disconnecting bool
-	finished      bool
-	setup         sessionSetup
+	access           sync.Mutex
+	remote           remote
+	cancel           context.CancelFunc
+	resizing         bool
+	attached         *bgra.Image
+	prompts          map[int64]chan int32
+	nextPrompt       int64
+	ending           bool
+	disconnecting    bool
+	finished         bool
+	busyRetry        bool
+	busyRetryAttempt int
+	setup            sessionSetup
 
+	done             chan struct{}
+	doneOnce         sync.Once
 	displayRequested chan struct{}
 
 	resizeWidth  int
@@ -100,7 +105,14 @@ func NewSession(options *SessionOptions, handler SessionHandler) (*Session, erro
 	if options.UpdateRate < 0 {
 		return nil, E.New("invalid update rate ", options.UpdateRate, "; it must not be negative")
 	}
-	return &Session{options: *options, handler: handler, prompts: make(map[int64]chan int32), displayRequested: make(chan struct{})}, nil
+	return &Session{
+		options:          *options,
+		handler:          handler,
+		prompts:          make(map[int64]chan int32),
+		busyRetry:        options.RetryBusyHighPerformance,
+		done:             make(chan struct{}),
+		displayRequested: make(chan struct{}),
+	}, nil
 }
 
 type remote interface {
@@ -165,9 +177,9 @@ func (r rfbRemote) apply(setup sessionSetup) {
 		}
 	}
 	if setup.highPerformance != nil && info.SupportsHighPerformance && r.MediaStream() == nil {
-		err := r.StartMediaStream(*setup.highPerformance, &mediaEvents{session: r.session})
+		err := r.StartMediaStream(*setup.highPerformance, &mediaEvents{session: r.session, client: r.Client, offer: *setup.highPerformance})
 		if err != nil {
-			r.session.handler.OnMediaStopped(classifyMediaError(err), err.Error())
+			r.session.handler.OnMediaStopped(classifyMediaError(err))
 		}
 	}
 	if setup.updateRate != nil {
@@ -347,7 +359,7 @@ func (s *Session) run(ctx context.Context, dial func(ctx context.Context) (remot
 	s.handler.OnStateChanged(StateConnected, ErrorNone, "")
 	err = connected.Run()
 	if ctx.Err() != nil {
-		if code, _ := classifyError(err); code == ErrorNone || code == ErrorNetwork || code == ErrorProtocol {
+		if code := errorCode(err); code == ErrorNone || code == ErrorNetwork || code == ErrorProtocol {
 			err = context.Canceled
 		}
 	}
@@ -412,6 +424,12 @@ func (s *Session) takeSetup() sessionSetup {
 	return setup
 }
 
+func (s *Session) closeDone() {
+	s.doneOnce.Do(func() {
+		close(s.done)
+	})
+}
+
 func (s *Session) finish(err error) {
 	s.access.Lock()
 	s.finished = true
@@ -420,6 +438,7 @@ func (s *Session) finish(err error) {
 	s.attached = nil
 	s.cancelPromptsLocked()
 	s.access.Unlock()
+	s.closeDone()
 	code, message := classifyError(err)
 	if s.ending && (code == ErrorNetwork || code == ErrorProtocol) {
 		code, message = ErrorSessionEnded, ""
@@ -427,39 +446,55 @@ func (s *Session) finish(err error) {
 	s.handler.OnStateChanged(StateDisconnected, code, message)
 }
 
+var errorsDescribedByCode = []error{
+	rfb.ErrAuthenticationFailed,
+	rdp.ErrAuthenticationFailed,
+	rfb.ErrPermissionDenied,
+	rdp.ErrRemoteLogonDenied,
+	rdp.ErrSessionEnded,
+}
+
 func classifyError(err error) (int32, string) {
+	code := errorCode(err)
+	if err == nil || code == ErrorHostNotFound || slices.Contains(errorsDescribedByCode, err) {
+		return code, ""
+	}
+	return code, err.Error()
+}
+
+func errorCode(err error) int32 {
 	var ownScreen *ownScreenError
 	switch {
 	case err == nil:
-		return ErrorNone, ""
+		return ErrorNone
 	case E.IsMulti(err, context.Canceled, rfb.ErrSessionCancelled):
-		return ErrorCancelled, err.Error()
+		return ErrorCancelled
 	case E.IsMulti(err, rfb.ErrAuthenticationFailed, rdp.ErrAuthenticationFailed):
-		return ErrorAuthentication, err.Error()
+		return ErrorAuthentication
 	case E.IsMulti(err, rfb.ErrPermissionDenied, rdp.ErrRemoteLogonDenied):
-		return ErrorPermissionDenied, err.Error()
+		return ErrorPermissionDenied
 	case E.IsMulti(err, rfb.ErrUnsupportedServer, rdp.ErrNotRDP, rdp.ErrUnsupportedSecurity):
-		return ErrorUnsupportedServer, err.Error()
+		return ErrorUnsupportedServer
 	case errors.Is(err, rfb.ErrUnverifiedServer):
-		return ErrorUnverifiedServer, err.Error()
+		return ErrorUnverifiedServer
 	case E.IsMulti(err, rdp.ErrCertificateChanged, rfb.ErrServerKeyChanged):
-		return ErrorCertificateChanged, err.Error()
+		return ErrorCertificateChanged
 	case E.IsMulti(err, rdp.ErrSessionEnded, rdp.ErrSessionReplaced):
-		return ErrorSessionEnded, err.Error()
+		return ErrorSessionEnded
 	case errors.As(err, &ownScreen):
-		return ErrorOwnScreen, err.Error()
+		return ErrorOwnScreen
 	case E.IsMulti(err, io.EOF, io.ErrUnexpectedEOF):
-		return ErrorNetwork, err.Error()
+		return ErrorNetwork
 	}
 	var dnsError *net.DNSError
 	if errors.As(err, &dnsError) && dnsError.IsNotFound {
-		return ErrorHostNotFound, err.Error()
+		return ErrorHostNotFound
 	}
 	var networkError net.Error
 	if errors.As(err, &networkError) {
-		return ErrorNetwork, err.Error()
+		return ErrorNetwork
 	}
-	return ErrorProtocol, err.Error()
+	return ErrorProtocol
 }
 
 func (s *Session) cancelPromptsLocked() {
@@ -479,6 +514,7 @@ func (s *Session) Disconnect() {
 	cancel, connected := s.cancel, s.remote
 	s.cancelPromptsLocked()
 	s.access.Unlock()
+	s.closeDone()
 	if connected != nil {
 		go connected.Close()
 	} else if cancel != nil {
@@ -494,6 +530,7 @@ func (s *Session) Abort() {
 	cancel, connected := s.cancel, s.remote
 	s.cancelPromptsLocked()
 	s.access.Unlock()
+	s.closeDone()
 	if cancel != nil {
 		cancel()
 	}

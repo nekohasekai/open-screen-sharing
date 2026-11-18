@@ -87,4 +87,5 @@
     <string name="home_failure_high_performance_undecodable">This device can’t play High Performance video</string>
     <string name="home_failure_high_performance_refused">“%1$s” refused High Performance</string>
     <string name="home_failure_high_performance_stopped">High Performance stopped</string>
+    <string name="home_failure_close_existing_connection">Couldn’t close existing connection on “%1$s”</string>
 </resources>

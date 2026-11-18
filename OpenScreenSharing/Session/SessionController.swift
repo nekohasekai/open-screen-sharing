@@ -282,6 +282,7 @@ final class SessionController: Identifiable {
     @PerceptionIgnored private var allowsUnverifiedLogin = false
     @PerceptionIgnored private var passwordUpdate = PasswordUpdate.keep
     @PerceptionIgnored private var usedSavedPassword = false
+    @PerceptionIgnored private var retriesBusyAfterSSH = false
     @PerceptionIgnored private var device: DeviceInfo?
 
     init(route: SessionRoute) {
@@ -496,6 +497,8 @@ final class SessionController: Identifiable {
         hasPicture = false
         pipeline.setExpectsVideo(usesHighPerformance)
         pipeline.setSchedulesPresentation(networkConfiguration.schedulesPresentation)
+        let retryBusyAfterSSH = retriesBusyAfterSSH
+        retriesBusyAfterSSH = false
         let configuration = SessionConfiguration(
             address: route.address,
             remoteProtocol: route.remoteProtocol,
@@ -514,7 +517,8 @@ final class SessionController: Identifiable {
             awaitsVirtualDisplay: wantsVirtualDisplay,
             networkConfiguration: networkConfiguration,
             keepsAlive: keepsAlive,
-            disablesUDP: disablesUDP
+            disablesUDP: disablesUDP,
+            retriesBusyAfterSSH: retryBusyAfterSSH
         )
         let sink = SessionEventSink(controller: self, pipeline: pipeline)
         let session = Demo.current?.makeSession(self, sink) ?? LibsharingRemoteSession(configuration: configuration, delegate: sink)
@@ -577,6 +581,36 @@ final class SessionController: Identifiable {
     func allowUnverifiedLogin() {
         allowsUnverifiedLogin = true
         retry()
+    }
+
+    var canCloseExistingConnectionOverSSH: Bool {
+        route.remoteProtocol == .vnc && route.port == route.remoteProtocol.defaultPort
+    }
+
+    func closeExistingConnectionOverSSHAndRetry() {
+        guard canCloseExistingConnectionOverSSH else { return }
+        guard case .account(let username, let password) = credentials, !username.isEmpty else {
+            phase = .failed(
+                SessionFailure(
+                    .closeExistingConnectionFailed,
+                    message: "signing in via SSH requires an account user name and password"))
+            return
+        }
+        probeTask?.cancel()
+        phase = .connecting
+        probeTask = Task { [weak self, route] in
+            let error = await ServerProber.closeExistingConnectionOverSSH(
+                host: route.host, username: username, password: password)
+            guard let self, !Task.isCancelled else { return }
+            probeTask = nil
+            guard phase == .connecting else { return }
+            if let error {
+                phase = .failed(SessionFailure(.closeExistingConnectionFailed, message: error))
+                return
+            }
+            retriesBusyAfterSSH = true
+            retry()
+        }
     }
 
     func retry() {

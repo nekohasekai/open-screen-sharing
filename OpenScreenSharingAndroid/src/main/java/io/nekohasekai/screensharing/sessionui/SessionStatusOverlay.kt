@@ -43,6 +43,7 @@ import io.nekohasekai.screensharing.R
 import io.nekohasekai.screensharing.app.AlertHost
 import io.nekohasekai.screensharing.app.AlertState
 import io.nekohasekai.screensharing.model.RemoteProtocol
+import io.nekohasekai.screensharing.session.MediaFailure
 import io.nekohasekai.screensharing.session.PictureChange
 import io.nekohasekai.screensharing.session.ScreenPicture
 import io.nekohasekai.screensharing.session.SessionChoice
@@ -228,6 +229,18 @@ private fun failureAlert(
         kind == SessionFailure.Kind.UnverifiedServer -> {
             message = resources.getString(R.string.chrome_unverified_server)
             connectAnyway = { controller.allowUnverifiedLogin() }
+        }
+        kind == SessionFailure.Kind.HighPerformance(MediaFailure.Kind.Busy) && controller.canCloseExistingConnectionOverSSH -> {
+            return AlertState(
+                title = title,
+                actions =
+                listOf(
+                    AlertState.Action(resources.getString(R.string.chrome_close_existing_connection_ssh_retry)) {
+                        controller.closeExistingConnectionOverSSHAndRetry()
+                    },
+                    AlertState.Action(resources.getString(R.string.close), AlertState.Role.Cancel, isDefault = true, perform = onClose),
+                ),
+            )
         }
         else -> {
             return AlertState.failure(title, failure.message, resources.getString(R.string.close), onClose)

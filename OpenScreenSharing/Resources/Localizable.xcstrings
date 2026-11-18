@@ -15505,6 +15505,28 @@
         }
       }
     },
+    "Close Existing Connection via SSH and Retry" : {
+      "localizations" : {
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "透過 SSH 關閉現有連線並重試"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通过 SSH 关闭现有连接并重试"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "透過 SSH 關閉現有連線並重試"
+          }
+        }
+      }
+    },
     "Command Key" : {
       "localizations" : {
         "ar" : {
@@ -20365,6 +20387,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "無法清除快取"
+          }
+        }
+      }
+    },
+    "Couldn’t Close Existing Connection on “%@”" : {
+      "localizations" : {
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法關閉「%@」上的現有連線"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法关闭“%@”上的现有连接"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法關閉「%@」上的現有連線"
           }
         }
       }

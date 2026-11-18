@@ -66,6 +66,7 @@
     <string name="chrome_mac_reinstalled">重新安裝 Mac 後會出現此情況。如果沒有重新安裝，可能有其他裝置正在冒充這部 Mac。</string>
     <string name="chrome_unverified_server">這部電腦只提供無法確認其身分的舊登入方式。如果有其他裝置正在冒充這部電腦，它可能會看到你的密碼。</string>
     <string name="chrome_connect_anyway">仍要連線</string>
+    <string name="chrome_close_existing_connection_ssh_retry">透過 SSH 關閉現有連線並重試</string>
     <string name="discovery_cant_find">找不到「%1$s」。</string>
     <string name="discovery_local_network_denied">Screen Sharing 未獲准使用本地網絡。</string>
     <string name="home_connections">連線</string>
@@ -144,6 +145,7 @@
     <string name="home_failure_high_performance_undecodable">此裝置無法播放高效能模式的影片</string>
     <string name="home_failure_high_performance_refused">「%1$s」拒絕了高效能模式</string>
     <string name="home_failure_high_performance_stopped">高效能模式已停止</string>
+    <string name="home_failure_close_existing_connection">無法關閉「%1$s」上的現有連線</string>
     <string name="model_file">檔案</string>
     <string name="model_edit_menu">編輯</string>
     <string name="model_view">顯示方式</string>

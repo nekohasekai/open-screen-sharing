@@ -66,6 +66,7 @@
     <string name="chrome_mac_reinstalled">重新安装 Mac 后会出现这种情况。如果没有重新安装，可能有其他设备正在冒充这台 Mac。</string>
     <string name="chrome_unverified_server">这台电脑只提供一种无法确认其身份的旧登录方式。如果有其他设备正在冒充这台电脑，它可能会看到你的密码。</string>
     <string name="chrome_connect_anyway">仍要连接</string>
+    <string name="chrome_close_existing_connection_ssh_retry">通过 SSH 关闭现有连接并重试</string>
     <string name="discovery_cant_find">找不到“%1$s”。</string>
     <string name="discovery_local_network_denied">Screen Sharing 无权使用本地网络。</string>
     <string name="home_connections">连接</string>
@@ -144,6 +145,7 @@
     <string name="home_failure_high_performance_undecodable">此设备无法播放高性能模式的视频</string>
     <string name="home_failure_high_performance_refused">“%1$s”拒绝了高性能模式</string>
     <string name="home_failure_high_performance_stopped">高性能模式已停止</string>
+    <string name="home_failure_close_existing_connection">无法关闭“%1$s”上的现有连接</string>
     <string name="model_file">文件</string>
     <string name="model_edit_menu">编辑</string>
     <string name="model_view">显示</string>

@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/nekohasekai/open-screen-sharing/internal/rfb"
 	"github.com/nekohasekai/open-screen-sharing/internal/rfb/media"
 	E "github.com/sagernet/sing/common/exceptions"
 )
@@ -31,20 +32,20 @@ const (
 	MediaErrorNetwork int32 = 4
 )
 
-func classifyMediaError(err error) int32 {
+func classifyMediaError(err error) (int32, string) {
 	var serverError *media.ServerError
 	switch {
 	case err == nil:
-		return MediaErrorNone
+		return MediaErrorNone, ""
 	case errors.As(err, &serverError):
 		if serverError.Type == media.ServerErrorBusy && serverError.SubCode == media.ServerErrorBusySubCode {
-			return MediaErrorBusy
+			return MediaErrorBusy, ""
 		}
-		return MediaErrorRefused
+		return MediaErrorRefused, err.Error()
 	case errors.Is(err, media.ErrStreamSilent):
-		return MediaErrorSilent
+		return MediaErrorSilent, err.Error()
 	}
-	return MediaErrorNetwork
+	return MediaErrorNetwork, err.Error()
 }
 
 const (
@@ -160,7 +161,7 @@ func (s *Session) StartHighPerformance(options *HighPerformanceOptions) error {
 	if err != nil {
 		return err
 	}
-	return client.StartMediaStream(offer, &mediaEvents{session: s})
+	return client.StartMediaStream(offer, &mediaEvents{session: s, client: client, offer: offer})
 }
 
 func offerOptions(options *HighPerformanceOptions) (media.OfferOptions, error) {
@@ -198,7 +199,7 @@ func (s *Session) RestartHighPerformance(options *HighPerformanceOptions) error 
 		_ = client.StopMediaStream()
 		err := s.StartHighPerformance(options)
 		if err != nil {
-			s.handler.OnMediaStopped(classifyMediaError(err), err.Error())
+			s.handler.OnMediaStopped(classifyMediaError(err))
 		}
 	}()
 	return nil
@@ -254,9 +255,37 @@ func (s *Session) RequestKeyframe() error {
 
 type mediaEvents struct {
 	session *Session
+	client  *rfb.Client
+	offer   media.OfferOptions
+}
+
+var busyRetryDelays = []time.Duration{
+	50 * time.Millisecond,
+	100 * time.Millisecond,
+	200 * time.Millisecond,
+	400 * time.Millisecond,
+	800 * time.Millisecond,
+}
+
+func (s *Session) nextBusyRetryDelay() (time.Duration, bool) {
+	s.access.Lock()
+	defer s.access.Unlock()
+	if !s.busyRetry || s.finished || s.disconnecting || s.busyRetryAttempt >= len(busyRetryDelays) {
+		return 0, false
+	}
+	delay := busyRetryDelays[s.busyRetryAttempt]
+	s.busyRetryAttempt++
+	return delay, true
+}
+
+func (s *Session) clearBusyRetry() {
+	s.access.Lock()
+	s.busyRetry = false
+	s.access.Unlock()
 }
 
 func (e *mediaEvents) VideoFormat(format media.VideoFormat) {
+	e.session.clearBusyRetry()
 	codec := CodecHEVC
 	if format.Codec == media.CodecH264 {
 		codec = CodecH264
@@ -306,9 +335,36 @@ func (e *mediaEvents) AudioPacket(packet media.AudioPacket) {
 }
 
 func (e *mediaEvents) StreamStopped(err error) {
-	message := ""
-	if err != nil {
-		message = err.Error()
+	code, message := classifyMediaError(err)
+	if code == MediaErrorBusy && e.retryBusy() {
+		return
 	}
-	e.session.handler.OnMediaStopped(classifyMediaError(err), message)
+	e.session.clearBusyRetry()
+	e.session.handler.OnMediaStopped(code, message)
+}
+
+func (e *mediaEvents) retryBusy() bool {
+	delay, ok := e.session.nextBusyRetryDelay()
+	if !ok || e.client == nil {
+		return false
+	}
+	timer := time.NewTimer(delay)
+	select {
+	case <-timer.C:
+	case <-e.session.done:
+		timer.Stop()
+		return true
+	}
+	e.session.access.Lock()
+	active := !e.session.finished && !e.session.disconnecting && e.session.remote != nil
+	e.session.access.Unlock()
+	if !active {
+		return true
+	}
+	err := e.client.StartMediaStream(e.offer, e)
+	if err != nil {
+		e.session.clearBusyRetry()
+		e.session.handler.OnMediaStopped(classifyMediaError(err))
+	}
+	return true
 }

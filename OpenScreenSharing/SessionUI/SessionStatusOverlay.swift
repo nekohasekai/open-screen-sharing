@@ -151,6 +151,15 @@ struct SessionStatusOverlay: View {
                     "This computer only offers an older sign-in method that can’t confirm its identity. If another device is pretending to be this computer, it could see your password."
             )
             connectAnyway = { controller.allowUnverifiedLogin() }
+        case .highPerformance(.busy) where controller.canCloseExistingConnectionOverSSH:
+            return AlertState(
+                title: title,
+                actions: [
+                    AlertState.Action(label: String(localized: "Close Existing Connection via SSH and Retry"), role: nil) {
+                        controller.closeExistingConnectionOverSSHAndRetry()
+                    },
+                    AlertState.Action(label: String(localized: "Close"), role: .cancel, isDefault: true, perform: onClose),
+                ])
         default:
             return AlertState(title, errorMessage: failure.message, closeLabel: String(localized: "Close"), onClose: onClose)
         }
@@ -186,6 +195,7 @@ extension SessionFailure {
         case .highPerformance(.undecodable): String(localized: "This Device Can’t Play High Performance Video")
         case .highPerformance(.refused): String(localized: "“\(name)” Refused High Performance")
         case .highPerformance: String(localized: "High Performance Stopped")
+        case .closeExistingConnectionFailed: String(localized: "Couldn’t Close Existing Connection on “\(name)”")
         }
     }
 }
