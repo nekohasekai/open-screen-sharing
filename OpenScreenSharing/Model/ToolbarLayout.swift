@@ -97,6 +97,10 @@ final class ToolbarLayout {
         return slots(for: width - fixed, itemWidth: itemWidth)
     }
 
+    static func tabBarSlots(width: CGFloat, itemWidth: CGFloat) -> Int {
+        capsuleSlots(width: width - tabStripMinimumWidth, itemWidth: itemWidth)
+    }
+
     private static func slots(for width: CGFloat, itemWidth: CGFloat) -> Int {
         guard width > 0, itemWidth > 0 else { return 0 }
         return min(maximumSlots, Int((width / itemWidth).rounded(.down)))
@@ -108,6 +112,7 @@ final class ToolbarLayout {
     static let capsuleMargin: CGFloat = 16
     static let dockClearance: CGFloat = 4
     static let dockMargin: CGFloat = 16
+    static let tabStripMinimumWidth: CGFloat = 280
 }
 
 struct ToolbarPlan: Equatable {

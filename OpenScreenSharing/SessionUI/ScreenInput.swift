@@ -683,7 +683,7 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
 
 
     private var isPointerLocked: Bool {
-        PointerLock.isLocked(view.window?.windowScene)
+        !controller.sceneInBackground && PointerLock.isLocked(view.window?.windowScene)
     }
 
     func lockedMouseMoved(by counts: CGPoint) {

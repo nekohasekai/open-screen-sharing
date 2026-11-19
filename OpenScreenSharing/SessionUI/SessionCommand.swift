@@ -300,13 +300,27 @@ struct BarToggleStyle: ToggleStyle {
     }
 }
 
+private struct BarItemSelection: ViewModifier {
+    let isSelected: Bool
+
+    @Environment(\.sessionBarStyle) private var style
+
+    func body(content: Content) -> some View {
+        content
+            .background {
+                if isSelected {
+                    switch style {
+                    case .glass: Circle().fill(Color.accentColor).padding(3)
+                    case .flat: SessionBarStyle.flatItemShape.fill(Color.accentColor)
+                    }
+                }
+            }
+            .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+}
+
 extension View {
     func barItemSelected(_ isSelected: Bool) -> some View {
-        background {
-            if isSelected {
-                Circle().fill(Color.accentColor).padding(3)
-            }
-        }
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        modifier(BarItemSelection(isSelected: isSelected))
     }
 }

@@ -40136,6 +40136,310 @@
         }
       }
     },
+    "Keeps several connections open as tabs in a bar at the top of the screen, which also holds the toolbar." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يُبقي عدة اتصالات مفتوحة كعلامات تبويب في شريط أعلى الشاشة، يحتوي أيضًا على شريط الأدوات."
+          }
+        },
+        "bg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поддържа няколко връзки отворени като раздели в лента в горната част на екрана, която съдържа и лентата с инструменти."
+          }
+        },
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "একাধিক কানেকশনকে স্ক্রিনের উপরের একটি বারে ট্যাব হিসেবে খোলা রাখে, যেখানে টুলবারও থাকে।"
+          }
+        },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manté diverses connexions obertes com a pestanyes en una barra a la part superior de la pantalla, que també conté la barra d’eines."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ponechá několik připojení otevřených jako panely v liště u horního okraje obrazovky, která obsahuje také panel nástrojů."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holder flere forbindelser åbne som faner i en linje øverst på skærmen, som også indeholder værktøjslinjen."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hält mehrere Verbindungen als Tabs in einer Leiste am oberen Bildschirmrand geöffnet, die auch die Symbolleiste enthält."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Διατηρεί πολλές συνδέσεις ανοιχτές ως καρτέλες σε μια γραμμή στο πάνω μέρος της οθόνης, η οποία περιέχει επίσης τη γραμμή εργαλείων."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantiene varias conexiones abiertas como pestañas en una barra en la parte superior de la pantalla, que también contiene la barra de herramientas."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantiene varias conexiones abiertas como pestañas en una barra en la parte superior de la pantalla, que también contiene la barra de herramientas."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pitää useita yhteyksiä auki välilehtinä näytön yläreunan palkissa, jossa on myös työkalupalkki."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Garde plusieurs connexions ouvertes sous forme d’onglets dans une barre en haut de l’écran, qui contient aussi la barre d’outils."
+          }
+        },
+        "fr-CA" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Garde plusieurs connexions ouvertes sous forme d’onglets dans une barre en haut de l’écran, qui contient aussi la barre d’outils."
+          }
+        },
+        "gu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ઘણા કનેક્શનને સ્ક્રીનની ટોચ પરના બારમાં ટૅબ તરીકે ખુલ્લા રાખે છે, જેમાં ટૂલબાર પણ હોય છે."
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "שומר כמה חיבורים פתוחים ככרטיסיות בסרגל בראש המסך, שמכיל גם את סרגל הכלים."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "कई कनेक्शन को स्क्रीन के ऊपर एक बार में टैब के रूप में खुला रखता है, जिसमें टूलबार भी होता है।"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drži više veza otvorenima kao kartice u traci na vrhu zaslona, koja sadrži i alatnu traku."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Több kapcsolatot tart nyitva lapokként a képernyő tetején lévő sávban, amely az eszközsort is tartalmazza."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menjaga beberapa koneksi tetap terbuka sebagai tab di bar di bagian atas layar, yang juga memuat bar alat."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantiene più connessioni aperte come pannelli in una barra nella parte superiore dello schermo, che contiene anche la barra strumenti."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "複数の接続を、画面上部のバーにタブとして開いたままにします。このバーにはツールバーも表示されます。"
+          }
+        },
+        "kk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бірнеше қосылымды экранның жоғарғы жағындағы жолақта қойындылар ретінде ашық ұстайды, онда құралдар тақтасы да орналасқан."
+          }
+        },
+        "kn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ಹಲವು ಕನೆಕ್ಷನ್‌ಗಳನ್ನು ಪರದೆಯ ಮೇಲ್ಭಾಗದ ಬಾರ್‌ನಲ್ಲಿ ಟ್ಯಾಬ್‌ಗಳಾಗಿ ತೆರೆದಿಡುತ್ತದೆ, ಅದರಲ್ಲಿ ಟೂಲ್‌ಬಾರ್ ಕೂಡ ಇರುತ್ತದೆ."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "여러 연결을 화면 상단의 막대에 탭으로 열어 둡니다. 이 막대에는 도구 막대도 포함됩니다."
+          }
+        },
+        "lt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laiko kelis ryšius atidarytus kaip korteles juostoje ekrano viršuje, kurioje taip pat yra įrankių juosta."
+          }
+        },
+        "ml" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ഒന്നിലധികം കണക്ഷനുകൾ സ്ക്രീനിന്റെ മുകളിലുള്ള ഒരു ബാറിൽ ടാബുകളായി തുറന്നുവയ്ക്കുന്നു, അതിൽ ടൂൾബാറും ഉണ്ടാകും."
+          }
+        },
+        "mr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "अनेक कनेक्शन स्क्रीनच्या वरच्या बाजूला एका बारमध्ये टॅब म्हणून उघडे ठेवते, ज्यामध्ये टूलबारही असतो."
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mengekalkan beberapa sambungan terbuka sebagai tab dalam bar di bahagian atas skrin, yang turut memuatkan bar alat."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holder flere tilkoblinger åpne som faner i en linje øverst på skjermen, som også inneholder verktøylinjen."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Houdt meerdere verbindingen open als tabbladen in een balk boven in het scherm, waarin ook de knoppenbalk staat."
+          }
+        },
+        "or" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ଅନେକ ସଂଯୋଗକୁ ସ୍କ୍ରିନର ଉପରେ ଥିବା ଏକ ବାର୍‌ରେ ଟ୍ୟାବ୍ ଭାବେ ଖୋଲା ରଖେ, ଯେଉଁଥିରେ ଟୁଲ୍‌ବାର୍ ମଧ୍ୟ ଥାଏ।"
+          }
+        },
+        "pa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ਕਈ ਕਨੈਕਸ਼ਨਾਂ ਨੂੰ ਸਕ੍ਰੀਨ ਦੇ ਸਿਖਰ ’ਤੇ ਇੱਕ ਬਾਰ ਵਿੱਚ ਟੈਬਾਂ ਵਜੋਂ ਖੁੱਲ੍ਹਾ ਰੱਖਦਾ ਹੈ, ਜਿਸ ਵਿੱਚ ਟੂਲਬਾਰ ਵੀ ਹੁੰਦਾ ਹੈ।"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utrzymuje wiele połączeń otwartych jako karty na pasku u góry ekranu, który zawiera też pasek narzędzi."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantém várias conexões abertas como abas em uma barra na parte superior da tela, que também contém a barra de ferramentas."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantém várias ligações abertas como separadores numa barra na parte superior do ecrã, que também contém a barra de ferramentas."
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Păstrează mai multe conexiuni deschise ca file într-o bară din partea de sus a ecranului, care conține și bara de instrumente."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Держит несколько подключений открытыми в виде вкладок на панели вверху экрана, на которой также находится панель инструментов."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ponechá viacero pripojení otvorených ako panely v lište v hornej časti obrazovky, ktorá obsahuje aj panel s nástrojmi."
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ohrani več povezav odprtih kot zavihke v vrstici na vrhu zaslona, ki vsebuje tudi orodno vrstico."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Håller flera anslutningar öppna som flikar i ett fält högst upp på skärmen, där även verktygsfältet finns."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "பல இணைப்புகளைத் திரையின் மேலே உள்ள ஒரு பட்டியில் டேப்களாகத் திறந்து வைக்கிறது, அதில் கருவிப்பட்டியும் இருக்கும்."
+          }
+        },
+        "te" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "అనేక కనెక్షన్‌లను స్క్రీన్ పైభాగంలోని బార్‌లో ట్యాబ్‌లుగా తెరిచి ఉంచుతుంది, అందులో టూల్‌బార్ కూడా ఉంటుంది."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เปิดการเชื่อมต่อหลายรายการค้างไว้เป็นแท็บในแถบที่ด้านบนของหน้าจอ ซึ่งมีแถบเครื่องมืออยู่ด้วย"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Birden fazla bağlantıyı ekranın üstündeki, araç çubuğunu da içeren bir çubukta sekmeler olarak açık tutar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тримає кілька зʼєднань відкритими як вкладки на смузі вгорі екрана, де також розміщено панель інструментів."
+          }
+        },
+        "ur" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "کئی کنکشن کو اسکرین کے اوپر ایک بار میں ٹیبز کے طور پر کھلا رکھتا ہے، جس میں ٹول بار بھی ہوتا ہے۔"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giữ nhiều kết nối mở dưới dạng các tab trong một thanh ở đầu màn hình, thanh này cũng chứa thanh công cụ."
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在螢幕頂端的列中以標籤頁形式同時開啟多個連線，工具列也位於此列中。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在屏幕顶部的栏中以标签页形式同时打开多个连接，工具栏也位于此栏中。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在螢幕頂端的列中以標籤頁形式同時開啟多個連線，工具列也位於此列中。"
+          }
+        }
+      }
+    },
     "Key" : {
       "localizations" : {
         "ar" : {
@@ -84212,6 +84516,310 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tab 鍵"
+          }
+        }
+      }
+    },
+    "Tab Bar" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "شريط علامات التبويب"
+          }
+        },
+        "bg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лента с раздели"
+          }
+        },
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ট্যাব বার"
+          }
+        },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barra de pestanyes"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lišta panelů"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fanelinje"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tableiste"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Γραμμή καρτελών"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barra de pestañas"
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barra de pestañas"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Välilehtipalkki"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barre d’onglets"
+          }
+        },
+        "fr-CA" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barre d’onglets"
+          }
+        },
+        "gu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ટૅબ બાર"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "סרגל הכרטיסיות"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "टैब बार"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Traka kartica"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lapsor"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bar Tab"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barra dei pannelli"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タブバー"
+          }
+        },
+        "kk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Қойындылар жолағы"
+          }
+        },
+        "kn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ಟ್ಯಾಬ್ ಬಾರ್"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "탭 막대"
+          }
+        },
+        "lt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kortelių juosta"
+          }
+        },
+        "ml" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ടാബ് ബാർ"
+          }
+        },
+        "mr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "टॅब बार"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bar Tab"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fanelinje"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tabbladbalk"
+          }
+        },
+        "or" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ଟ୍ୟାବ୍ ବାର୍"
+          }
+        },
+        "pa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ਟੈਬ ਬਾਰ"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pasek kart"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barra de Abas"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barra de separadores"
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bară de file"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Панель вкладок"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lišta panelov"
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vrstica z zavihki"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flikfält"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "டேப் பட்டி"
+          }
+        },
+        "te" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ట్యాబ్ బార్"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "แถบแท็บ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekme Çubuğu"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Смуга вкладок"
+          }
+        },
+        "ur" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ٹیب بار"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thanh tab"
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "標籤頁列"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "标签页栏"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "標籤頁列"
           }
         }
       }

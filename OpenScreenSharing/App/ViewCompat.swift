@@ -328,6 +328,15 @@ extension View {
     }
 
     @ViewBuilder
+    func containerCornerOffsetCompat(_ edges: Edge.Set) -> some View {
+        if #available(iOS 26, macOS 26, *) {
+            containerCornerOffset(edges, sizeToFit: true)
+        } else {
+            self
+        }
+    }
+
+    @ViewBuilder
     func glassButtonStyleCompat() -> some View {
         if #available(iOS 26, macOS 26, *) {
             buttonStyle(.glass)

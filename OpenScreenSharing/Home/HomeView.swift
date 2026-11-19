@@ -44,6 +44,7 @@ struct HomeView: View {
     @State private var linkLookup: LinkLookup?
     #if os(iOS)
     @State private var tutorials = SessionTutorial.unseen
+    @State private var tabs = SessionTabs()
     #endif
     private let homeRequest = HomeRequest.shared
 
@@ -83,11 +84,18 @@ struct HomeView: View {
                 }
                 .modifier(StorageNoticeAlert())
             }
-            .background {
-                if let activeSession {
-                    Color.clear.focusedSceneValue(\.sessionController, activeSession)
+            .fullScreenCover(isPresented: .constant(!tabs.sessions.isEmpty)) {
+                if #available(iOS 17, *) {
+                    SessionTabsView(tabs: tabs)
+                        .modifier(StorageNoticeAlert())
                 }
             }
+            .background {
+                if let session = activeSession ?? tabs.selected {
+                    Color.clear.focusedSceneValue(\.sessionController, session)
+                }
+            }
+            .onChangeCompat(of: tabs.sessions.isEmpty) { watchConnections() }
             #endif
             .modifier(StorageNoticeAlert())
             .alert($alert)
@@ -209,7 +217,12 @@ struct HomeView: View {
     }
 
     private func watchConnections() {
-        setWatchingConnections(scenePhase != .background && activeSession == nil && selection == .connections)
+        #if os(iOS)
+        let showsSession = activeSession != nil || !tabs.sessions.isEmpty
+        #else
+        let showsSession = activeSession != nil
+        #endif
+        setWatchingConnections(scenePhase != .background && !showsSession && selection == .connections)
     }
 
     private func setWatchingConnections(_ watching: Bool) {
@@ -228,7 +241,9 @@ struct HomeView: View {
         linkLookup?.task.cancel()
         linkLookup = nil
         #if os(iOS)
-        if activeSession != nil, let openSessionWindow {
+        if SessionTabs.isOffered, AppSettings.shared.usesTabBar {
+            tabs.open(route)
+        } else if activeSession != nil, let openSessionWindow {
             openSessionWindow(route)
         } else {
             activeSession = SessionController(route: route)

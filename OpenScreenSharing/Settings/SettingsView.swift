@@ -16,7 +16,7 @@ struct SettingsView: View {
                     Label("App", systemImage: "app")
                 }
                 #if os(iOS)
-                if AppSettings.offersFullScreen {
+                if AppSettings.offersFullScreen || SessionTabs.isOffered {
                     NavigationLink {
                         PictureSettingsView()
                     } label: {
@@ -101,16 +101,31 @@ private struct PictureSettingsView: View {
     var body: some View {
         WithPerceptionTracking {
             Form {
-                Section {
-                    Toggle(isOn: Binding(get: { settings.pictureFillsScreen }, set: { settings.pictureFillsScreen = $0 })) {
-                        Label("Full Screen", systemImage: "arrow.up.left.and.arrow.down.right")
+                if AppSettings.offersFullScreen {
+                    Section {
+                        Toggle(isOn: Binding(get: { settings.pictureFillsScreen }, set: { settings.pictureFillsScreen = $0 })) {
+                            Label("Full Screen", systemImage: "arrow.up.left.and.arrow.down.right")
+                        }
+                    } header: {
+                        Text("Behavior")
+                    } footer: {
+                        Text(
+                            "Extends the picture to the edges of the screen, where parts of it may be hidden by the rounded corners or the camera. When the pointer moves into a hidden part, that part is also shown nearby."
+                        )
                     }
-                } header: {
-                    Text("Behavior")
-                } footer: {
-                    Text(
-                        "Extends the picture to the edges of the screen, where parts of it may be hidden by the rounded corners or the camera. When the pointer moves into a hidden part, that part is also shown nearby."
-                    )
+                }
+                if SessionTabs.isOffered {
+                    Section {
+                        Toggle(isOn: Binding(get: { settings.usesTabBar }, set: { settings.usesTabBar = $0 })) {
+                            Label("Tab Bar", systemImage: "rectangle.topthird.inset.filled")
+                        }
+                    } header: {
+                        if !AppSettings.offersFullScreen {
+                            Text("Behavior")
+                        }
+                    } footer: {
+                        Text("Keeps several connections open as tabs in a bar at the top of the screen, which also holds the toolbar.")
+                    }
                 }
             }
             .navigationTitle("Picture")

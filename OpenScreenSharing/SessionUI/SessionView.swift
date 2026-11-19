@@ -9,23 +9,29 @@ struct SessionView: View {
     #endif
     private let settings = AppSettings.shared
     private let hasOwnWindow: Bool
+    private let isSelectedTab: Bool?
     private let onClose: () -> Void
     @ScaledMetric(relativeTo: .body) private var toolbarItemWidth = ToolbarLayout.itemSize
 
     private var dock: ToolbarDock? {
-        controller.pictureMatchesWindow ? nil : ToolbarDock(letterbox: controller.letterbox, itemWidth: toolbarItemWidth)
+        controller.pictureMatchesWindow || isSelectedTab != nil
+            ? nil : ToolbarDock(letterbox: controller.letterbox, itemWidth: toolbarItemWidth)
     }
     #if os(iOS)
     @Environment(\.scenePhase) private var scenePhase
     @State private var toolbarWidth: CGFloat = 0
 
+    private var isActive: Bool { isSelectedTab != false }
+
     private var toolbarSlots: Int {
-        ToolbarLayout.capsuleSlots(width: dock?.length ?? toolbarWidth, itemWidth: toolbarItemWidth)
+        isSelectedTab == nil
+            ? ToolbarLayout.capsuleSlots(width: dock?.length ?? toolbarWidth, itemWidth: toolbarItemWidth)
+            : ToolbarLayout.tabBarSlots(width: toolbarWidth, itemWidth: toolbarItemWidth)
     }
 
     private var locksPointer: Bool {
-        controller.isPointerLockOn && pointerLockAvailable && !pointerLockPaused && controller.pointerLockCanResume
-            && (dock == nil || controller.isSystemPointerOverPicture)
+        isActive && controller.isPointerLockOn && pointerLockAvailable && !pointerLockPaused && controller.pointerLockCanResume
+            && (dock == nil && isSelectedTab == nil || controller.isSystemPointerOverPicture)
     }
     #else
     @State private var showsPointerLockHint = false
@@ -59,9 +65,10 @@ struct SessionView: View {
         controller.picture == .none ? .dark : nil
     }
 
-    init(controller: SessionController, hasOwnWindow: Bool = true, onClose: @escaping () -> Void) {
+    init(controller: SessionController, hasOwnWindow: Bool = true, isSelectedTab: Bool? = nil, onClose: @escaping () -> Void) {
         self.controller = controller
         self.hasOwnWindow = hasOwnWindow
+        self.isSelectedTab = isSelectedTab
         self.onClose = onClose
     }
 
@@ -87,17 +94,19 @@ struct SessionView: View {
                     }
                 }
                 .overlay(alignment: .top) {
-                    FloatingToolbar(controller: controller, plan: plan, dock: dock, closes: controller.isFullScreen || !hasOwnWindow, onClose: controller.close)
+                    if isSelectedTab == nil {
+                        FloatingToolbar(controller: controller, plan: plan, dock: dock, closes: controller.isFullScreen || !hasOwnWindow, onClose: controller.close)
+                    }
                 }
                 .onGeometryChangeCompat(for: CGFloat.self) { proxy in
                     proxy.size.width - proxy.safeAreaInsets.leading - proxy.safeAreaInsets.trailing
                 } action: { width in
                     toolbarWidth = width
                 }
-                .preferredColorScheme(colorScheme)
+                .preferredColorScheme(isActive ? colorScheme : nil)
                 .statusBarHidden(controller.isFullScreen)
                 .persistentSystemOverlaysCompat(controller.isFullScreen ? .hidden : .automatic)
-                .defersSystemGesturesCompat(on: controller.isControlling ? .all : [])
+                .defersSystemGesturesCompat(on: isActive && controller.isControlling ? .all : [])
                 .background { PointerLockRequest(locked: locksPointer) }
                 .onChangeCompat(of: pointerLockAvailable) { available in
                     controller.pointerLockAvailabilityDidChange(available)
@@ -105,7 +114,11 @@ struct SessionView: View {
                 .onChangeCompat(of: pointerLockPaused) { paused in
                     if !paused, !controller.pointerLockCanResume { controller.setPointerLock(false) }
                 }
-                .focusedSceneValue(\.sessionController, controller)
+                .background {
+                    if isActive {
+                        Color.clear.focusedSceneValue(\.sessionController, controller)
+                    }
+                }
                 .sheet(isPresented: $controller.isCustomizingToolbar) {
                     WithPerceptionTracking {
                         CustomizeToolbarView(controller: controller, slots: toolbarSlots)
@@ -152,13 +165,22 @@ struct SessionView: View {
                 .onChangeCompat(of: controller.isFullScreen) {
                     controller.isToolbarVisible = false
                 }
-                .onChangeCompat(of: dock != nil, initial: true) { docked in
+                .onChangeCompat(of: dock != nil || isSelectedTab != nil, initial: true) { docked in
                     controller.isToolbarDocked = docked
                     if docked {
                         controller.isToolbarVisible = false
                     }
                 }
+                .onChangeCompat(of: isSelectedTab) { isSelected in
+                    if isSelected == false {
+                        controller.sceneDidEnterBackground()
+                    } else {
+                        controller.sceneDidBecomeActive()
+                        controller.screen?.takeKeyFocus()
+                    }
+                }
                 .onChangeCompat(of: scenePhase) { phase in
+                    guard isActive else { return }
                     switch phase {
                     case .background: controller.sceneDidEnterBackground()
                     case .inactive: ClipboardAccess.shared.sceneDidBecomeInactive()
