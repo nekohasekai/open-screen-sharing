@@ -9,12 +9,14 @@ struct RemoteScreenView: NSViewRepresentable {
     let mode: SessionMode
     let isControlling: Bool
     let isZoomModeOn: Bool
+    let touchesNatively: Bool
 
     init(controller: SessionController) {
         self.controller = controller
         mode = controller.mode
         isControlling = controller.isControlling
         isZoomModeOn = controller.isZoomModeOn
+        touchesNatively = controller.touchesNatively
     }
 
     func makeNSView(context: Context) -> RemoteScreenNSView {
@@ -25,6 +27,7 @@ struct RemoteScreenView: NSViewRepresentable {
         view.setAccessibilityValue(mode == .control ? String(localized: "Controlling") : String(localized: "Observing"))
         view.refreshCursor()
         view.updateSymbolicHotKeys()
+        view.setTakesTouches(touchesNatively && !isZoomModeOn)
     }
 }
 
@@ -37,6 +40,7 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
     private static let views = NSHashTable<RemoteScreenNSView>.weakObjects()
 
     private let controller: SessionController
+    private let touchRecognizer: DirectTouchRecognizer
     private let metalLayer = CAMetalLayer()
     private var presenter: ScreenPresenter!
     private(set) var isOccluded = false
@@ -83,6 +87,7 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
 
     init(controller: SessionController) {
         self.controller = controller
+        touchRecognizer = DirectTouchRecognizer(controller: controller)
         super.init(frame: .zero)
         wantsLayer = true
         layerContentsRedrawPolicy = .never
@@ -915,6 +920,23 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
     }
 
 
+    // AppKit hands the touches of a display to gesture recognizers only: __NSSendTouchEventToViews returns
+    // unless the device is the Touch Bar, so the touches methods of NSResponder never see them. A recognizer
+    // on the view that allows direct touches also changes which mouse emulation recognizers the view gets,
+    // whether or not it is enabled
+    // (AppKit 2775.20.133, macOS 27.2.1 26B131, UUID 84D3429A-075D-366D-95D1-36B2D44E8B5D,
+    // __NSSendTouchEventToViews 0x18a933158..0x18a933164,
+    // -[NSView _gestureRecognizersViewConfigForTouch] 0x18a93f264..0x18a93f380).
+    func setTakesTouches(_ takes: Bool) {
+        guard takes != (touchRecognizer.view != nil) else { return }
+        if takes {
+            addGestureRecognizer(touchRecognizer)
+        } else {
+            touchRecognizer.cancelTouches()
+            removeGestureRecognizer(touchRecognizer)
+        }
+    }
+
     func setLocksPointer(_ locks: Bool) {
         if !controller.isPointerLockOn { isPointerReleased = false }
         guard locks != locksPointer else { return }
@@ -1230,6 +1252,88 @@ extension RemoteScreenNSView: NSMenuItemValidation {
             return controller.isControlling && NSPasteboard.general.types?.isEmpty == false
         }
         return true
+    }
+}
+
+private final class DirectTouchRecognizer: NSGestureRecognizer {
+    private static let margin: CGFloat = 24
+
+    private let controller: SessionController
+    private var contacts: [(identity: any NSObjectProtocol, id: Int64, location: CGPoint)] = []
+    private var lastID: Int64 = 0
+
+    init(controller: SessionController) {
+        self.controller = controller
+        super.init(target: nil, action: nil)
+        allowedTouchTypes = .direct
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError()
+    }
+
+    override func touchesBegan(with event: NSEvent) {
+        super.touchesBegan(with: event)
+        guard let screen = view as? RemoteScreenNSView else { return }
+        var began: [RemoteTouch] = []
+        for touch in event.touches(matching: .began, in: screen) where !contacts.contains(where: { $0.identity.isEqual(touch.identity) }) {
+            let location = touch.location(in: screen)
+            guard screen.imageRect.insetBy(dx: -Self.margin, dy: -Self.margin).contains(location) else { continue }
+            lastID += 1
+            contacts.append((touch.identity, lastID, screen.imagePoint(for: location)))
+            began.append(RemoteTouch(id: lastID, phase: .began, location: contacts[contacts.count - 1].location))
+        }
+        if !began.isEmpty {
+            controller.stopScrollMomentum()
+            screen.window?.makeFirstResponder(screen)
+            controller.sendTouches(began)
+        }
+        if state == .possible {
+            state = contacts.isEmpty ? .failed : .began
+        }
+    }
+
+    override func touchesMoved(with event: NSEvent) {
+        super.touchesMoved(with: event)
+        let moved = tracked(event, in: .moved, as: .moved)
+        guard !moved.isEmpty else { return }
+        controller.sendTouches(moved)
+        state = .changed
+    }
+
+    override func touchesEnded(with event: NSEvent) {
+        super.touchesEnded(with: event)
+        let ended = tracked(event, in: .ended, as: .ended)
+        guard !ended.isEmpty else { return }
+        contacts.removeAll { contact in ended.contains { $0.id == contact.id } }
+        controller.sendTouches(ended)
+        state = contacts.isEmpty ? .ended : .changed
+    }
+
+    override func touchesCancelled(with event: NSEvent) {
+        super.touchesCancelled(with: event)
+        guard !contacts.isEmpty else { return }
+        cancelTouches()
+        state = .cancelled
+    }
+
+    override func reset() {
+        super.reset()
+        cancelTouches()
+    }
+
+    func cancelTouches() {
+        controller.sendTouches(contacts.map { RemoteTouch(id: $0.id, phase: .cancelled, location: $0.location) })
+        contacts = []
+    }
+
+    private func tracked(_ event: NSEvent, in phase: NSTouch.Phase, as remotePhase: TouchPhase) -> [RemoteTouch] {
+        guard let screen = view as? RemoteScreenNSView else { return [] }
+        return event.touches(matching: phase, in: screen).compactMap { touch in
+            guard let index = contacts.firstIndex(where: { $0.identity.isEqual(touch.identity) }) else { return nil }
+            contacts[index].location = screen.imagePoint(for: touch.location(in: screen))
+            return RemoteTouch(id: contacts[index].id, phase: remotePhase, location: contacts[index].location)
+        }
     }
 }
 

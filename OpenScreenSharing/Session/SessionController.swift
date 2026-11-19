@@ -107,7 +107,7 @@ nonisolated struct SessionMemory: Equatable, Sendable {
         #if os(iOS)
         UIDevice.current.userInterfaceIdiom == .pad
         #else
-        false
+        true
         #endif
     }
 }

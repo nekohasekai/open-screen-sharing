@@ -65,7 +65,11 @@ enum AppDatabase {
 
     static let migrator: DatabaseMigrator = {
         var migrator = DatabaseMigrator()
+        #if os(iOS)
         let usesNativeTouch = SessionMemory.defaultUsesNativeTouch
+        #else
+        let usesNativeTouch = false
+        #endif
         migrator.registerMigration("1.0.0", migrate: createTables)
         migrator.registerMigration("1.0.2") { db in
             try db.alter(table: "computers") { t in
@@ -107,6 +111,9 @@ enum AppDatabase {
             try db.alter(table: "computers") { t in
                 t.add(column: "reversesScrolling", .boolean).notNull().defaults(to: false)
             }
+            #if os(macOS)
+            try db.execute(sql: "UPDATE computers SET usesNativeTouch = 1")
+            #endif
         }
         return migrator
     }()

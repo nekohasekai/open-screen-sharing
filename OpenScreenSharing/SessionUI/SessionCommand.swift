@@ -84,7 +84,9 @@ enum SessionCommand: String, CaseIterable, Identifiable {
         #if os(iOS)
         case .keyboard, .nativeTouch: true
         #else
-        case .keyboard, .nativeTouch: false
+        case .keyboard: false
+        case .nativeTouch:
+            if #available(macOS 27, *) { NSScreen.screens.contains { $0.touchCapabilities.contains(.multiTouch) } } else { false }
         #endif
         }
     }
