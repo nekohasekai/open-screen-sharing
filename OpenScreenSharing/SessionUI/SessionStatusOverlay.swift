@@ -95,7 +95,7 @@ struct SessionStatusOverlay: View {
             }
             .alert(Binding(get: { failure.map(failureAlert) }, set: { _ in }))
             .alert(
-                Text("“\(controller.title)” Is in Use"),
+                "Choose Session",
                 isPresented: Binding(get: { sessionChoice != nil }, set: { _ in }),
                 presenting: sessionChoice
             ) { prompt in
@@ -115,12 +115,12 @@ struct SessionStatusOverlay: View {
                 }
             } message: { prompt in
                 if sharesOwnDisplay(prompt) {
-                    Text("Your account is logged in at the Mac.")
+                    Text("Your account is logged in at “\(controller.title)”.")
                 } else if !prompt.consoleUser.isEmpty {
-                    Text("“\(prompt.consoleUser)” is using it right now.")
+                    Text("“\(prompt.consoleUser)” is logged in at “\(controller.title)”.")
                 }
             }
-            .alert("Disconnected", isPresented: Binding(get: { isDisconnected }, set: { _ in })) {
+            .alert("Connection Closed", isPresented: Binding(get: { isDisconnected }, set: { _ in })) {
                 Button("Close", role: .cancel, action: onClose)
             }
         }
@@ -132,40 +132,24 @@ struct SessionStatusOverlay: View {
     }
 
     private func failureAlert(_ failure: SessionFailure) -> AlertState {
-        let title = failure.title(computerName: controller.title, remoteProtocol: controller.route.remoteProtocol)
-        let message: String
+        let remoteProtocol = controller.route.remoteProtocol
         let connectAnyway: () -> Void
         switch failure.kind {
-        case .certificateChanged(let fingerprint) where controller.route.remoteProtocol == .rdp:
-            message = String(
-                localized:
-                    "This is expected after the computer is reinstalled or renews its certificate. If neither happened, another device may be pretending to be this computer."
-            )
-            connectAnyway = { controller.trustCertificate(fingerprint) }
         case .certificateChanged(let fingerprint):
-            message = String(localized: "This is expected after the Mac is reinstalled. If it wasn’t, another device may be pretending to be this Mac.")
             connectAnyway = { controller.trustCertificate(fingerprint) }
         case .unverifiedServer:
-            message = String(
-                localized:
-                    "This computer only offers an older sign-in method that can’t confirm its identity. If another device is pretending to be this computer, it could see your password."
-            )
             connectAnyway = { controller.allowUnverifiedLogin() }
-        case .highPerformance(.busy) where controller.canCloseExistingConnectionOverSSH:
+        case .takenOver:
             return AlertState(
-                title: title,
-                actions: [
-                    AlertState.Action(label: String(localized: "Close Existing Connection via SSH and Retry"), role: nil) {
-                        controller.closeExistingConnectionOverSSHAndRetry()
-                    },
-                    AlertState.Action(label: String(localized: "Close"), role: .cancel, isDefault: true, perform: onClose),
-                ])
+                failure, computerName: controller.title, remoteProtocol: remoteProtocol, closeLabel: String(localized: "OK"), onClose: onClose)
         default:
-            return AlertState(title, errorMessage: failure.message, closeLabel: String(localized: "Close"), onClose: onClose)
+            return AlertState(
+                failure, computerName: controller.title, remoteProtocol: remoteProtocol, closeLabel: String(localized: "Close"), onClose: onClose)
         }
+        let presentation = failure.presentation(computerName: controller.title, remoteProtocol: remoteProtocol)
         return AlertState(
-            title: title,
-            message: message,
+            title: presentation.title,
+            message: presentation.reason ?? failure.message,
             actions: [
                 AlertState.Action(label: String(localized: "Connect Anyway"), role: nil, perform: connectAnyway),
                 AlertState.Action(label: String(localized: "Close"), role: .cancel, isDefault: true, perform: onClose),
@@ -174,28 +158,87 @@ struct SessionStatusOverlay: View {
 }
 
 extension SessionFailure {
-    func title(computerName name: String, remoteProtocol: RemoteProtocol) -> String {
-        switch kind {
-        case .authenticationFailed: String(localized: "Couldn’t Sign In to “\(name)”")
-        case .permissionDenied: String(localized: "“\(name)” Declined the Request")
-        case .hostNotFound: String(localized: "Couldn’t Find “\(name)”")
-        case .ownScreen, .unreachable, .other: String(localized: "Couldn’t Connect to “\(name)”")
-        case .connectionLost: String(localized: "Lost the Connection to “\(name)”")
-        case .ended, .drawingFailed: String(localized: "Disconnected from “\(name)”")
+    func presentation(computerName name: String, remoteProtocol: RemoteProtocol) -> (title: String, reason: String?) {
+        let failed = String(localized: "Connection Failed")
+        let closed = String(localized: "Connection Closed")
+        let rdp = remoteProtocol == .rdp
+        let known = { (reason: String) in message.isEmpty ? reason : nil }
+        return switch kind {
+        case .hostNotFound:
+            (failed, known(String(localized: "Couldn’t find “\(name)”.")))
+        case .permissionDenied:
+            (
+                failed,
+                known(
+                    rdp
+                        ? String(localized: "This account isn’t allowed to sign in to “\(name)” remotely.")
+                        : String(localized: "“\(name)” declined the request to share its screen."))
+            )
+        case .authenticationFailed:
+            (failed, known(String(localized: "The user name or password is incorrect.")))
+        case .ownScreen:
+            (failed, known(String(localized: "“\(name)” is the Mac you’re using.")))
+        case .unsupported:
+            (failed, known(String(localized: "“\(name)” offers no sign-in method this app supports.")))
+        case .unreachable, .other:
+            (failed, nil)
         case .closedByServer:
-            remoteProtocol == .rdp
-                ? String(localized: "“\(name)” Ended the Session") : String(localized: "“\(name)” Ended Screen Sharing")
-        case .unsupported: String(localized: "“\(name)” Isn’t Supported")
+            (closed, known(rdp ? String(localized: "“\(name)” ended the session.") : String(localized: "“\(name)” ended screen sharing.")))
+        case .takenOver:
+            (
+                closed,
+                known(
+                    rdp
+                        ? String(localized: "Another client took over this connection.")
+                        : String(localized: "Another Open Screen Sharing client took over this connection."))
+            )
+        case .connectionLost, .ended, .drawingFailed:
+            (closed, nil)
         case .certificateChanged:
-            remoteProtocol == .rdp
-                ? String(localized: "“\(name)” Has a New Certificate") : String(localized: "Couldn’t Verify “\(name)”")
-        case .unverifiedServer: String(localized: "Couldn’t Verify “\(name)”")
-        case .highPerformance(.busy): String(localized: "Another Device Is Using High Performance on “\(name)”")
-        case .highPerformance(.unsupported): String(localized: "“\(name)” Doesn’t Support High Performance")
-        case .highPerformance(.undecodable): String(localized: "This Device Can’t Play High Performance Video")
-        case .highPerformance(.refused): String(localized: "“\(name)” Refused High Performance")
-        case .highPerformance: String(localized: "High Performance Stopped")
-        case .closeExistingConnectionFailed: String(localized: "Couldn’t Close Existing Connection on “\(name)”")
+            (
+                String(localized: "Can’t Verify Identity"),
+                rdp
+                    ? String(
+                        localized:
+                            "“\(name)” presented a different certificate than last time. If the computer wasn’t reinstalled and didn’t renew its certificate, another device may be pretending to be it."
+                    )
+                    : String(localized: "“\(name)” has a different key than last time. If the Mac wasn’t reinstalled, another device may be pretending to be it.")
+            )
+        case .unverifiedServer:
+            (
+                String(localized: "Can’t Verify Identity"),
+                String(
+                    localized:
+                        "“\(name)” only supports an older sign-in method. If another device is pretending to be it, that device could see your password."
+                )
+            )
+        case .highPerformance(.busy, _):
+            (
+                String(localized: "Screen Sharing Busy"),
+                known(
+                    String(
+                        localized:
+                            "Another device is using Apple VNC. Apple VNC has no built-in way to take over, but if the other device is also running Open Screen Sharing, it can be taken over automatically through an extension protocol."
+                    ))
+            )
+        case .highPerformance(.unsupported, started: false):
+            (failed, known(String(localized: "“\(name)” doesn’t support High Performance.")))
+        case .highPerformance(_, let started):
+            (started ? closed : failed, nil)
         }
+    }
+}
+
+extension AlertState {
+    init(
+        _ failure: SessionFailure, computerName: String, remoteProtocol: RemoteProtocol, closeLabel: String = String(localized: "OK"),
+        onClose: @escaping () -> Void = {}
+    ) {
+        let presentation = failure.presentation(computerName: computerName, remoteProtocol: remoteProtocol)
+        guard let reason = presentation.reason else {
+            self.init(presentation.title, errorMessage: failure.message, closeLabel: closeLabel, onClose: onClose)
+            return
+        }
+        self.init(title: presentation.title, message: reason, actions: [Action(label: closeLabel, role: .cancel, isDefault: true, perform: onClose)])
     }
 }

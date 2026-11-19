@@ -25,6 +25,11 @@ data class AlertState(
     companion object {
         fun failure(failure: String, error: Throwable?): AlertState = failure(failure, error?.localizedMessage.orEmpty())
 
+        fun failure(failure: String, item: String, error: Throwable?): AlertState {
+            if (error == null) return AlertState(failure, item)
+            return failure(failure, App.instance.getString(R.string.item_error, item, error.localizedMessage.orEmpty()))
+        }
+
         fun failure(
             failure: String,
             errorMessage: String,

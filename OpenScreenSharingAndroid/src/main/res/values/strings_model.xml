@@ -65,4 +65,6 @@
     <string name="model_ctrl_key">Ctrl key</string>
     <string name="model_alt_key">Alt key</string>
     <string name="model_windows_key">Windows key</string>
+    <string name="model_load_failed">Load failed</string>
+    <string name="model_save_failed">Save failed</string>
 </resources>

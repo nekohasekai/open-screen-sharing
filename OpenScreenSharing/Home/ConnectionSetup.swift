@@ -195,16 +195,15 @@ struct SetupSignInView: View {
     private func signIn() {
         guard isValid else { return }
         attempt(credentials) { failure in
-            problem = SetupProblem(failure, host: computer.server.address.host, asksForUsername: asksForUsername)
+            problem = SetupProblem(
+                failure, computerName: computer.name, remoteProtocol: computer.server.remoteProtocol, asksForUsername: asksForUsername)
             focusedField = failure.kind == .authenticationFailed ? .password : nil
         }
     }
 
     private func signIn(with account: SessionCredentials) {
         attempt(account) { failure in
-            alert = AlertState(
-                failure.title(computerName: computer.name, remoteProtocol: computer.server.remoteProtocol),
-                errorMessage: failure.message)
+            alert = AlertState(failure, computerName: computer.name, remoteProtocol: computer.server.remoteProtocol)
         }
     }
 
@@ -233,18 +232,18 @@ struct SetupProblem {
 }
 
 extension SetupProblem {
-    init(_ failure: SessionFailure, host: String, asksForUsername: Bool) {
-        switch failure.kind {
-        case .authenticationFailed:
+    init(_ failure: SessionFailure, computerName: String, remoteProtocol: RemoteProtocol, asksForUsername: Bool) {
+        if failure.kind == .authenticationFailed {
             summary =
                 asksForUsername
                 ? String(localized: "The user name or password is incorrect.") : String(localized: "The password is incorrect.")
-        case .hostNotFound:
-            summary = String(localized: "Can’t find “\(host)”.")
-        default:
-            summary = String(localized: "Can’t connect to “\(host)”.")
+            error = failure.message
+        } else if let reason = failure.presentation(computerName: computerName, remoteProtocol: remoteProtocol).reason {
+            summary = reason
+        } else {
+            summary = String(localized: "Connection failed.")
+            error = failure.message
         }
-        error = failure.message
     }
 }
 

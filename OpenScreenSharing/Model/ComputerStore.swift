@@ -48,7 +48,7 @@ final class ComputerStore {
         observation = ValueObservation
             .tracking { try Computer.order(Column("createdAt")).fetchAll($0) }
             .start(in: database, scheduling: .immediate) { error in
-                StorageNotice.shared.report("Couldn’t Load Connections", error: error)
+                StorageNotice.shared.report(String(localized: "Load Failed"), error: error)
             } onChange: { [weak self] computers in
                 self?.computers = computers
             }
@@ -58,7 +58,7 @@ final class ComputerStore {
         do {
             return try database.read { try Computer.fetchOne($0, key: id) }
         } catch {
-            StorageNotice.shared.report("Couldn’t Load Connections", error: error)
+            StorageNotice.shared.report(String(localized: "Load Failed"), error: error)
             return nil
         }
     }
@@ -81,7 +81,7 @@ final class ComputerStore {
         do {
             return try database.read { try Self.computer(in: $0, at: address, remoteProtocol: remoteProtocol, username: username) }
         } catch {
-            StorageNotice.shared.report("Couldn’t Load Connections", error: error)
+            StorageNotice.shared.report(String(localized: "Load Failed"), error: error)
             return nil
         }
     }

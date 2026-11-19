@@ -92,7 +92,7 @@ fun CredentialsView(
                             Unit
                         }
                         else -> {
-                            alert = AlertState.failure(failure.title(computerName, prompt.server.remoteProtocol), failure.message)
+                            alert = failure.alert(computerName, prompt.server.remoteProtocol)
                             return@launch
                         }
                     }

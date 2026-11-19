@@ -85,8 +85,8 @@ nonisolated struct SessionFailure: Error, Equatable, Sendable {
         case unsupported
         case certificateChanged(fingerprint: String)
         case unverifiedServer
-        case highPerformance(MediaFailure.Kind)
-        case closeExistingConnectionFailed
+        case highPerformance(MediaFailure.Kind, started: Bool)
+        case takenOver
         case drawingFailed
         case ended
         case other
@@ -285,7 +285,6 @@ nonisolated struct SessionConfiguration: Sendable {
     var networkConfiguration = NetworkConfiguration()
     var keepsAlive = false
     var disablesUDP = false
-    var retriesBusyAfterSSH = false
 }
 
 nonisolated struct SessionInfo: Equatable, Sendable {

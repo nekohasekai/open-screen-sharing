@@ -82,21 +82,6 @@ object ServerProber {
         ProbeResult.Success(LoginCheck(check.supportsHighPerformance, check.fingerprint.orEmpty()))
     }
 
-    suspend fun closeExistingConnectionOverSSH(
-        host: String,
-        username: String,
-        password: String,
-    ): String? = Libsharing.newProbeRequest().perform {
-        try {
-            closeExistingConnectionOverSSH(host, username, password)
-            null
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: Exception) {
-            error.message ?: error.toString()
-        }
-    }
-
     private suspend fun <T> ProbeRequest.perform(block: ProbeRequest.() -> T): T = coroutineScope {
         val result = async(Dispatchers.IO) {
             LibsharingLog.installed

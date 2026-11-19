@@ -163,9 +163,7 @@ struct CredentialsView: View {
                 case .unverifiedServer, .certificateChanged:
                     break
                 default:
-                    alert = AlertState(
-                        failure.title(computerName: computerName, remoteProtocol: prompt.server.remoteProtocol),
-                        errorMessage: failure.message)
+                    alert = AlertState(failure, computerName: computerName, remoteProtocol: prompt.server.remoteProtocol)
                     return
                 }
             }

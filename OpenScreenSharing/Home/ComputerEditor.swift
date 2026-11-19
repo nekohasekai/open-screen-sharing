@@ -233,7 +233,7 @@ struct ComputerEditor: View {
                 computer.reversesScrolling = choice != .appleVNC && reversesScrolling
             }
         } catch {
-            alert = AlertState(String(localized: "Couldn’t Save “\(name)”"), error: error)
+            alert = AlertState(String(localized: "Save Failed"), error: error)
             return
         }
         if let setup {

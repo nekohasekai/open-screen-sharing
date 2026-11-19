@@ -42,8 +42,6 @@ import io.nekohasekai.screensharing.App
 import io.nekohasekai.screensharing.R
 import io.nekohasekai.screensharing.app.AlertHost
 import io.nekohasekai.screensharing.app.AlertState
-import io.nekohasekai.screensharing.model.RemoteProtocol
-import io.nekohasekai.screensharing.session.MediaFailure
 import io.nekohasekai.screensharing.session.PictureChange
 import io.nekohasekai.screensharing.session.ScreenPicture
 import io.nekohasekai.screensharing.session.SessionChoice
@@ -143,7 +141,7 @@ fun SessionStatusOverlay(
         val close = stringResource(R.string.close)
         AlertHost(
             AlertState(
-                title = stringResource(R.string.chrome_disconnected),
+                title = stringResource(R.string.home_failure_connection_closed),
                 actions = listOf(AlertState.Action(close, AlertState.Role.Cancel, perform = onClose)),
             ),
         ) {}
@@ -172,8 +170,8 @@ private fun SessionChoiceDialog(
     }
     val message =
         when {
-            sharesOwnDisplay -> stringResource(R.string.chrome_account_logged_in)
-            prompt.consoleUser.isNotEmpty() -> stringResource(R.string.chrome_user_using_it, prompt.consoleUser)
+            sharesOwnDisplay -> stringResource(R.string.chrome_account_logged_in, controller.title)
+            prompt.consoleUser.isNotEmpty() -> stringResource(R.string.chrome_user_logged_in, prompt.consoleUser, controller.title)
             else -> null
         }
     val choices =
@@ -188,7 +186,7 @@ private fun SessionChoiceDialog(
     AlertDialog(
         onDismissRequest = cancel,
         confirmButton = { TextButton(onClick = cancel) { Text(stringResource(R.string.cancel)) } },
-        title = { Text(stringResource(R.string.chrome_in_use, controller.title)) },
+        title = { Text(stringResource(R.string.chrome_choose_session)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 if (message != null) {
@@ -213,46 +211,27 @@ private fun failureAlert(
     onClose: () -> Unit,
 ): AlertState {
     val resources = App.instance.resources
-    val title = failure.title(controller.title, controller.route.remoteProtocol)
-    val kind = failure.kind
-    val message: String
-    val connectAnyway: () -> Unit
-    when {
-        kind is SessionFailure.Kind.CertificateChanged && controller.route.remoteProtocol == RemoteProtocol.Rdp -> {
-            message = resources.getString(R.string.chrome_certificate_renewed)
-            connectAnyway = { controller.trustCertificate(kind.fingerprint) }
+    val remoteProtocol = controller.route.remoteProtocol
+    val close = resources.getString(R.string.close)
+    val connectAnyway: () -> Unit =
+        when (val kind = failure.kind) {
+            is SessionFailure.Kind.CertificateChanged -> {
+                { controller.trustCertificate(kind.fingerprint) }
+            }
+            SessionFailure.Kind.UnverifiedServer -> {
+                { controller.allowUnverifiedLogin() }
+            }
+            SessionFailure.Kind.TakenOver -> return failure.alert(controller.title, remoteProtocol, resources.getString(R.string.ok), onClose)
+            else -> return failure.alert(controller.title, remoteProtocol, close, onClose)
         }
-        kind is SessionFailure.Kind.CertificateChanged -> {
-            message = resources.getString(R.string.chrome_mac_reinstalled)
-            connectAnyway = { controller.trustCertificate(kind.fingerprint) }
-        }
-        kind == SessionFailure.Kind.UnverifiedServer -> {
-            message = resources.getString(R.string.chrome_unverified_server)
-            connectAnyway = { controller.allowUnverifiedLogin() }
-        }
-        kind == SessionFailure.Kind.HighPerformance(MediaFailure.Kind.Busy) && controller.canCloseExistingConnectionOverSSH -> {
-            return AlertState(
-                title = title,
-                actions =
-                listOf(
-                    AlertState.Action(resources.getString(R.string.chrome_close_existing_connection_ssh_retry)) {
-                        controller.closeExistingConnectionOverSSHAndRetry()
-                    },
-                    AlertState.Action(resources.getString(R.string.close), AlertState.Role.Cancel, isDefault = true, perform = onClose),
-                ),
-            )
-        }
-        else -> {
-            return AlertState.failure(title, failure.message, resources.getString(R.string.close), onClose)
-        }
-    }
+    val (title, reason) = failure.presentation(controller.title, remoteProtocol)
     return AlertState(
         title = title,
-        message = message,
+        message = reason ?: failure.message,
         actions =
         listOf(
             AlertState.Action(resources.getString(R.string.chrome_connect_anyway), perform = connectAnyway),
-            AlertState.Action(resources.getString(R.string.close), AlertState.Role.Cancel, isDefault = true, perform = onClose),
+            AlertState.Action(close, AlertState.Role.Cancel, isDefault = true, perform = onClose),
         ),
     )
 }

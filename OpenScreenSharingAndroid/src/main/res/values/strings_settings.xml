@@ -7,7 +7,7 @@
     <string name="settings_control">Control</string>
     <string name="settings_about">About</string>
     <string name="settings_source_code">Source code</string>
-    <string name="settings_couldnt_open_link">Couldn’t open the link</string>
+    <string name="settings_open_link_failed">Couldn’t open link</string>
     <string name="settings_back">Back</string>
     <string name="settings_more">More</string>
 
@@ -18,7 +18,7 @@
     <string name="settings_cache">Cache</string>
     <string name="settings_cache_size">Cache size</string>
     <string name="settings_clear_cache">Clear cache</string>
-    <string name="settings_couldnt_clear_cache">Couldn’t clear the cache</string>
+    <string name="settings_clearing_cache_failed">Clearing cache failed</string>
 
     <string name="settings_behavior">Behavior</string>
     <string name="settings_full_screen">Full screen</string>
@@ -33,8 +33,8 @@
     <string name="settings_import">Import</string>
     <string name="settings_import_files">Files…</string>
     <string name="settings_import_folder">Folder…</string>
-    <string name="settings_couldnt_import">Couldn’t import “%1$s”</string>
-    <string name="settings_couldnt_delete">Couldn’t delete “%1$s”</string>
+    <string name="settings_import_failed">Import failed</string>
+    <string name="settings_delete_failed">Delete failed</string>
 
     <string name="settings_no_keyboard">No keyboard</string>
     <string name="settings_connect_keyboard">Connect a keyboard to set up shortcuts.</string>
@@ -58,10 +58,10 @@
     <string name="settings_move_up">Move up</string>
     <string name="settings_move_down">Move down</string>
     <string name="settings_replace">Replace</string>
-    <string name="settings_already_in_use">“%1$s” is already in use</string>
-    <string name="settings_assigned_to">It’s assigned to “%1$s”. Replacing it removes that shortcut.</string>
-    <string name="settings_mapped_to_mapping">It’s mapped to %1$s. Replacing it removes that mapping.</string>
-    <string name="settings_mapped_to_mappings">It’s mapped to %1$s. Replacing it removes those mappings.</string>
+    <string name="settings_shortcut_in_use">Shortcut in use</string>
+    <string name="settings_assigned_to">“%1$s” is assigned to “%2$s”. Replacing removes it.</string>
+    <string name="settings_mapped_to_mapping">“%1$s” is mapped to %2$s. Replacing removes that mapping.</string>
+    <string name="settings_mapped_to_mappings">“%1$s” is mapped to %2$s. Replacing removes those mappings.</string>
 
     <string name="settings_apple_key">Apple key</string>
     <string name="settings_pc_key">PC key</string>

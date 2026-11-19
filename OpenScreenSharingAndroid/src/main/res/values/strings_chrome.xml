@@ -40,17 +40,12 @@
     <string name="chrome_waiting_for_permission">Waiting for permission…</string>
     <string name="chrome_changing_resolution">Changing resolution…</string>
     <string name="chrome_starting_high_performance">Starting High Performance…</string>
-    <string name="chrome_in_use">“%1$s” is in use</string>
+    <string name="chrome_choose_session">Choose session</string>
     <string name="chrome_log_in_own_session">Log in to your own session</string>
     <string name="chrome_share_the_screen">Share the screen</string>
     <string name="chrome_ask_to_share">Ask to share their screen</string>
-    <string name="chrome_account_logged_in">Your account is logged in at the Mac.</string>
-    <string name="chrome_user_using_it">“%1$s” is using it right now.</string>
-    <string name="chrome_disconnected">Disconnected</string>
-    <string name="chrome_certificate_renewed">This is expected after the computer is reinstalled or renews its certificate. If neither happened, another device may be pretending to be this computer.</string>
-    <string name="chrome_mac_reinstalled">This is expected after the Mac is reinstalled. If it wasn’t, another device may be pretending to be this Mac.</string>
-    <string name="chrome_unverified_server">This computer only offers an older sign-in method that can’t confirm its identity. If another device is pretending to be this computer, it could see your password.</string>
+    <string name="chrome_account_logged_in">Your account is logged in at “%1$s”.</string>
+    <string name="chrome_user_logged_in">“%1$s” is logged in at “%2$s”.</string>
     <string name="chrome_connect_anyway">Connect anyway</string>
-    <string name="chrome_close_existing_connection_ssh_retry">Close existing connection via SSH and retry</string>
 
 </resources>

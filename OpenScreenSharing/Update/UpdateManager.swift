@@ -80,7 +80,7 @@ final class UpdateManager {
         } catch {
             Self.logger.error("check for updates: \(error, privacy: .public)")
             if manually {
-                alert = AlertState(String(localized: "Couldn’t Check for Updates"), error: error)
+                alert = AlertState(String(localized: "Update Check Failed"), error: error)
             }
             return
         }
@@ -111,7 +111,7 @@ final class UpdateManager {
         } catch {
             Self.logger.error("install update: \(error, privacy: .public)")
             phase = .idle
-            installFailure = AlertState(String(localized: "Couldn’t Install the Update"), error: error)
+            installFailure = AlertState(String(localized: "Update Failed"), error: error)
             return
         }
         let configuration = NSWorkspace.OpenConfiguration()

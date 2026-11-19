@@ -68,6 +68,7 @@ type Handler interface {
 	RemoteDragChanged(drag *RemoteDrag)
 	DropDestinationReceived(id uint32, path string)
 	SystemCommandsChanged(commands []SystemCommand)
+	Accessibility(feature, message, replyTo uint32, data []byte)
 	ChooseSession(request SessionRequest) (SessionChoice, error)
 }
 
@@ -475,6 +476,10 @@ const (
 )
 
 func (c *Client) Close() error {
+	return c.CloseWith(nil)
+}
+
+func (c *Client) CloseWith(last []byte) error {
 	c.closeOnce.Do(func() {
 		c.finishPaste()
 		fileCopy := c.FileCopy()
@@ -495,6 +500,9 @@ func (c *Client) Close() error {
 		}
 		if err := c.SetMediaStream(false); err != nil {
 			c.logger.Debug("stop media stream while closing", "error", err)
+		}
+		if last != nil {
+			_ = c.send(last)
 		}
 		c.mediaLifecycle.Lock()
 		c.closed.Store(true)

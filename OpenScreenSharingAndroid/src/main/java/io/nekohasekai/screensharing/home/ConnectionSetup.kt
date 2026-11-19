@@ -43,6 +43,7 @@ import io.nekohasekai.screensharing.app.slideTransition
 import io.nekohasekai.screensharing.discovery.NearbyBrowser
 import io.nekohasekai.screensharing.model.Computer
 import io.nekohasekai.screensharing.model.RemoteLink
+import io.nekohasekai.screensharing.model.RemoteProtocol
 import io.nekohasekai.screensharing.session.LoginCheck
 import io.nekohasekai.screensharing.session.ProbeResult
 import io.nekohasekai.screensharing.session.ProbedServer
@@ -53,7 +54,8 @@ import io.nekohasekai.screensharing.session.SessionFailure
 import io.nekohasekai.screensharing.session.SessionMemory
 import io.nekohasekai.screensharing.session.SessionRoute
 import io.nekohasekai.screensharing.sessionui.OtherConnectionSection
-import io.nekohasekai.screensharing.sessionui.title
+import io.nekohasekai.screensharing.sessionui.alert
+import io.nekohasekai.screensharing.sessionui.presentation
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -177,14 +179,14 @@ private fun SetupSignInView(computer: NewComputer, next: (SignedInComputer, NewC
         if (!isValid) return
         val credentials = if (asksForUsername) SessionCredentials.Account(trimmedUsername, password) else SessionCredentials.VncPassword(password)
         attempt(credentials) { failure ->
-            problem = SetupProblem(failure, computer.server.address.host, asksForUsername)
+            problem = SetupProblem(failure, computer.name, computer.server.remoteProtocol, asksForUsername)
             if (failure.kind == SessionFailure.Kind.AuthenticationFailed) focusesPassword++
         }
     }
 
     fun signInWith(account: SessionCredentials) {
         attempt(account) { failure ->
-            alert = AlertState.failure(failure.title(computer.name, computer.server.remoteProtocol), failure.message)
+            alert = failure.alert(computer.name, computer.server.remoteProtocol)
         }
     }
 
@@ -253,13 +255,13 @@ private fun SetupSignInView(computer: NewComputer, next: (SignedInComputer, NewC
 }
 
 data class SetupProblem(val summary: String, val error: String = "") {
-    constructor(failure: SessionFailure, host: String, asksForUsername: Boolean) : this(summary(failure, host, asksForUsername), failure.message)
-
-    private companion object {
-        fun summary(failure: SessionFailure, host: String, asksForUsername: Boolean): String = when (failure.kind) {
-            SessionFailure.Kind.AuthenticationFailed -> App.instance.getString(if (asksForUsername) R.string.home_wrong_account else R.string.home_wrong_password)
-            SessionFailure.Kind.HostNotFound -> App.instance.getString(R.string.home_cant_find, host)
-            else -> App.instance.getString(R.string.home_cant_connect, host)
+    companion object {
+        operator fun invoke(failure: SessionFailure, computerName: String, remoteProtocol: RemoteProtocol, asksForUsername: Boolean): SetupProblem {
+            if (failure.kind == SessionFailure.Kind.AuthenticationFailed) {
+                return SetupProblem(App.instance.getString(if (asksForUsername) R.string.home_wrong_account else R.string.home_wrong_password), failure.message)
+            }
+            val reason = failure.presentation(computerName, remoteProtocol).second
+            return if (reason != null) SetupProblem(reason) else SetupProblem(App.instance.getString(R.string.home_connection_failed), failure.message)
         }
     }
 }

@@ -275,7 +275,7 @@ struct HomeView: View {
         linkLookup?.task.cancel()
         linkLookup = nil
         guard let link = RemoteLink(string: url.absoluteString) else {
-            alert = AlertState(String(localized: "Couldn’t Open the Link"), errorMessage: String(localized: "“\(url.absoluteString)” isn’t a valid address."))
+            alert = AlertState(title: String(localized: "Couldn’t Open Link"), message: String(localized: "“\(url.absoluteString)” isn’t a valid address."))
             return
         }
         guard let serviceName = link.address.bonjourServiceName else {
@@ -295,7 +295,7 @@ struct HomeView: View {
             } catch {
                 guard !Task.isCancelled else { return }
                 linkLookup = nil
-                alert = AlertState(String(localized: "Couldn’t Open the Link"), error: error)
+                alert = AlertState(String(localized: "Couldn’t Open Link"), error: error)
             }
         }
         linkLookup = LinkLookup(name: serviceName, task: task)

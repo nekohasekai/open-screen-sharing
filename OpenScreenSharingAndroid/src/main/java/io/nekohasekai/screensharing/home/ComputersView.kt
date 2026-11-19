@@ -177,7 +177,7 @@ fun ComputersView(
                         try {
                             ComputerStore.delete(computer.id)
                         } catch (error: Exception) {
-                            alert = AlertState.failure(App.instance.getString(R.string.home_couldnt_delete, computer.displayName), error)
+                            alert = AlertState.failure(App.instance.getString(R.string.home_delete_failed), error)
                         }
                     },
                     AlertState.Action(App.instance.getString(R.string.cancel), AlertState.Role.Cancel) {},

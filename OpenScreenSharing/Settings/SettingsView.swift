@@ -150,8 +150,8 @@ private struct AppSettingsView: View {
                     let actions = [AlertState.Action(label: String(localized: "OK"), role: .cancel, isDefault: true) {}]
                     #endif
                     alert = AlertState(
-                        title: String(localized: "Restart Required"),
-                        message: String(localized: "The new language takes effect after you restart the app."),
+                        title: String(localized: "Language Changed"),
+                        message: String(localized: "Takes effect after you restart the app."),
                         actions: actions
                     )
                 }
@@ -230,7 +230,7 @@ private struct AppSettingsView: View {
         do {
             try await Task.detached(priority: .userInitiated) { try AppDirectory.clearCaches() }.value
         } catch {
-            alert = AlertState(String(localized: "Couldn’t Clear the Cache"), error: error)
+            alert = AlertState(String(localized: "Clearing Cache Failed"), error: error)
         }
         cacheSize = await Task.detached(priority: .utility) { AppDirectory.cacheSize() }.value
     }
@@ -244,7 +244,7 @@ private struct AppSettingsView: View {
                 _ = try await NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: configuration)
                 NSApp.terminate(nil)
             } catch {
-                alert = AlertState(String(localized: "Couldn’t Restart the App"), error: error)
+                alert = AlertState(String(localized: "Restart Failed"), error: error)
             }
         }
     }

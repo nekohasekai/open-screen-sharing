@@ -60,6 +60,7 @@ import io.nekohasekai.screensharing.model.RemoteProtocol
 import io.nekohasekai.screensharing.session.ProbeResult
 import io.nekohasekai.screensharing.session.ProbedServer
 import io.nekohasekai.screensharing.session.ServerProber
+import io.nekohasekai.screensharing.session.SessionFailure
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -93,17 +94,17 @@ internal fun ConnectToView(
         }
     }
 
-    suspend fun check(host: String, port: Int?, remoteProtocol: RemoteProtocol?, makeComputer: (ProbedServer) -> NewComputer): SetupProblem? {
+    suspend fun check(name: String, host: String, port: Int?, remoteProtocol: RemoteProtocol?, makeComputer: (ProbedServer) -> NewComputer): SetupProblem? {
         val server = when (val result = ServerProber.probe(host, port, remoteProtocol)) {
             is ProbeResult.Success -> result.value
-            is ProbeResult.Failure -> return SetupProblem(result.failure, host, asksForUsername = true)
+            is ProbeResult.Failure -> return SetupProblem(result.failure, name, remoteProtocol ?: RemoteProtocol.Vnc, asksForUsername = true)
         }
         currentCoroutineContext().ensureActive()
         val computer = makeComputer(server)
         val credentials = server.authentication.openCredentials
         if (credentials == null) {
             if (!server.authentication.account && !server.authentication.vncPassword) {
-                return SetupProblem(App.instance.getString(R.string.home_no_sign_in_method, computer.name))
+                return SetupProblem(SessionFailure(SessionFailure.Kind.Unsupported), computer.name, server.remoteProtocol, asksForUsername = false)
             }
             signIn(computer)
             return null
@@ -114,7 +115,7 @@ internal fun ConnectToView(
                 signedIn(computer.signedIn(credentials, result.value))
                 null
             }
-            is ProbeResult.Failure -> SetupProblem(result.failure, host, asksForUsername = false)
+            is ProbeResult.Failure -> SetupProblem(result.failure, computer.name, server.remoteProtocol, asksForUsername = false)
         }
     }
 
@@ -124,7 +125,7 @@ internal fun ConnectToView(
         nearbyProblem = null
         checkedID = computer.id
         task = scope.launch {
-            val problem = check(address.host, address.port, computer.remoteProtocol) { server ->
+            val problem = check(computer.name, address.host, address.port, computer.remoteProtocol) { server ->
                 NewComputer(name = computer.name, model = computer.model, server = server)
             }
             task = null
@@ -137,7 +138,7 @@ internal fun ConnectToView(
         problem = null
         nearbyProblem = null
         task = scope.launch {
-            val failure = check(target.host, target.port, target.remoteProtocol) { server ->
+            val failure = check(target.host, target.host, target.port, target.remoteProtocol) { server ->
                 val nearbyComputer = nearby.computer(server.address, server.remoteProtocol)
                 NewComputer(
                     name = nearbyComputer?.name ?: server.address.bonjourServiceName ?: server.address.host,
@@ -258,7 +259,7 @@ private fun NearbyPlaceholder(modifier: Modifier) {
     val nearby = NearbyBrowser.shared
     when (val state = nearby.state) {
         is NearbyBrowser.State.Failed -> Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(stringResource(R.string.home_cant_look_nearby))
+            Text(stringResource(R.string.home_search_failed))
             Text(state.message, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         else -> if (nearby.hasSearched) {

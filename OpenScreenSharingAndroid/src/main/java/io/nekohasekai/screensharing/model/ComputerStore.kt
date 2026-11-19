@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import io.nekohasekai.screensharing.App
+import io.nekohasekai.screensharing.R
 import io.nekohasekai.screensharing.app.StorageNotice
 import io.nekohasekai.screensharing.session.DeviceInfo
 import io.nekohasekai.screensharing.session.SessionMemory
@@ -50,7 +51,7 @@ object ComputerStore {
         try {
             dao.all()
         } catch (error: Exception) {
-            StorageNotice.report("Couldn’t load connections", error)
+            StorageNotice.report(App.instance.getString(R.string.model_load_failed), error)
             emptyList()
         },
     )
@@ -59,7 +60,7 @@ object ComputerStore {
     init {
         App.scope.launch {
             dao.observeAll()
-                .catch { StorageNotice.report("Couldn’t load connections", it) }
+                .catch { StorageNotice.report(App.instance.getString(R.string.model_load_failed), it) }
                 .collect { computers = it }
         }
     }
@@ -67,7 +68,7 @@ object ComputerStore {
     fun computer(id: UUID): Computer? = try {
         dao.get(id)
     } catch (error: Exception) {
-        StorageNotice.report("Couldn’t load connections", error)
+        StorageNotice.report(App.instance.getString(R.string.model_load_failed), error)
         null
     }
 
@@ -88,7 +89,7 @@ object ComputerStore {
     fun computer(address: ComputerAddress, remoteProtocol: RemoteProtocol, username: String?): Computer? = try {
         matching(dao.all(), address, remoteProtocol, username)
     } catch (error: Exception) {
-        StorageNotice.report("Couldn’t load connections", error)
+        StorageNotice.report(App.instance.getString(R.string.model_load_failed), error)
         null
     }
 

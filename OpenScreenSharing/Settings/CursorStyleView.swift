@@ -113,7 +113,7 @@ struct CursorStyleView: View {
                         }
                     }
                     if let failure {
-                        alert = AlertState(String(localized: "Couldn’t Import “\(failure.name)”"), error: failure.error)
+                        alert = AlertState(String(localized: "Import Failed"), item: failure.name, error: failure.error)
                     }
                 }
             }
@@ -178,7 +178,7 @@ struct CursorStyleView: View {
         do {
             try store.delete(theme)
         } catch {
-            alert = AlertState(String(localized: "Couldn’t Delete “\(theme.name)”"), error: error)
+            alert = AlertState(String(localized: "Delete Failed"), error: error)
         }
     }
 }

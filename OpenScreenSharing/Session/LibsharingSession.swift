@@ -48,7 +48,6 @@ nonisolated final class LibsharingRemoteSession: RemoteSession, @unchecked Senda
         options.awaitVirtualDisplay = configuration.awaitsVirtualDisplay
         options.keepAlive = configuration.keepsAlive
         options.disableUDP = configuration.disablesUDP
-        options.retryBusyHighPerformance = configuration.retriesBusyAfterSSH
         options.cacheDirectory = AppDirectory.caches.path
 
         let handler = LibsharingHandler(delegate: delegate, remoteProtocol: configuration.remoteProtocol, platform: configuration.platform)
@@ -555,6 +554,8 @@ nonisolated private final class LibsharingHandler: NSObject, LibsharingSessionHa
                 delegate.sessionPhaseChanged(.failed(SessionFailure(.certificateChanged(fingerprint: fingerprint), message: text)))
             case LibsharingErrorUnverifiedServer:
                 delegate.sessionPhaseChanged(.failed(SessionFailure(.unverifiedServer, message: text)))
+            case LibsharingErrorTakenOver:
+                delegate.sessionPhaseChanged(.failed(SessionFailure(.takenOver, message: text)))
             default:
                 let started = locked { info.framebufferWidth > 0 }
                 delegate.sessionPhaseChanged(.failed(SessionFailure(started ? .ended : .other, message: text)))

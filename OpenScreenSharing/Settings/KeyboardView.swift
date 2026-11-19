@@ -207,8 +207,8 @@ private struct ShortcutGroupView: View {
     private func assign(_ shortcut: KeyShortcut, to action: ShortcutAction) {
         if let other = shortcuts.action(using: shortcut), other != action {
             alert = AlertState(
-                title: String(localized: "“\(shortcut.displayName)” Is Already in Use"),
-                message: String(localized: "It’s assigned to “\(other.title)”. Replacing it removes that shortcut."),
+                title: String(localized: "Shortcut In Use"),
+                message: String(localized: "“\(shortcut.displayName)” is assigned to “\(other.title)”. Replacing removes it."),
                 actions: [
                     AlertState.Action(label: String(localized: "Cancel"), role: .cancel) {},
                     AlertState.Action(label: String(localized: "Replace"), role: nil, isDefault: true) {
@@ -225,10 +225,10 @@ private struct ShortcutGroupView: View {
         if !conflicts.isEmpty {
             let names = conflicts.map { $0.mapping.displayName(for: $0.target) }.formatted(.list(type: .and))
             alert = AlertState(
-                title: String(localized: "“\(shortcut.displayName)” Is Already in Use"),
+                title: String(localized: "Shortcut In Use"),
                 message: conflicts.count == 1
-                    ? String(localized: "It’s mapped to \(names). Replacing it removes that mapping.")
-                    : String(localized: "It’s mapped to \(names). Replacing it removes those mappings."),
+                    ? String(localized: "“\(shortcut.displayName)” is mapped to \(names). Replacing removes that mapping.")
+                    : String(localized: "“\(shortcut.displayName)” is mapped to \(names). Replacing removes those mappings."),
                 actions: [
                     AlertState.Action(label: String(localized: "Cancel"), role: .cancel) {},
                     AlertState.Action(label: String(localized: "Replace"), role: nil, isDefault: true) {
@@ -406,8 +406,8 @@ private struct KeyMappingEditor: View {
         let shortcut = trigger
         if let other = shortcuts.action(using: shortcut) {
             alert = AlertState(
-                title: String(localized: "“\(shortcut.displayName)” Is Already in Use"),
-                message: String(localized: "It’s assigned to “\(other.title)”. Replacing it removes that shortcut."),
+                title: String(localized: "Shortcut In Use"),
+                message: String(localized: "“\(shortcut.displayName)” is assigned to “\(other.title)”. Replacing removes it."),
                 actions: [
                     AlertState.Action(label: String(localized: "Cancel"), role: .cancel) {},
                     AlertState.Action(label: String(localized: "Replace"), role: nil, isDefault: true) {
@@ -418,8 +418,8 @@ private struct KeyMappingEditor: View {
             )
         } else if let other = shortcuts.mapping(triggeredBy: shortcut, for: target), other.id != id {
             alert = AlertState(
-                title: String(localized: "“\(shortcut.displayName)” Is Already in Use"),
-                message: String(localized: "It’s mapped to \(other.displayName(for: target)). Replacing it removes that mapping."),
+                title: String(localized: "Shortcut In Use"),
+                message: String(localized: "“\(shortcut.displayName)” is mapped to \(other.displayName(for: target)). Replacing removes that mapping."),
                 actions: [
                     AlertState.Action(label: String(localized: "Cancel"), role: .cancel) {},
                     AlertState.Action(label: String(localized: "Replace"), role: nil, isDefault: true) {

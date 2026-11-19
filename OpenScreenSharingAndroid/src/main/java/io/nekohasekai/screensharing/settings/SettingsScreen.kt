@@ -236,7 +236,7 @@ private fun SettingsScreen(navController: NavController) {
                     try {
                         context.startActivity(Intent(Intent.ACTION_VIEW, SOURCE_CODE.toUri()))
                     } catch (error: ActivityNotFoundException) {
-                        alert = AlertState.failure(resources.getString(R.string.settings_couldnt_open_link), error)
+                        alert = AlertState.failure(resources.getString(R.string.settings_open_link_failed), error)
                     }
                 },
             )
@@ -340,7 +340,7 @@ private fun AppSettingsView(navigationIcon: @Composable () -> Unit) {
                             try {
                                 withContext(Dispatchers.IO) { AppDirectory.clearCaches() }
                             } catch (error: Exception) {
-                                alert = AlertState.failure(resources.getString(R.string.settings_couldnt_clear_cache), error)
+                                alert = AlertState.failure(resources.getString(R.string.settings_clearing_cache_failed), error)
                             }
                             cacheSize = withContext(Dispatchers.IO) { AppDirectory.cacheSize() }
                         }

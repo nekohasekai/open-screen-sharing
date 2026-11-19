@@ -133,7 +133,7 @@ fun SessionTutorialView(pages: List<SessionTutorial>, onDone: () -> Unit) {
                         try {
                             context.startActivity(Intent(Intent.ACTION_VIEW, SOURCE_CODE.toUri()))
                         } catch (_: ActivityNotFoundException) {
-                            Toast.makeText(context, context.getString(R.string.settings_couldnt_open_link), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.settings_open_link_failed), Toast.LENGTH_SHORT).show()
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),

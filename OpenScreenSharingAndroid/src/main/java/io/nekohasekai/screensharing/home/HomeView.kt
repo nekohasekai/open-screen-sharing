@@ -174,7 +174,7 @@ fun HomeView(pendingLink: String?, onLinkHandled: () -> Unit) {
         cancelLookup()
         val link = RemoteLink.parse(url)
         if (link == null) {
-            alert = AlertState.failure(App.instance.getString(R.string.home_couldnt_open_link), App.instance.getString(R.string.home_invalid_address, url))
+            alert = AlertState(App.instance.getString(R.string.home_open_link_failed), App.instance.getString(R.string.home_invalid_address, url))
             return
         }
         val serviceName = link.address.bonjourServiceName
@@ -196,7 +196,7 @@ fun HomeView(pendingLink: String?, onLinkHandled: () -> Unit) {
                 throw error
             } catch (error: Exception) {
                 linkLookup = null
-                alert = AlertState.failure(App.instance.getString(R.string.home_couldnt_open_link), error)
+                alert = AlertState.failure(App.instance.getString(R.string.home_open_link_failed), error)
             }
         }
         linkLookup = LinkLookup(serviceName, job)

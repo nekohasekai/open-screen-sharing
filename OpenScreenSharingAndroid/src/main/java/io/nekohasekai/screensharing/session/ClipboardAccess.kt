@@ -129,7 +129,7 @@ object ClipboardAccess {
             }
         } ?: (emptyList<Map<String, ByteArray>>() to clip.exceptionOrNull())
         if (content.isNotEmpty() || error == null) return content to null
-        return content to AlertState.failure(App.instance.getString(R.string.session_couldnt_send_clipboard), error)
+        return content to AlertState.failure(App.instance.getString(R.string.session_clipboard_sync_failed), error)
     }
 
     private fun load(clip: ClipData): Pair<ClipboardContent, Exception?> {

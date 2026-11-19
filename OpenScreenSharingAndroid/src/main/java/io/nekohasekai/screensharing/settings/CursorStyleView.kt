@@ -88,7 +88,7 @@ internal fun CursorStyleView(navigationIcon: @Composable () -> Unit) {
                 }
             }
             failure?.let { (name, error) ->
-                alert = AlertState.failure(resources.getString(R.string.settings_couldnt_import, name), error)
+                alert = AlertState.failure(resources.getString(R.string.settings_import_failed), name, error)
             }
         }
     }
@@ -97,7 +97,7 @@ internal fun CursorStyleView(navigationIcon: @Composable () -> Unit) {
         try {
             CursorThemeStore.delete(theme)
         } catch (error: Exception) {
-            alert = AlertState.failure(resources.getString(R.string.settings_couldnt_delete, theme.name), error)
+            alert = AlertState.failure(resources.getString(R.string.settings_delete_failed), error)
         }
     }
 

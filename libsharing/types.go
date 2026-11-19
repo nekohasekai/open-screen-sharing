@@ -84,6 +84,8 @@ const (
 	ErrorOwnScreen int32 = 10
 
 	ErrorCertificateChanged int32 = 11
+
+	ErrorTakenOver int32 = 12
 )
 
 const (
@@ -150,8 +152,6 @@ type SessionOptions struct {
 	KeepAlive bool
 
 	DisableUDP bool
-
-	RetryBusyHighPerformance bool
 
 	CacheDirectory string
 }

@@ -3,7 +3,7 @@
     <string name="home_connections">Connections</string>
     <string name="home_new_connection">New connection</string>
     <string name="home_looking_for">Looking for “%1$s”…</string>
-    <string name="home_couldnt_open_link">Couldn’t open the link</string>
+    <string name="home_open_link_failed">Couldn’t open link</string>
     <string name="home_invalid_address">“%1$s” isn’t a valid address.</string>
 
     <string name="home_icons">Icons</string>
@@ -11,7 +11,7 @@
     <string name="home_no_connections">No connections</string>
     <string name="home_tap_to_add">Tap %1$s to add a connection.</string>
     <string name="home_open_in_new_window">Open in new window</string>
-    <string name="home_couldnt_delete">Couldn’t delete “%1$s”</string>
+    <string name="home_delete_failed">Delete failed</string>
     <string name="home_delete_named">Delete “%1$s”?</string>
     <string name="home_move_up">Move up</string>
     <string name="home_move_down">Move down</string>
@@ -45,7 +45,7 @@
     <string name="home_keep_alive">Keep alive</string>
     <string name="home_control">Control</string>
     <string name="home_reverse_scroll_direction">Reverse scroll direction</string>
-    <string name="home_couldnt_save">Couldn’t save “%1$s”</string>
+    <string name="home_save_failed">Save failed</string>
 
     <string name="home_port">Port</string>
     <string name="home_looking_up">Looking up…</string>
@@ -57,35 +57,33 @@
     <string name="home_sign_in_password">Enter the password to sign in to “%1$s”.</string>
     <string name="home_wrong_account">The user name or password is incorrect.</string>
     <string name="home_wrong_password">The password is incorrect.</string>
-    <string name="home_cant_find">Can’t find “%1$s”.</string>
-    <string name="home_cant_connect">Can’t connect to “%1$s”.</string>
+    <string name="home_connection_failed">Connection failed.</string>
 
     <string name="home_hostname">Hostname</string>
     <string name="home_connecting">Connecting…</string>
     <string name="home_network">Network</string>
     <string name="home_view_details">View details</string>
-    <string name="home_cant_look_nearby">Can’t look for nearby computers</string>
+    <string name="home_search_failed">Search failed</string>
     <string name="home_no_computers_found">No computers found</string>
     <string name="home_looking_for_computers">Looking for computers…</string>
     <string name="home_no_sign_in_method">“%1$s” offers no sign-in method this app supports.</string>
 
     <string name="home_other_connection">Use user name and password from another connection</string>
 
-    <string name="home_failure_sign_in">Couldn’t sign in to “%1$s”</string>
-    <string name="home_failure_declined">“%1$s” declined the request</string>
-    <string name="home_failure_find">Couldn’t find “%1$s”</string>
-    <string name="home_failure_connect">Couldn’t connect to “%1$s”</string>
-    <string name="home_failure_lost">Lost the connection to “%1$s”</string>
-    <string name="home_failure_disconnected">Disconnected from “%1$s”</string>
-    <string name="home_failure_ended_session">“%1$s” ended the session</string>
-    <string name="home_failure_ended_screen_sharing">“%1$s” ended Screen Sharing</string>
-    <string name="home_failure_unsupported">“%1$s” isn’t supported</string>
-    <string name="home_failure_new_certificate">“%1$s” has a new certificate</string>
-    <string name="home_failure_verify">Couldn’t verify “%1$s”</string>
-    <string name="home_failure_high_performance_busy">Another device is using High Performance on “%1$s”</string>
-    <string name="home_failure_high_performance_unsupported">“%1$s” doesn’t support High Performance</string>
-    <string name="home_failure_high_performance_undecodable">This device can’t play High Performance video</string>
-    <string name="home_failure_high_performance_refused">“%1$s” refused High Performance</string>
-    <string name="home_failure_high_performance_stopped">High Performance stopped</string>
-    <string name="home_failure_close_existing_connection">Couldn’t close existing connection on “%1$s”</string>
+    <string name="home_failure_connection_failed">Connection failed</string>
+    <string name="home_failure_connection_closed">Connection closed</string>
+    <string name="home_failure_busy">Screen Sharing busy</string>
+    <string name="home_failure_cant_verify">Can’t verify identity</string>
+    <string name="home_failure_host_not_found">Couldn’t find “%1$s”.</string>
+    <string name="home_failure_declined">“%1$s” declined the request to share its screen.</string>
+    <string name="home_failure_logon_denied">This account isn’t allowed to sign in to “%1$s” remotely.</string>
+    <string name="home_failure_ended_screen_sharing">“%1$s” ended screen sharing.</string>
+    <string name="home_failure_ended_session">“%1$s” ended the session.</string>
+    <string name="home_failure_taken_over">Another Open Screen Sharing client took over this connection.</string>
+    <string name="home_failure_taken_over_rdp">Another client took over this connection.</string>
+    <string name="home_failure_busy_detail">Another device is using Apple VNC. Apple VNC has no built-in way to take over, but if the other device is also running Open Screen Sharing, it can be taken over automatically through an extension protocol.</string>
+    <string name="home_failure_certificate_changed_rdp">“%1$s” presented a different certificate than last time. If the computer wasn’t reinstalled and didn’t renew its certificate, another device may be pretending to be it.</string>
+    <string name="home_failure_certificate_changed">“%1$s” has a different key than last time. If the Mac wasn’t reinstalled, another device may be pretending to be it.</string>
+    <string name="home_failure_unverified_server">“%1$s” only supports an older sign-in method. If another device is pretending to be it, that device could see your password.</string>
+    <string name="home_failure_high_performance_unsupported">“%1$s” doesn’t support High Performance.</string>
 </resources>

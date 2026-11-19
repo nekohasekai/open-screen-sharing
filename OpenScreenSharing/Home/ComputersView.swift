@@ -346,7 +346,7 @@ struct ComputersView: View {
         do {
             try ComputerStore.shared.delete(computer.id)
         } catch {
-            alert = AlertState(String(localized: "Couldn’t Delete “\(name)”"), error: error)
+            alert = AlertState(String(localized: "Delete Failed"), error: error)
         }
     }
 }

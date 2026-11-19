@@ -143,7 +143,7 @@ fun ComputerEditor(computer: Computer, setup: ComputerEditorSetup?, dismiss: () 
                 )
             }
         } catch (error: Exception) {
-            alert = AlertState.failure(App.instance.getString(R.string.home_couldnt_save, trimmedName), error)
+            alert = AlertState.failure(App.instance.getString(R.string.home_save_failed), error)
             return
         }
         if (setup != null) {

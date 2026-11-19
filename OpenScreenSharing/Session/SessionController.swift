@@ -71,22 +71,6 @@ struct RemoteDragOffer {
 }
 
 nonisolated extension FileTransferError: LocalizedError {
-    var summary: String {
-        switch kind {
-        case .cancelled: String(localized: "Canceled")
-        case .notAllowed: String(localized: "The Mac doesn’t allow file transfers")
-        case .notFound: String(localized: "The item isn’t available on the Mac")
-        case .notWritable: String(localized: "The Mac can’t write to the folder")
-        case .diskFull: String(localized: "The Mac’s disk is full")
-        case .permission: String(localized: "The Mac doesn’t have permission to read the item")
-        case .local: String(localized: "This device can’t read or write the file")
-        case .connection: String(localized: "Connection interrupted")
-        case .observeOnly: String(localized: "Not available while observing")
-        case .unsupported: String(localized: "The Mac doesn’t support file transfers")
-        case .failed: String(localized: "File transfer failed")
-        }
-    }
-
     var errorDescription: String? { message }
 }
 
@@ -282,7 +266,6 @@ final class SessionController: Identifiable {
     @PerceptionIgnored private var allowsUnverifiedLogin = false
     @PerceptionIgnored private var passwordUpdate = PasswordUpdate.keep
     @PerceptionIgnored private var usedSavedPassword = false
-    @PerceptionIgnored private var retriesBusyAfterSSH = false
     @PerceptionIgnored private var device: DeviceInfo?
 
     init(route: SessionRoute) {
@@ -382,7 +365,7 @@ final class SessionController: Identifiable {
         } else if server.vncPassword {
             form = .password
         } else {
-            phase = .failed(SessionFailure(.unsupported, message: "the server offers no sign-in method this app supports"))
+            phase = .failed(SessionFailure(.unsupported))
             return
         }
         credentialPrompt = CredentialPrompt(
@@ -471,7 +454,7 @@ final class SessionController: Identifiable {
         do {
             try body(store)
         } catch {
-            alert = AlertState(String(localized: "Couldn’t Save “\(title)”"), error: error)
+            alert = AlertState(String(localized: "Save Failed"), error: error)
         }
     }
 
@@ -497,8 +480,6 @@ final class SessionController: Identifiable {
         hasPicture = false
         pipeline.setExpectsVideo(usesHighPerformance)
         pipeline.setSchedulesPresentation(networkConfiguration.schedulesPresentation)
-        let retryBusyAfterSSH = retriesBusyAfterSSH
-        retriesBusyAfterSSH = false
         let configuration = SessionConfiguration(
             address: route.address,
             remoteProtocol: route.remoteProtocol,
@@ -517,8 +498,7 @@ final class SessionController: Identifiable {
             awaitsVirtualDisplay: wantsVirtualDisplay,
             networkConfiguration: networkConfiguration,
             keepsAlive: keepsAlive,
-            disablesUDP: disablesUDP,
-            retriesBusyAfterSSH: retryBusyAfterSSH
+            disablesUDP: disablesUDP
         )
         let sink = SessionEventSink(controller: self, pipeline: pipeline)
         let session = Demo.current?.makeSession(self, sink) ?? LibsharingRemoteSession(configuration: configuration, delegate: sink)
@@ -581,36 +561,6 @@ final class SessionController: Identifiable {
     func allowUnverifiedLogin() {
         allowsUnverifiedLogin = true
         retry()
-    }
-
-    var canCloseExistingConnectionOverSSH: Bool {
-        route.remoteProtocol == .vnc && route.port == route.remoteProtocol.defaultPort
-    }
-
-    func closeExistingConnectionOverSSHAndRetry() {
-        guard canCloseExistingConnectionOverSSH else { return }
-        guard case .account(let username, let password) = credentials, !username.isEmpty else {
-            phase = .failed(
-                SessionFailure(
-                    .closeExistingConnectionFailed,
-                    message: "signing in via SSH requires an account user name and password"))
-            return
-        }
-        probeTask?.cancel()
-        phase = .connecting
-        probeTask = Task { [weak self, route] in
-            let error = await ServerProber.closeExistingConnectionOverSSH(
-                host: route.host, username: username, password: password)
-            guard let self, !Task.isCancelled else { return }
-            probeTask = nil
-            guard phase == .connecting else { return }
-            if let error {
-                phase = .failed(SessionFailure(.closeExistingConnectionFailed, message: error))
-                return
-            }
-            retriesBusyAfterSSH = true
-            retry()
-        }
     }
 
     func retry() {
@@ -964,9 +914,10 @@ final class SessionController: Identifiable {
     }
 
     private func failHighPerformance(_ failure: MediaFailure) {
+        let started = picture != .none
         releaseAllKeys()
         teardown()
-        phase = .failed(SessionFailure(.highPerformance(failure.kind), message: failure.message))
+        phase = .failed(SessionFailure(.highPerformance(failure.kind, started: started), message: failure.message))
     }
 
     func drawingFailed(_ error: any Error) {
@@ -1027,11 +978,11 @@ final class SessionController: Identifiable {
             remotePointerVisible = visible
             pipeline.setCursorPosition(pointerPosition, visible: visible)
         case .clipboardUnreadable(let message):
-            alert = AlertState(String(localized: "Couldn’t Receive the Clipboard"), error: MessageError(message))
+            alert = AlertState(String(localized: "Clipboard Sync Failed"), errorMessage: message)
         case .clipboardNotRestored(let message):
             guard !reportedClipboardNotRestored else { return }
             reportedClipboardNotRestored = true
-            alert = AlertState(String(localized: "Couldn’t Receive the Clipboard"), error: MessageError(message))
+            alert = AlertState(String(localized: "Clipboard Sync Failed"), errorMessage: message)
         }
     }
 
@@ -1045,9 +996,13 @@ final class SessionController: Identifiable {
     }
 
     private func uploadFile(_ url: URL, to remoteFolder: String, temporary: Bool) {
+        guard let session else {
+            if temporary { try? FileManager.default.removeItem(at: url) }
+            alert = AlertState(title: String(localized: "File Transfer Failed"), message: String(localized: "Not connected."))
+            return
+        }
         let scoped = !temporary && url.startAccessingSecurityScopedResource()
         do {
-            guard let session else { throw MessageError("not connected") }
             let id = try session.uploadFile(url, remoteFolder: remoteFolder)
             transfers.append(
                 FileTransfer(
@@ -1206,12 +1161,16 @@ final class SessionController: Identifiable {
 
     func downloadFile(_ remotePath: String, into folder: URL, progress: Progress, completion: @escaping (Result<URL, any Error>) -> Void) {
         let name = (remotePath as NSString).lastPathComponent
+        guard let session else {
+            alert = AlertState(title: String(localized: "File Transfer Failed"), message: String(localized: "Not connected."))
+            completion(.failure(CocoaError(.fileWriteUnknown)))
+            return
+        }
         let id: Int64
         do {
-            guard let session else { throw MessageError("not connected") }
             id = try session.downloadFile(remotePath, localFolder: folder)
         } catch {
-            alert = AlertState(String(localized: "Couldn’t Get “\(name)”"), error: error)
+            alert = AlertState(String(localized: "File Transfer Failed"), item: name, error: error)
             completion(.failure(CocoaError(.fileWriteUnknown)))
             return
         }
@@ -1259,14 +1218,13 @@ final class SessionController: Identifiable {
             try session.cancelRemoteDrag()
         } catch {
             holdsPointer = false
-            alert = AlertState(String(localized: "Couldn’t Cancel Drag"), error: error)
+            alert = AlertState(String(localized: "Drag Failed"), error: error)
         }
         release(.primary)
     }
 
     private func abandonTransfers() {
-        var interruption = FileTransferError(.connection)
-        interruption.message = interruption.summary
+        let interruption = FileTransferError(.connection)
         var abandoned: [FileTransfer] = []
         for index in transfers.indices where transfers[index].isActive {
             transfers[index].state = .failed(interruption)
@@ -1281,14 +1239,11 @@ final class SessionController: Identifiable {
         }
         promisedFiles = [:]
         guard !isClosing, let transfer = abandoned.first else { return }
-        if abandoned.count == 1 {
-            alert = AlertState(
-                transfer.direction == .upload
-                    ? String(localized: "Couldn’t Send “\(transfer.name)”") : String(localized: "Couldn’t Get “\(transfer.name)”"),
-                error: interruption)
-        } else {
-            alert = AlertState(String(localized: "Couldn’t Finish Transferring Files"), error: MessageError(abandoned.map(\.name).joined(separator: "\n")))
-        }
+        alert = AlertState(
+            title: String(localized: "File Transfer Failed"),
+            message: abandoned.count == 1
+                ? String(localized: "The connection was interrupted before “\(transfer.name)” finished.")
+                : String(localized: "The connection was interrupted before these files finished:") + "\n" + abandoned.map(\.name).joined(separator: "\n"))
     }
 
     private func updateTransferTask() {
@@ -1368,10 +1323,7 @@ final class SessionController: Identifiable {
         }
         guard let transfer = transfers.first(where: { $0.id == id }) else { return }
         if case .failed(let error) = transfer.state {
-            alert = AlertState(
-                transfer.direction == .upload
-                    ? String(localized: "Couldn’t Send “\(transfer.name)”") : String(localized: "Couldn’t Get “\(transfer.name)”"),
-                error: error)
+            alert = AlertState(String(localized: "File Transfer Failed"), item: transfer.name, error: error)
         }
     }
 
@@ -1438,7 +1390,7 @@ final class SessionController: Identifiable {
         hdrEnabled = false
         session?.setHDR(false)
         rememberState()
-        alert = AlertState(String(localized: "This Device Can’t Show HDR"), error: error)
+        alert = AlertState(String(localized: "HDR Turned Off"), error: error)
     }
 
     func setReceivesAudio(_ receivesAudio: Bool) {
@@ -1501,13 +1453,13 @@ final class SessionController: Identifiable {
                             guard let self, self.microphone === sender else { return }
                             sender.stop()
                             self.microphone = nil
-                            self.alert = AlertState(String(localized: "Can’t Use the Microphone"), error: error)
+                            self.alert = AlertState(String(localized: "Microphone Unavailable"), error: error)
                         }
                     })
                 sender.start()
                 microphone = sender
             } catch {
-                alert = AlertState(String(localized: "Can’t Use the Microphone"), error: error)
+                alert = AlertState(String(localized: "Microphone Unavailable"), error: error)
             }
         }
     }
@@ -1515,8 +1467,8 @@ final class SessionController: Identifiable {
     private func alertMicrophoneDenied() {
         #if os(iOS)
         alert = AlertState(
-            title: String(localized: "Can’t Use the Microphone"),
-            message: String(localized: "Microphone access is turned off in Settings."),
+            title: String(localized: "Microphone Unavailable"),
+            message: String(localized: "Access is turned off for this app in Settings."),
             actions: [
                 AlertState.Action(label: String(localized: "Open Settings"), role: nil) {
                     if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -1528,8 +1480,8 @@ final class SessionController: Identifiable {
         )
         #else
         alert = AlertState(
-            title: String(localized: "Can’t Use the Microphone"),
-            message: String(localized: "Microphone access is turned off in System Settings."),
+            title: String(localized: "Microphone Unavailable"),
+            message: String(localized: "Access is turned off for this app in System Settings."),
             actions: [
                 AlertState.Action(label: String(localized: "Open System Settings"), role: nil) {
                     if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone") {
@@ -1657,30 +1609,36 @@ final class SessionController: Identifiable {
 
     @discardableResult
     private func sendClipboard(_ content: ClipboardContent, changeCount: Int = ClipboardAccess.changeCount, pasting: Bool = false) -> Bool {
+        guard let session else {
+            alert = AlertState(title: String(localized: "Clipboard Sync Failed"), message: String(localized: "Not connected."))
+            return false
+        }
         do {
-            guard let session else { throw MessageError("not connected") }
             try session.sendClipboard(content, pasting: pasting)
             syncedClipboardChangeCount = changeCount
             lastRemoteClipboard = content
             return true
         } catch {
-            alert = AlertState(String(localized: "Couldn’t Send the Clipboard"), error: error)
+            alert = AlertState(String(localized: "Clipboard Sync Failed"), error: error)
             return false
         }
     }
 
     func getClipboardFromMac() {
         lastRemoteClipboard = nil
+        guard let session else {
+            alert = AlertState(title: String(localized: "Clipboard Sync Failed"), message: String(localized: "Not connected."))
+            return
+        }
         do {
-            guard let session else { throw MessageError("not connected") }
             try session.requestClipboard()
         } catch {
-            alert = AlertState(String(localized: "Couldn’t Receive the Clipboard"), error: error)
+            alert = AlertState(String(localized: "Clipboard Sync Failed"), error: error)
         }
     }
 
     fileprivate func audioFailed(_ error: any Error) {
-        alert = AlertState(info.platform != .pc ? String(localized: "Can’t Play the Mac’s Sound") : String(localized: "Can’t Play the Computer’s Sound"), error: error)
+        alert = AlertState(String(localized: "Sound Unavailable"), error: error)
     }
 
     private func sendChord(_ chord: KeyChord) {
@@ -1754,7 +1712,7 @@ final class SessionController: Identifiable {
     }
 
     private func reportSendFailure(_ name: String, error: (any Error)?) {
-        alert = AlertState(String(localized: "Couldn’t Send “\(name)”"), error: error)
+        alert = AlertState(String(localized: "File Transfer Failed"), item: name, error: error)
     }
 
 
@@ -2217,11 +2175,13 @@ final class SessionController: Identifiable {
             do {
                 if !typed.isEmpty { try session?.sendText(typed) }
             } catch {
-                alert = AlertState(String(localized: "Some Characters Can’t Be Typed on “\(title)”"), error: error)
+                alert = AlertState(String(localized: "Typing Failed"), error: error)
                 return false
             }
             if !typable {
-                alert = AlertState(title: String(localized: "Some Characters Can’t Be Typed on “\(title)”"))
+                alert = AlertState(
+                    title: String(localized: "Typing Failed"),
+                    message: String(localized: "“\(title)” can’t receive emoji and some other characters, so they were skipped."))
             }
             return typable
         }
@@ -2232,7 +2192,7 @@ final class SessionController: Identifiable {
             do {
                 try session?.pasteText(text)
             } catch {
-                alert = AlertState(String(localized: "Some Characters Can’t Be Typed on “\(title)”"), error: error)
+                alert = AlertState(String(localized: "Typing Failed"), error: error)
                 return false
             }
         }
@@ -2240,7 +2200,7 @@ final class SessionController: Identifiable {
     }
 
     private func showSecureInputNotice() {
-        alert = AlertState(title: String(localized: "Password Fields Take Only English Characters"))
+        alert = AlertState(title: String(localized: "Typing Failed"), message: String(localized: "Password fields on the Mac accept only English characters."))
     }
 
     private func typeCharacter(_ character: Character) -> Bool {

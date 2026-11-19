@@ -22,6 +22,14 @@ struct AlertState {
         self.init(failure, errorMessage: error?.localizedDescription ?? "")
     }
 
+    init(_ failure: String, item: String, error: (any Error)?) {
+        guard let error else {
+            self.init(title: failure, message: item)
+            return
+        }
+        self.init(failure, errorMessage: String(localized: "“\(item)”: \(error.localizedDescription)"))
+    }
+
     init(_ failure: String, errorMessage: String, closeLabel: String = String(localized: "OK"), onClose: @escaping () -> Void = {}) {
         let message = errorMessage.trimmingCharacters(in: .whitespacesAndNewlines)
         var actions = [Action(label: closeLabel, role: .cancel, isDefault: true, perform: onClose)]

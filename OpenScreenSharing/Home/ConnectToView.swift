@@ -132,7 +132,7 @@ struct ConnectToView: View {
     private var placeholder: some View {
         if case .failed(let message) = nearby.state {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Can’t Look for Nearby Computers")
+                Text("Search Failed")
                 Text(message)
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -211,21 +211,23 @@ struct ConnectToView: View {
         #if os(macOS)
         case .failure(let failure) where failure.kind == .ownScreen:
             alert = AlertState(
-                title: String(localized: "“\(name)” is the Mac you’re using."),
+                title: String(localized: "Connect Anyway?"),
+                message: String(localized: "“\(name)” is the Mac you’re using."),
                 actions: [
-                    AlertState.Action(label: String(localized: "Connect Anyway"), role: nil, perform: connectAnyway),
+                    AlertState.Action(label: String(localized: "Connect"), role: nil, perform: connectAnyway),
                     AlertState.Action(label: String(localized: "Cancel"), role: .cancel, isDefault: true, perform: cancel),
                 ])
             return nil
         #endif
         case .failure(let failure):
-            return SetupProblem(failure, host: host, asksForUsername: true)
+            return SetupProblem(failure, computerName: name, remoteProtocol: remoteProtocol ?? .vnc, asksForUsername: true)
         }
         guard !Task.isCancelled else { return nil }
         let computer = makeComputer(server)
         guard let credentials = server.authentication.openCredentials else {
             guard server.authentication.account || server.authentication.vncPassword else {
-                return SetupProblem(summary: String(localized: "“\(computer.name)” offers no sign-in method this app supports."))
+                return SetupProblem(
+                    SessionFailure(.unsupported), computerName: computer.name, remoteProtocol: server.remoteProtocol, asksForUsername: false)
             }
             signIn(computer)
             return nil
@@ -236,7 +238,7 @@ struct ConnectToView: View {
             signedIn(computer.signedIn(credentials, check: check))
             return nil
         case .failure(let failure):
-            return SetupProblem(failure, host: host, asksForUsername: false)
+            return SetupProblem(failure, computerName: computer.name, remoteProtocol: server.remoteProtocol, asksForUsername: false)
         }
     }
 }

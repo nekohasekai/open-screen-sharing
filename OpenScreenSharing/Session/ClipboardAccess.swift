@@ -160,8 +160,9 @@ final class ClipboardAccess {
     private var explanation: AlertState {
         #if os(iOS)
         AlertState(
-            title: String(localized: "Clipboard Sync Asks Before Each Paste"),
-            message: String(localized: "New connections start with clipboard sync turned off. To sync what you copy to the Mac without being asked each time, choose Allow for Paste from Other Apps in Settings."),
+            title: String(localized: "Clipboard Sync Off by Default"),
+            message: String(
+                localized: "The system asks for confirmation every time this app reads it. To turn it on, set Paste from Other Apps to Allow in Settings."),
             actions: [
                 AlertState.Action(label: String(localized: "Open Settings"), role: nil) {
                     if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -173,8 +174,11 @@ final class ClipboardAccess {
         )
         #else
         AlertState(
-            title: String(localized: "Clipboard Sync Asks Before Each Paste"),
-            message: String(localized: "New connections start with clipboard sync turned off. To sync what you copy to the Mac without being asked each time, turn on Screen Sharing in Privacy & Security > Paste from Other Apps in System Settings."),
+            title: String(localized: "Clipboard Sync Off by Default"),
+            message: String(
+                localized:
+                    "The system asks for confirmation every time this app reads it. To turn it on, turn on Screen Sharing in Privacy & Security > Paste from Other Apps in System Settings."
+            ),
             actions: [
                 AlertState.Action(label: String(localized: "Open System Settings"), role: nil) {
                     if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Pasteboard") {

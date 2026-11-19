@@ -34,8 +34,8 @@ data class SessionFailure(val kind: Kind, val message: String = "") {
         data object Unsupported : Kind
         data class CertificateChanged(val fingerprint: String) : Kind
         data object UnverifiedServer : Kind
-        data class HighPerformance(val kind: MediaFailure.Kind) : Kind
-        data object CloseExistingConnectionFailed : Kind
+        data class HighPerformance(val kind: MediaFailure.Kind, val started: Boolean) : Kind
+        data object TakenOver : Kind
         data object DrawingFailed : Kind
         data object Ended : Kind
         data object Other : Kind
@@ -179,7 +179,6 @@ data class SessionConfiguration(
     val networkConfiguration: NetworkConfiguration = NetworkConfiguration(),
     val keepsAlive: Boolean = false,
     val disablesUDP: Boolean = false,
-    val retriesBusyAfterSSH: Boolean = false,
 )
 
 data class SessionInfo(

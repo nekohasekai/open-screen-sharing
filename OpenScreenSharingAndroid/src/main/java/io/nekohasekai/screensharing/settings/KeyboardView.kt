@@ -241,8 +241,8 @@ internal fun ShortcutGroupView(group: ShortcutGroup, navigationIcon: @Composable
         val other = KeyShortcuts.action(shortcut)
         if (other != null && other != action) {
             alert = AlertState(
-                title = resources.getString(R.string.settings_already_in_use, shortcut.localDisplayName),
-                message = resources.getString(R.string.settings_assigned_to, other.title),
+                title = resources.getString(R.string.settings_shortcut_in_use),
+                message = resources.getString(R.string.settings_assigned_to, shortcut.localDisplayName, other.title),
                 actions = listOf(
                     AlertState.Action(resources.getString(R.string.cancel), AlertState.Role.Cancel) {},
                     AlertState.Action(resources.getString(R.string.settings_replace), isDefault = true) {
@@ -258,9 +258,10 @@ internal fun ShortcutGroupView(group: ShortcutGroup, navigationIcon: @Composable
             val displayNames = conflicts.map { (target, mapping) -> mapping.displayName(target) }
             val names = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) ListFormatter.getInstance().format(displayNames) else displayNames.joinToString(", ")
             alert = AlertState(
-                title = resources.getString(R.string.settings_already_in_use, shortcut.localDisplayName),
+                title = resources.getString(R.string.settings_shortcut_in_use),
                 message = resources.getString(
                     if (conflicts.size == 1) R.string.settings_mapped_to_mapping else R.string.settings_mapped_to_mappings,
+                    shortcut.localDisplayName,
                     names,
                 ),
                 actions = listOf(
@@ -407,8 +408,8 @@ internal fun KeyMappingEditor(mapping: KeyMapping, target: MappingTarget, isNew:
         val otherMapping = KeyShortcuts.mapping(shortcut, target)
         when {
             other != null -> alert = AlertState(
-                title = resources.getString(R.string.settings_already_in_use, shortcut.localDisplayName),
-                message = resources.getString(R.string.settings_assigned_to, other.title),
+                title = resources.getString(R.string.settings_shortcut_in_use),
+                message = resources.getString(R.string.settings_assigned_to, shortcut.localDisplayName, other.title),
                 actions = listOf(
                     AlertState.Action(resources.getString(R.string.cancel), AlertState.Role.Cancel) {},
                     AlertState.Action(resources.getString(R.string.settings_replace), isDefault = true) {
@@ -418,8 +419,8 @@ internal fun KeyMappingEditor(mapping: KeyMapping, target: MappingTarget, isNew:
                 ),
             )
             otherMapping != null && otherMapping.id != id -> alert = AlertState(
-                title = resources.getString(R.string.settings_already_in_use, shortcut.localDisplayName),
-                message = resources.getString(R.string.settings_mapped_to_mapping, otherMapping.displayName(target)),
+                title = resources.getString(R.string.settings_shortcut_in_use),
+                message = resources.getString(R.string.settings_mapped_to_mapping, shortcut.localDisplayName, otherMapping.displayName(target)),
                 actions = listOf(
                     AlertState.Action(resources.getString(R.string.cancel), AlertState.Role.Cancel) {},
                     AlertState.Action(resources.getString(R.string.settings_replace), isDefault = true) {

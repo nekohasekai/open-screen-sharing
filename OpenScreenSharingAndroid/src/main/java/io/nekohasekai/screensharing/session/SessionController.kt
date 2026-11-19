@@ -26,7 +26,6 @@ import io.nekohasekai.screensharing.App
 import io.nekohasekai.screensharing.R
 import io.nekohasekai.screensharing.app.AlertState
 import io.nekohasekai.screensharing.app.ContinuedTask
-import io.nekohasekai.screensharing.app.MessageError
 import io.nekohasekai.screensharing.app.RuntimePermission
 import io.nekohasekai.screensharing.model.AppDirectory
 import io.nekohasekai.screensharing.model.AppSettings
@@ -144,24 +143,6 @@ class TransferProgress {
         cancellationHandler?.invoke()
     }
 }
-
-val FileTransferError.summary: String
-    get() =
-        App.instance.getString(
-            when (kind) {
-                FileTransferError.Kind.Cancelled -> R.string.session_transfer_canceled
-                FileTransferError.Kind.NotAllowed -> R.string.session_transfer_not_allowed
-                FileTransferError.Kind.NotFound -> R.string.session_transfer_not_found
-                FileTransferError.Kind.NotWritable -> R.string.session_transfer_not_writable
-                FileTransferError.Kind.DiskFull -> R.string.session_transfer_disk_full
-                FileTransferError.Kind.Permission -> R.string.session_transfer_permission
-                FileTransferError.Kind.Local -> R.string.session_transfer_local
-                FileTransferError.Kind.Connection -> R.string.session_transfer_connection
-                FileTransferError.Kind.ObserveOnly -> R.string.session_transfer_observe_only
-                FileTransferError.Kind.Unsupported -> R.string.session_transfer_unsupported
-                FileTransferError.Kind.Failed -> R.string.session_transfer_failed
-            },
-        )
 
 private data class KeyboardSourceRequest(
     val id: String,
@@ -401,7 +382,6 @@ class SessionController(
     private var allowsUnverifiedLogin = false
     private var passwordUpdate: PasswordUpdate = PasswordUpdate.Keep
     private var usedSavedPassword = false
-    private var retriesBusyAfterSSH = false
     private var device: DeviceInfo? = route.model?.let { DeviceInfo(it, "") }
 
     init {
@@ -491,10 +471,7 @@ class SessionController(
         } else if (server.vncPassword) {
             form = CredentialPrompt.Form.Password
         } else {
-            phase =
-                SessionPhase.Failed(
-                    SessionFailure(SessionFailure.Kind.Unsupported, "the server offers no sign-in method this app supports"),
-                )
+            phase = SessionPhase.Failed(SessionFailure(SessionFailure.Kind.Unsupported))
             return
         }
         credentialPrompt =
@@ -599,7 +576,7 @@ class SessionController(
         try {
             body()
         } catch (error: Exception) {
-            alert = AlertState.failure(App.instance.getString(R.string.session_couldnt_save, title), error)
+            alert = AlertState.failure(App.instance.getString(R.string.session_save_failed), error)
         }
     }
 
@@ -625,8 +602,6 @@ class SessionController(
         hasPicture = false
         pipeline.setExpectsVideo(usesHighPerformance && io.nekohasekai.screensharing.demo.Demo.current == null)
         pipeline.setSchedulesPresentation(networkConfiguration.schedulesPresentation)
-        val retryBusyAfterSSH = retriesBusyAfterSSH
-        retriesBusyAfterSSH = false
         val configuration =
             SessionConfiguration(
                 address = route.address,
@@ -654,7 +629,6 @@ class SessionController(
                 networkConfiguration = networkConfiguration,
                 keepsAlive = keepsAlive,
                 disablesUDP = disablesUDP,
-                retriesBusyAfterSSH = retryBusyAfterSSH,
             )
         val sink = SessionEventSink(this, pipeline)
         val session = io.nekohasekai.screensharing.demo.Demo.current?.makeSession(this, sink) ?: LibsharingRemoteSession(configuration, sink)
@@ -714,39 +688,6 @@ class SessionController(
     fun allowUnverifiedLogin() {
         allowsUnverifiedLogin = true
         retry()
-    }
-
-    val canCloseExistingConnectionOverSSH: Boolean
-        get() = route.remoteProtocol == RemoteProtocol.Vnc && route.port == route.remoteProtocol.defaultPort
-
-    fun closeExistingConnectionOverSSHAndRetry() {
-        if (!canCloseExistingConnectionOverSSH) return
-        val account = credentials as? SessionCredentials.Account
-        if (account == null || account.username.isEmpty()) {
-            phase = SessionPhase.Failed(
-                SessionFailure(
-                    SessionFailure.Kind.CloseExistingConnectionFailed,
-                    "signing in via SSH requires an account user name and password",
-                ),
-            )
-            return
-        }
-        probeTask?.cancel()
-        awaitsDisplayArea = false
-        phase = SessionPhase.Connecting
-        probeTask =
-            App.scope.launch(Dispatchers.Main) {
-                val error = ServerProber.closeExistingConnectionOverSSH(route.host, account.username, account.password)
-                if (!isActive) return@launch
-                probeTask = null
-                if (phase != SessionPhase.Connecting) return@launch
-                if (error != null) {
-                    phase = SessionPhase.Failed(SessionFailure(SessionFailure.Kind.CloseExistingConnectionFailed, error))
-                    return@launch
-                }
-                retriesBusyAfterSSH = true
-                retry()
-            }
     }
 
     fun retry() {
@@ -1157,9 +1098,10 @@ class SessionController(
     }
 
     private fun failHighPerformance(failure: MediaFailure) {
+        val started = picture != ScreenPicture.None
         releaseAllKeys()
         teardown()
-        phase = SessionPhase.Failed(SessionFailure(SessionFailure.Kind.HighPerformance(failure.kind), failure.message))
+        phase = SessionPhase.Failed(SessionFailure(SessionFailure.Kind.HighPerformance(failure.kind, started), failure.message))
     }
 
     override fun drawingFailed(error: Throwable) {
@@ -1239,13 +1181,13 @@ class SessionController(
             }
 
             is SessionEvent.ClipboardUnreadable -> {
-                alert = AlertState.failure(App.instance.getString(R.string.session_couldnt_receive_clipboard), MessageError(event.message))
+                alert = AlertState.failure(App.instance.getString(R.string.session_clipboard_sync_failed), event.message)
             }
 
             is SessionEvent.ClipboardNotRestored -> {
                 if (reportedClipboardNotRestored) return
                 reportedClipboardNotRestored = true
-                alert = AlertState.failure(App.instance.getString(R.string.session_couldnt_receive_clipboard), MessageError(event.message))
+                alert = AlertState.failure(App.instance.getString(R.string.session_clipboard_sync_failed), event.message)
             }
         }
     }
@@ -1255,8 +1197,13 @@ class SessionController(
         remoteFolder: String,
         temporary: Boolean,
     ) {
+        val session = session
+        if (session == null) {
+            if (temporary) removeTemporary(file)
+            alert = AlertState(App.instance.getString(R.string.session_file_transfer_failed), App.instance.getString(R.string.not_connected))
+            return
+        }
         try {
-            val session = session ?: throw MessageError("not connected")
             val id = session.uploadFile(file, remoteFolder)
             transfers =
                 transfers +
@@ -1268,7 +1215,7 @@ class SessionController(
                 )
         } catch (error: Exception) {
             if (temporary) removeTemporary(file)
-            alert = AlertState.failure(App.instance.getString(R.string.session_couldnt_send, file.name), error)
+            alert = AlertState.failure(App.instance.getString(R.string.session_file_transfer_failed), file.name, error)
         }
     }
 
@@ -1373,7 +1320,7 @@ class SessionController(
             if (file != null) {
                 uploadFile(file, "~/Desktop", temporary)
             } else {
-                alert = AlertState.failure(App.instance.getString(R.string.session_couldnt_send, name), error)
+                alert = AlertState.failure(App.instance.getString(R.string.session_file_transfer_failed), name, error)
             }
             return
         }
@@ -1388,7 +1335,7 @@ class SessionController(
                 delivery.waiting.add(file to temporary)
             }
         } else if (!delivery.discards) {
-            alert = AlertState.failure(App.instance.getString(R.string.session_couldnt_send, name), error)
+            alert = AlertState.failure(App.instance.getString(R.string.session_file_transfer_failed), name, error)
         }
         if (delivery.loading == 0 && delivery.isSettled) {
             drops.remove(dragID)
@@ -1435,12 +1382,17 @@ class SessionController(
         completion: (Result<File>) -> Unit,
     ) {
         val name = remotePath.trimEnd('/').substringAfterLast('/')
+        val session = session
+        if (session == null) {
+            alert = AlertState(App.instance.getString(R.string.session_file_transfer_failed), App.instance.getString(R.string.not_connected))
+            completion(Result.failure(IOException(App.instance.getString(R.string.not_connected))))
+            return
+        }
         val id =
             try {
-                val session = session ?: throw MessageError("not connected")
                 session.downloadFile(remotePath, folder)
             } catch (error: Exception) {
-                alert = AlertState.failure(App.instance.getString(R.string.session_couldnt_get, name), error)
+                alert = AlertState.failure(App.instance.getString(R.string.session_file_transfer_failed), name, error)
                 completion(Result.failure(IOException(error)))
                 return
             }
@@ -1495,13 +1447,13 @@ class SessionController(
             session.cancelRemoteDrag()
         } catch (error: Exception) {
             holdsPointer = false
-            alert = AlertState.failure(App.instance.getString(R.string.session_couldnt_cancel_drag), error)
+            alert = AlertState.failure(App.instance.getString(R.string.session_drag_failed), error)
         }
         release(PointerButtons.Primary)
     }
 
     private fun abandonTransfers() {
-        val interruption = FileTransferError(FileTransferError.Kind.Connection).let { it.copy(message = it.summary) }
+        val interruption = FileTransferError(FileTransferError.Kind.Connection)
         val abandoned = mutableListOf<FileTransfer>()
         val updated =
             transfers.map { transfer ->
@@ -1519,22 +1471,14 @@ class SessionController(
         if (isClosing) return
         val transfer = abandoned.firstOrNull() ?: return
         alert =
-            if (abandoned.size == 1) {
-                val failure =
-                    if (transfer.direction ==
-                        FileTransfer.Direction.Upload
-                    ) {
-                        R.string.session_couldnt_send
-                    } else {
-                        R.string.session_couldnt_get
-                    }
-                AlertState.failure(App.instance.getString(failure, transfer.name), interruption)
-            } else {
-                AlertState.failure(
-                    App.instance.getString(R.string.session_couldnt_finish_transferring_files),
-                    MessageError(abandoned.joinToString("\n") { it.name }),
-                )
-            }
+            AlertState(
+                App.instance.getString(R.string.session_file_transfer_failed),
+                if (abandoned.size == 1) {
+                    App.instance.getString(R.string.session_transfer_interrupted, transfer.name)
+                } else {
+                    App.instance.getString(R.string.session_transfer_interrupted_files) + "\n" + abandoned.joinToString("\n") { it.name }
+                },
+            )
     }
 
     private fun updateTransferTask() {
@@ -1619,15 +1563,7 @@ class SessionController(
         val transfer = transfers.firstOrNull { it.id == id } ?: return
         val state = transfer.state
         if (state is FileTransfer.State.Failed) {
-            val failure =
-                if (transfer.direction ==
-                    FileTransfer.Direction.Upload
-                ) {
-                    R.string.session_couldnt_send
-                } else {
-                    R.string.session_couldnt_get
-                }
-            alert = AlertState.failure(App.instance.getString(failure, transfer.name), state.error)
+            alert = AlertState.failure(App.instance.getString(R.string.session_file_transfer_failed), transfer.name, state.error)
         }
     }
 
@@ -1694,7 +1630,7 @@ class SessionController(
         hdrEnabled = false
         session?.setHDR(false)
         rememberState()
-        alert = AlertState.failure(App.instance.getString(R.string.session_device_cant_show_hdr), error)
+        alert = AlertState.failure(App.instance.getString(R.string.session_hdr_turned_off), error)
     }
 
     @JvmName("changeReceivesAudio")
@@ -1761,14 +1697,14 @@ class SessionController(
                                 if (microphone !== sender) return@post
                                 sender.stop()
                                 microphone = null
-                                alert = AlertState.failure(App.instance.getString(R.string.session_cant_use_microphone), error)
+                                alert = AlertState.failure(App.instance.getString(R.string.session_microphone_unavailable), error)
                             }
                         },
                     )
                 sender.start()
                 microphone = sender
             } catch (error: Exception) {
-                alert = AlertState.failure(App.instance.getString(R.string.session_cant_use_microphone), error)
+                alert = AlertState.failure(App.instance.getString(R.string.session_microphone_unavailable), error)
             }
         }
     }
@@ -1776,7 +1712,7 @@ class SessionController(
     private fun alertMicrophoneDenied() {
         alert =
             AlertState(
-                title = App.instance.getString(R.string.session_cant_use_microphone),
+                title = App.instance.getString(R.string.session_microphone_unavailable),
                 message = App.instance.getString(R.string.session_microphone_access_off),
                 actions =
                 listOf(
@@ -1928,31 +1864,38 @@ class SessionController(
         changeCount: Long,
         pasting: Boolean = false,
     ): Boolean {
+        val session = session
+        if (session == null) {
+            alert = AlertState(App.instance.getString(R.string.session_clipboard_sync_failed), App.instance.getString(R.string.not_connected))
+            return false
+        }
         try {
-            val session = session ?: throw MessageError("not connected")
             session.sendClipboard(content, pasting)
             syncedClipboardChangeCount = changeCount
             lastRemoteClipboard = content
             return true
         } catch (error: Exception) {
-            alert = AlertState.failure(App.instance.getString(R.string.session_couldnt_send_clipboard), error)
+            alert = AlertState.failure(App.instance.getString(R.string.session_clipboard_sync_failed), error)
             return false
         }
     }
 
     fun getClipboardFromMac() {
         lastRemoteClipboard = null
+        val session = session
+        if (session == null) {
+            alert = AlertState(App.instance.getString(R.string.session_clipboard_sync_failed), App.instance.getString(R.string.not_connected))
+            return
+        }
         try {
-            val session = session ?: throw MessageError("not connected")
             session.requestClipboard()
         } catch (error: Exception) {
-            alert = AlertState.failure(App.instance.getString(R.string.session_couldnt_receive_clipboard), error)
+            alert = AlertState.failure(App.instance.getString(R.string.session_clipboard_sync_failed), error)
         }
     }
 
     internal fun audioFailed(error: Throwable) {
-        val failure = if (info.platform != RemotePlatform.Pc) R.string.session_cant_play_mac_sound else R.string.session_cant_play_computer_sound
-        alert = AlertState.failure(App.instance.getString(failure), error)
+        alert = AlertState.failure(App.instance.getString(R.string.session_sound_unavailable), error)
     }
 
     private fun sendChord(chord: KeyChord) {
@@ -2428,11 +2371,11 @@ class SessionController(
             try {
                 if (typed.isNotEmpty()) session?.sendText(typed)
             } catch (error: Exception) {
-                alert = AlertState.failure(App.instance.getString(R.string.session_some_characters_cant_be_typed, title), error)
+                alert = AlertState.failure(App.instance.getString(R.string.session_typing_failed), error)
                 return false
             }
             if (!typable) {
-                notice = SessionNotice(App.instance.getString(R.string.session_some_characters_cant_be_typed, title))
+                notice = SessionNotice(App.instance.getString(R.string.session_characters_skipped, title))
             }
             return typable
         }
@@ -2443,7 +2386,7 @@ class SessionController(
             try {
                 session?.pasteText(text)
             } catch (error: Exception) {
-                alert = AlertState.failure(App.instance.getString(R.string.session_some_characters_cant_be_typed, title), error)
+                alert = AlertState.failure(App.instance.getString(R.string.session_typing_failed), error)
                 return false
             }
         }

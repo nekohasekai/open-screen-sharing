@@ -2,6 +2,8 @@ package libsharing
 
 import (
 	"errors"
+	"math/rand/v2"
+	"slices"
 	"strconv"
 	"time"
 
@@ -161,7 +163,168 @@ func (s *Session) StartHighPerformance(options *HighPerformanceOptions) error {
 	if err != nil {
 		return err
 	}
-	return client.StartMediaStream(offer, &mediaEvents{session: s, client: client, offer: offer})
+	return s.startMediaStream(client, offer)
+}
+
+const (
+	peerNamespace              = "io.nekohasekai.screensharing"
+	peerMessage         uint32 = 0x4f53534d
+	peerQuery                  = "query"
+	peerOccupied               = "occupied"
+	peerTakeOver               = "takeOver"
+	peerReleased               = "released"
+	peerQueryTimeout           = time.Second
+	peerTakeOverTimeout        = 3 * time.Second
+)
+
+func (s *Session) startMediaStream(client *rfb.Client, offer media.OfferOptions) error {
+	events := &mediaEvents{session: s, client: client, offer: offer, occupied: make(chan struct{}), released: make(chan struct{})}
+	s.access.Lock()
+	s.highPerformance = events
+	events.query = s.newPeerMessageLocked()
+	s.access.Unlock()
+	err := sendPeerMessage(client, events.query, map[string]string{"action": peerQuery})
+	if err != nil {
+		client.Logger().Debug("ask other clients about High Performance", "error", err)
+	} else {
+		events.queryDeadline = time.Now().Add(peerQueryTimeout)
+	}
+	err = client.StartMediaStream(offer, events)
+	if err != nil {
+		s.access.Lock()
+		if s.highPerformance == events {
+			s.highPerformance = nil
+		}
+		s.access.Unlock()
+	}
+	return err
+}
+
+func (s *Session) newPeerMessageLocked() uint32 {
+	for {
+		id := rand.Uint32()
+		if id != 0 && !slices.Contains(s.peerMessages, id) {
+			s.peerMessages = append(s.peerMessages, id)
+			return id
+		}
+	}
+}
+
+func peerMessageData(values map[string]string) ([]byte, error) {
+	values["namespace"] = peerNamespace
+	return archiveDictionary(values)
+}
+
+func sendPeerMessage(client *rfb.Client, id uint32, values map[string]string) error {
+	data, err := peerMessageData(values)
+	if err != nil {
+		return err
+	}
+	// ScreensharingAgent skips the accessibility owner check for feature 0, and
+	// AXSSRemoteDesktopServerMac echoes any message other than 1 back with reply=true,
+	// which screensharingd broadcasts as message 0x15 with message 0 and replyTo = messageID
+	// to every viewer of the same desktop (ScreensharingAgent 26A434, UUID DA1CD9BA-97A1-3758-B425-00FA34B428A3,
+	// 0x10001da5c; AccessibilitySharedSupport 26A434, UUID A7AF2B80-315A-3ACC-A77A-10BEC3E70F9D,
+	// 0x1b0854260; screensharingd 26A434, UUID 44908B06-F788-3822-ABC4-2285001F6A8D, 0x100008f10..0x100008f5c).
+	return client.SendAccessibilityViewerMessage(0, peerMessage, id, data)
+}
+
+func (e *sessionEvents) Accessibility(feature, message, replyTo uint32, data []byte) {
+	if feature != 0 || message != 0 || replyTo == 0 {
+		return
+	}
+	values, err := unarchiveDictionary(data)
+	if err != nil || values["namespace"] != peerNamespace {
+		return
+	}
+	s := e.session
+	client, err := s.connected()
+	if err != nil {
+		return
+	}
+	s.access.Lock()
+	own := slices.Contains(s.peerMessages, replyTo)
+	s.access.Unlock()
+	if own {
+		return
+	}
+	to, _ := strconv.ParseUint(values["to"], 10, 32)
+	switch values["action"] {
+	case peerQuery:
+		s.answerPeerQuery(client, replyTo)
+	case peerOccupied:
+		s.takeOverOccupant(client, uint32(to))
+	case peerReleased:
+		s.access.Lock()
+		current := s.highPerformance
+		if current != nil && current.takeOver != 0 && current.takeOver == uint32(to) {
+			select {
+			case <-current.released:
+			default:
+				close(current.released)
+			}
+		}
+		s.access.Unlock()
+	case peerTakeOver:
+		s.releaseHighPerformance(client, replyTo)
+	}
+}
+
+func (s *Session) answerPeerQuery(client *rfb.Client, query uint32) {
+	s.access.Lock()
+	current := s.highPerformance
+	if current == nil || !current.running {
+		s.access.Unlock()
+		return
+	}
+	id := s.newPeerMessageLocked()
+	s.access.Unlock()
+	err := sendPeerMessage(client, id, map[string]string{"action": peerOccupied, "to": strconv.FormatUint(uint64(query), 10)})
+	if err != nil {
+		client.Logger().Debug("answer a High Performance query", "error", err)
+	}
+}
+
+func (s *Session) takeOverOccupant(client *rfb.Client, query uint32) {
+	s.access.Lock()
+	current := s.highPerformance
+	if current == nil || current.query == 0 || current.query != query || current.takeOver != 0 {
+		s.access.Unlock()
+		return
+	}
+	id := s.newPeerMessageLocked()
+	current.takeOver, current.takeOverDeadline = id, time.Now().Add(peerTakeOverTimeout)
+	close(current.occupied)
+	s.access.Unlock()
+	client.Logger().Info("take over High Performance from another client")
+	err := sendPeerMessage(client, id, map[string]string{"action": peerTakeOver})
+	if err != nil {
+		client.Logger().Debug("take over High Performance", "error", err)
+	}
+}
+
+func (s *Session) releaseHighPerformance(client *rfb.Client, takeOver uint32) {
+	s.access.Lock()
+	current := s.highPerformance
+	if current == nil || !current.running || s.finished || s.disconnecting {
+		s.access.Unlock()
+		return
+	}
+	s.disconnecting, s.takenOver = true, true
+	id := s.newPeerMessageLocked()
+	s.cancelPromptsLocked()
+	s.access.Unlock()
+	s.closeDone()
+	client.Logger().Info("another client took over High Performance")
+	data, err := peerMessageData(map[string]string{"action": peerReleased, "to": strconv.FormatUint(uint64(takeOver), 10)})
+	var released []byte
+	if err == nil {
+		released, err = client.AccessibilityViewerMessage(0, peerMessage, id, data)
+	}
+	if err != nil {
+		client.Logger().Debug("announce the High Performance release", "error", err)
+	}
+	go client.CloseWith(released)
 }
 
 func offerOptions(options *HighPerformanceOptions) (media.OfferOptions, error) {
@@ -254,38 +417,23 @@ func (s *Session) RequestKeyframe() error {
 }
 
 type mediaEvents struct {
-	session *Session
-	client  *rfb.Client
-	offer   media.OfferOptions
-}
+	session       *Session
+	client        *rfb.Client
+	offer         media.OfferOptions
+	occupied      chan struct{}
+	released      chan struct{}
+	queryDeadline time.Time
 
-var busyRetryDelays = []time.Duration{
-	50 * time.Millisecond,
-	100 * time.Millisecond,
-	200 * time.Millisecond,
-	400 * time.Millisecond,
-	800 * time.Millisecond,
-}
-
-func (s *Session) nextBusyRetryDelay() (time.Duration, bool) {
-	s.access.Lock()
-	defer s.access.Unlock()
-	if !s.busyRetry || s.finished || s.disconnecting || s.busyRetryAttempt >= len(busyRetryDelays) {
-		return 0, false
-	}
-	delay := busyRetryDelays[s.busyRetryAttempt]
-	s.busyRetryAttempt++
-	return delay, true
-}
-
-func (s *Session) clearBusyRetry() {
-	s.access.Lock()
-	s.busyRetry = false
-	s.access.Unlock()
+	running          bool
+	query            uint32
+	takeOver         uint32
+	takeOverDeadline time.Time
 }
 
 func (e *mediaEvents) VideoFormat(format media.VideoFormat) {
-	e.session.clearBusyRetry()
+	e.session.access.Lock()
+	e.running, e.query = true, 0
+	e.session.access.Unlock()
 	codec := CodecHEVC
 	if format.Codec == media.CodecH264 {
 		codec = CodecH264
@@ -335,36 +483,53 @@ func (e *mediaEvents) AudioPacket(packet media.AudioPacket) {
 }
 
 func (e *mediaEvents) StreamStopped(err error) {
+	s := e.session
 	code, message := classifyMediaError(err)
-	if code == MediaErrorBusy && e.retryBusy() {
-		return
+	if code == MediaErrorBusy {
+		retry, ended := e.awaitRelease()
+		if ended {
+			return
+		}
+		if retry {
+			err = e.client.StartMediaStream(e.offer, e)
+			if err == nil {
+				return
+			}
+			code, message = classifyMediaError(err)
+		}
 	}
-	e.session.clearBusyRetry()
-	e.session.handler.OnMediaStopped(code, message)
+	s.access.Lock()
+	e.running, e.query = false, 0
+	if s.highPerformance == e {
+		s.highPerformance = nil
+	}
+	s.access.Unlock()
+	s.handler.OnMediaStopped(code, message)
 }
 
-func (e *mediaEvents) retryBusy() bool {
-	delay, ok := e.session.nextBusyRetryDelay()
-	if !ok || e.client == nil {
-		return false
-	}
-	timer := time.NewTimer(delay)
+func (e *mediaEvents) awaitRelease() (retry bool, ended bool) {
+	s := e.session
+	timer := time.NewTimer(time.Until(e.queryDeadline))
+	defer timer.Stop()
 	select {
+	case <-e.occupied:
 	case <-timer.C:
-	case <-e.session.done:
-		timer.Stop()
-		return true
+	case <-s.done:
+		return false, true
 	}
-	e.session.access.Lock()
-	active := !e.session.finished && !e.session.disconnecting && e.session.remote != nil
-	e.session.access.Unlock()
-	if !active {
-		return true
+	s.access.Lock()
+	takeOver, deadline := e.takeOver, e.takeOverDeadline
+	e.query, e.takeOver = 0, 0
+	s.access.Unlock()
+	if takeOver == 0 {
+		return false, false
 	}
-	err := e.client.StartMediaStream(e.offer, e)
-	if err != nil {
-		e.session.clearBusyRetry()
-		e.session.handler.OnMediaStopped(classifyMediaError(err))
+	timer.Reset(time.Until(deadline))
+	select {
+	case <-e.released:
+	case <-timer.C:
+	case <-s.done:
+		return false, true
 	}
-	return true
+	return true, false
 }

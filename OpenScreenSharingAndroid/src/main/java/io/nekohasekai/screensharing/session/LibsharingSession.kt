@@ -73,7 +73,6 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         options.awaitVirtualDisplay = configuration.awaitsVirtualDisplay
         options.keepAlive = configuration.keepsAlive
         options.disableUDP = configuration.disablesUDP
-        options.retryBusyHighPerformance = configuration.retriesBusyAfterSSH
         options.cacheDirectory = AppDirectory.caches.path
 
         val handler = LibsharingHandler(delegate, configuration.remoteProtocol, configuration.platform)
@@ -540,6 +539,7 @@ private class LibsharingHandler(
                     Libsharing.ErrorUnsupportedServer -> SessionFailure.Kind.Unsupported
                     Libsharing.ErrorCertificateChanged -> SessionFailure.Kind.CertificateChanged(synchronized(lock) { info.fingerprint })
                     Libsharing.ErrorUnverifiedServer -> SessionFailure.Kind.UnverifiedServer
+                    Libsharing.ErrorTakenOver -> SessionFailure.Kind.TakenOver
                     else -> {
                         val started = synchronized(lock) { info.framebufferWidth > 0 }
                         if (started) SessionFailure.Kind.Ended else SessionFailure.Kind.Other

@@ -1,6 +1,8 @@
 package io.nekohasekai.screensharing.model
 
 import android.util.Log
+import io.nekohasekai.screensharing.App
+import io.nekohasekai.screensharing.R
 import io.nekohasekai.screensharing.app.StorageNotice
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
@@ -17,7 +19,7 @@ object PreferenceStore {
         val item = try {
             preferences.get(name)
         } catch (error: Exception) {
-            StorageNotice.report("Couldn’t read settings", error)
+            StorageNotice.report(App.instance.getString(R.string.model_load_failed), error)
             return null
         } ?: return null
         return try {
@@ -35,7 +37,7 @@ object PreferenceStore {
         preferences.save(Preference(name, json.encodeToString(serializer, value)))
         true
     } catch (error: Exception) {
-        StorageNotice.report("Couldn’t save settings", error)
+        StorageNotice.report(App.instance.getString(R.string.model_save_failed), error)
         false
     }
 
@@ -43,7 +45,7 @@ object PreferenceStore {
         try {
             preferences.delete(name)
         } catch (error: Exception) {
-            StorageNotice.report("Couldn’t save settings", error)
+            StorageNotice.report(App.instance.getString(R.string.model_save_failed), error)
         }
     }
 }
