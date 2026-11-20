@@ -23,7 +23,7 @@ enum ShortcutGroup: CaseIterable, Identifiable {
     }
 
     var actions: [ShortcutAction] {
-        ShortcutAction.allCases.filter { $0.group == self }
+        ShortcutAction.allCases.filter { $0.group == self && $0.isOffered }
     }
 }
 
@@ -31,7 +31,7 @@ enum ShortcutAction: String, CaseIterable, Identifiable {
     case newConnection, disconnect
     case syncClipboard, receiveClipboard, sendClipboard
     #if os(macOS)
-    case viewAsIcons, viewAsList
+    case viewAsIcons, viewAsList, fullScreen
     #endif
     case zoomMode, actualSize
     case display1, display2, display3, display4, display5, display6, display7, display8, allDisplays
@@ -86,6 +86,13 @@ enum ShortcutAction: String, CaseIterable, Identifiable {
         }
     }
 
+    var isOffered: Bool {
+        #if os(macOS)
+        if self == .fullScreen { return AppSettings.offersFullScreen }
+        #endif
+        return true
+    }
+
     var title: String {
         switch self {
         case .newConnection: return String(localized: "New Connection")
@@ -96,6 +103,7 @@ enum ShortcutAction: String, CaseIterable, Identifiable {
         #if os(macOS)
         case .viewAsIcons: return String(localized: "View as Icons")
         case .viewAsList: return String(localized: "View as List")
+        case .fullScreen: return String(localized: "Full Screen")
         #endif
         case .zoomMode: return String(localized: "Zoom Mode")
         case .actualSize: return String(localized: "Zoom to Fit / Actual Size")
@@ -524,7 +532,7 @@ final class KeyShortcuts {
 
     func action(using shortcut: KeyShortcut) -> ShortcutAction? {
         let assigned = assigned
-        return ShortcutAction.allCases.first { assigned[$0.rawValue] == shortcut }
+        return ShortcutAction.allCases.first { $0.isOffered && assigned[$0.rawValue] == shortcut }
     }
 
     func set(_ shortcut: KeyShortcut?, for action: ShortcutAction) {

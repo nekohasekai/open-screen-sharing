@@ -7,51 +7,59 @@ import AppKit
 struct SettingsView: View {
     private static let sourceCode = URL(string: "https://github.com/nekohasekai/open-screen-sharing")!
 
+    private var offersPictureSettings: Bool {
+        #if os(iOS)
+        AppSettings.offersFullScreen || SessionTabs.isOffered
+        #else
+        AppSettings.offersFullScreen
+        #endif
+    }
+
     var body: some View {
-        Form {
-            Section {
-                NavigationLink {
-                    AppSettingsView()
-                } label: {
-                    Label("App", systemImage: "app")
-                }
-                #if os(iOS)
-                if AppSettings.offersFullScreen || SessionTabs.isOffered {
+        WithPerceptionTracking {
+            Form {
+                Section {
                     NavigationLink {
-                        PictureSettingsView()
+                        AppSettingsView()
                     } label: {
-                        Label("Picture", systemImage: "rectangle.inset.filled")
+                        Label("App", systemImage: "app")
+                    }
+                    if offersPictureSettings {
+                        NavigationLink {
+                            PictureSettingsView()
+                        } label: {
+                            Label("Picture", systemImage: "rectangle.inset.filled")
+                        }
+                    }
+                    NavigationLink {
+                        KeyboardView()
+                    } label: {
+                        Label("Keyboard", systemImage: "keyboard")
+                    }
+                    NavigationLink {
+                        QuickInputView()
+                    } label: {
+                        Label("Quick Input", systemImage: "text.insert")
+                    }
+                    NavigationLink {
+                        ControlSettingsView()
+                    } label: {
+                        Label("Control", systemImage: "slider.horizontal.3")
                     }
                 }
-                #endif
-                NavigationLink {
-                    KeyboardView()
-                } label: {
-                    Label("Keyboard", systemImage: "keyboard")
-                }
-                NavigationLink {
-                    QuickInputView()
-                } label: {
-                    Label("Quick Input", systemImage: "text.insert")
-                }
-                NavigationLink {
-                    ControlSettingsView()
-                } label: {
-                    Label("Control", systemImage: "slider.horizontal.3")
+                Section("About") {
+                    Link(destination: Self.sourceCode) {
+                        Label("Source Code", systemImage: "chevron.left.forwardslash.chevron.right")
+                    }
+                    .formRowButtonStyleCompat()
                 }
             }
-            Section("About") {
-                Link(destination: Self.sourceCode) {
-                    Label("Source Code", systemImage: "chevron.left.forwardslash.chevron.right")
-                }
-                .formRowButtonStyleCompat()
-            }
+            #if os(macOS)
+            .formStyle(.grouped)
+            .unboundedFormWidth()
+            #endif
+            .navigationTitle("Settings")
         }
-        #if os(macOS)
-        .formStyle(.grouped)
-        .unboundedFormWidth()
-        #endif
-        .navigationTitle("Settings")
     }
 }
 
@@ -94,7 +102,6 @@ private struct ControlSettingsView: View {
     }
 }
 
-#if os(iOS)
 private struct PictureSettingsView: View {
     private let settings = AppSettings.shared
 
@@ -109,11 +116,18 @@ private struct PictureSettingsView: View {
                     } header: {
                         Text("Behavior")
                     } footer: {
+                        #if os(iOS)
                         Text(
                             "Extends the picture to the edges of the screen, where parts of it may be hidden by the rounded corners or the camera. When the pointer moves into a hidden part, that part is also shown nearby."
                         )
+                        #else
+                        Text(
+                            "Extends the full-screen picture around the MacBook notch. Revealing the system menu bar requires moving the pointer to the top of the notch area."
+                        )
+                        #endif
                     }
                 }
+                #if os(iOS)
                 if SessionTabs.isOffered {
                     Section {
                         Toggle(isOn: Binding(get: { settings.usesTabBar }, set: { settings.usesTabBar = $0 })) {
@@ -127,12 +141,16 @@ private struct PictureSettingsView: View {
                         Text("Keeps several connections open as tabs in a bar at the top of the screen, which also holds the toolbar.")
                     }
                 }
+                #endif
             }
+            #if os(macOS)
+            .formStyle(.grouped)
+            .unboundedFormWidth()
+            #endif
             .navigationTitle("Picture")
         }
     }
 }
-#endif
 
 private struct AppSettingsView: View {
     @State private var language = AppLanguage.selected

@@ -498,9 +498,9 @@ protocol RemoteScreen: AnyObject {
     var displayScale: CGFloat { get }
     var isOccluded: Bool { get }
     func drawnCursor(_ shape: CursorShape?, visible: Bool, scale: CGFloat) -> (shape: CursorShape, shownBySystem: Bool)?
+    func loupe(for icon: CGRect?) -> LoupeSpot?
     #if os(iOS)
     func cursorDidRender(in rect: CGRect?)
-    func loupe(for icon: CGRect?) -> LoupeSpot?
     #endif
 }
 
@@ -707,9 +707,9 @@ final class ScreenPresenter {
                     width: CGFloat(cursor.image.width) / cursor.scale * cursorScale,
                     height: CGFloat(cursor.image.height) / cursor.scale * cursorScale))
         }
+        let loupe = screen.loupe(for: cursorRect)
         #if os(iOS)
         screen.cursorDidRender(in: cursor?.shownBySystem == false ? cursorRect : nil)
-        let loupe = screen.loupe(for: cursorRect)
         // pointeruid tracks the luma behind the pointer with a 19 x 19 pt _UILumaTrackingBackdropView, which turns the
         // pointer light at luma <= 0.45 and dark at >= 0.55, and splits a first sample in between at 0.5; Core
         // Animation takes the luma as 0.2126 R + 0.7152 G + 0.0722 B of the mean encoded backdrop colour (pointeruid
@@ -730,8 +730,6 @@ final class ScreenPresenter {
                 cursorOverDarkBackdrop = brightness < 0.5
             }
         }
-        #else
-        let loupe: LoupeSpot? = nil
         #endif
         let committed = CACurrentMediaTime()
         let commit = commits &+ 1

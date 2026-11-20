@@ -1,21 +1,22 @@
 import CoreGraphics
+#if os(iOS)
+import UIKit
+#endif
 
 struct LoupeSpot {
+    static let borderWidth: CGFloat = 2
+
     var source: CGRect
     var frame: CGRect
 }
 
 #if os(iOS)
-import UIKit
-
 final class PointerLoupeView: UIView {
-    static let borderWidth: CGFloat = 2
-
     init() {
         super.init(frame: .zero)
         isHidden = true
         isUserInteractionEnabled = false
-        layer.borderWidth = Self.borderWidth
+        layer.borderWidth = LoupeSpot.borderWidth
         layer.borderColor = UIColor(white: 1, alpha: 0.85).cgColor
     }
 
@@ -24,10 +25,11 @@ final class PointerLoupeView: UIView {
     }
 
     func show(content frame: CGRect) {
-        self.frame = frame.insetBy(dx: -Self.borderWidth, dy: -Self.borderWidth)
+        self.frame = frame.insetBy(dx: -LoupeSpot.borderWidth, dy: -LoupeSpot.borderWidth)
         isHidden = false
     }
 }
+#endif
 
 struct ScreenObstructions {
     private static let occlusionGap: CGFloat = 8
@@ -42,6 +44,7 @@ struct ScreenObstructions {
         [(topLeft, true, true), (topRight, false, true), (bottomLeft, true, false), (bottomRight, false, false)]
     }
 
+    #if os(iOS)
     func clearingCorners(_ insets: UIEdgeInsets) -> UIEdgeInsets {
         var cleared = insets
         for (radius, left, top) in corners {
@@ -56,6 +59,7 @@ struct ScreenObstructions {
         }
         return cleared
     }
+    #endif
 
     func topCornerInset(left: Bool, in area: CGRect) -> CGFloat? {
         let radius = left ? topLeft : topRight
@@ -65,7 +69,7 @@ struct ScreenObstructions {
     }
 
     func loupe(for icon: CGRect, in area: CGRect) -> LoupeSpot? {
-        let offset = Self.occlusionGap + PointerLoupeView.borderWidth
+        let offset = Self.occlusionGap + LoupeSpot.borderWidth
         for occlusion in occlusions {
             let gaps = [occlusion.minX - area.minX, area.maxX - occlusion.maxX, occlusion.minY - area.minY, area.maxY - occlusion.maxY]
             var source = occlusion
@@ -96,7 +100,7 @@ struct ScreenObstructions {
             guard Self.hides(radius: radius, horizontal: horizontal, vertical: vertical) else { continue }
             let source = CGRect(
                 x: left ? area.minX : area.maxX - radius, y: top ? area.minY : area.maxY - radius, width: radius, height: radius)
-            let inset = Self.cornerInset(radius: radius) + PointerLoupeView.borderWidth
+            let inset = Self.cornerInset(radius: radius) + LoupeSpot.borderWidth
             return LoupeSpot(source: source, frame: source.offsetBy(dx: left ? inset : -inset, dy: top ? inset : -inset))
         }
         return nil
@@ -110,4 +114,3 @@ struct ScreenObstructions {
         radius * (1 - 1 / 2.squareRoot())
     }
 }
-#endif

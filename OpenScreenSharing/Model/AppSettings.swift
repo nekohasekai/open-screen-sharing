@@ -2,6 +2,8 @@ import Foundation
 import Perception
 #if os(iOS)
 import UIKit
+#else
+import AppKit
 #endif
 
 @Perceptible
@@ -27,13 +29,20 @@ final class AppSettings {
         didSet { store.set(cursorStyle, for: Key.cursorStyle) }
     }
 
+    var pictureFillsScreen: Bool {
+        didSet {
+            store.set(pictureFillsScreen, for: Key.pictureFillsScreen)
+            #if os(macOS)
+            MainActor.assumeIsolated {
+                RemoteScreenNSView.updateFillsScreen(pictureFillsScreen)
+            }
+            #endif
+        }
+    }
+
     #if os(iOS)
     var pinchZooms: Bool {
         didSet { store.set(pinchZooms, for: Key.pinchZooms) }
-    }
-
-    var pictureFillsScreen: Bool {
-        didSet { store.set(pictureFillsScreen, for: Key.pictureFillsScreen) }
     }
 
     var usesTabBar: Bool {
@@ -50,6 +59,12 @@ final class AppSettings {
         default:
             return false
         }
+    }
+    #else
+    private var hasCameraHousing: Bool
+
+    static var offersFullScreen: Bool {
+        shared.hasCameraHousing
     }
     #endif
 
@@ -70,14 +85,28 @@ final class AppSettings {
     init() {
         showsDebugInfo = store.value(Bool.self, for: Key.showsDebugInfo) ?? false
         cursorStyle = store.value(CursorStyle.self, for: Key.cursorStyle) ?? .system
+        pictureFillsScreen = store.value(Bool.self, for: Key.pictureFillsScreen) ?? true
         #if os(iOS)
         pinchZooms = store.value(Bool.self, for: Key.pinchZooms) ?? (UIDevice.current.userInterfaceIdiom == .phone)
-        pictureFillsScreen = store.value(Bool.self, for: Key.pictureFillsScreen) ?? true
         usesTabBar = store.value(Bool.self, for: Key.usesTabBar) ?? false
+        #else
+        hasCameraHousing = FullScreenCameraHousing.isAvailable
         #endif
         computerLayout = store.value(ComputerLayout.self, for: Key.computerLayout) ?? .grid
         computerOrder = store.value([UUID].self, for: Key.computerOrder) ?? []
         seenTutorials = store.value(Set<SessionTutorial>.self, for: Key.seenTutorials) ?? []
+        #if os(macOS)
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                let available = FullScreenCameraHousing.isAvailable
+                if self?.hasCameraHousing != available {
+                    self?.hasCameraHousing = available
+                }
+            }
+        }
+        #endif
     }
 }
 

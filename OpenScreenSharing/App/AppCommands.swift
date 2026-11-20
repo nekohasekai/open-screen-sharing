@@ -120,11 +120,18 @@ private struct ClipboardCommandItems: View {
 }
 
 private struct ViewCommandItems: View {
+    private let settings = AppSettings.shared
     let session: SessionController?
 
     var body: some View {
         WithPerceptionTracking {
             Section {
+                #if os(macOS)
+                if AppSettings.offersFullScreen {
+                    Toggle("Full Screen", isOn: Binding(get: { settings.pictureFillsScreen }, set: { settings.pictureFillsScreen = $0 }))
+                        .modifier(ActionShortcut(action: .fullScreen))
+                }
+                #endif
                 Toggle("Zoom Mode", isOn: Binding(get: { session?.isZoomModeOn ?? false }, set: { session?.setZoomMode($0) }))
                     .modifier(ActionShortcut(action: .zoomMode))
                     .disabled(session == nil)

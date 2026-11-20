@@ -32840,6 +32840,316 @@
         }
       }
     },
+    "Extends the full-screen picture around the MacBook notch. Revealing the system menu bar requires moving the pointer to the top of the notch area." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يمدّ الصورة بملء الشاشة حول نتوء MacBook. يتطلب إظهار شريط قوائم النظام تحريك المؤشر إلى أعلى منطقة النتوء."
+          }
+        },
+        "bg" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разширява картината на цял екран около прореза на MacBook. За да покажете системната лента с менюта, преместете показалеца до горната част на зоната на прореза."
+          }
+        },
+        "bn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "পূর্ণ স্ক্রিনের ছবিকে MacBook-এর নচের চারপাশে বিস্তৃত করে। সিস্টেম মেনু বার দেখাতে পয়েন্টারকে নচ এলাকার উপরের অংশে নিয়ে যান।"
+          }
+        },
+        "ca" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amplia la imatge a pantalla completa al voltant de l’osca del MacBook. Per mostrar la barra de menús del sistema, mou el punter a la part superior de la zona de l’osca."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozšíří obraz na celé obrazovce kolem výřezu MacBooku. Systémový řádek nabídek zobrazíte přesunutím ukazatele do horní části oblasti výřezu."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Udvider fuldskærmsbilledet rundt om udskæringen på MacBook. Flyt markøren til toppen af området ved udskæringen for at vise systemets menulinje."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erweitert das Bild im Vollbildmodus um die Notch des MacBook. Um die Systemmenüleiste einzublenden, bewege den Zeiger an den oberen Rand des Bereichs der Notch."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Επεκτείνει την εικόνα πλήρους οθόνης γύρω από την εγκοπή του MacBook. Για εμφάνιση της γραμμής μενού του συστήματος, μετακινήστε τον δείκτη στο πάνω μέρος της περιοχής της εγκοπής."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extends the full-screen picture around the MacBook notch. Revealing the system menu bar requires moving the pointer to the top of the notch area."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extiende la imagen a pantalla completa alrededor de la muesca del MacBook. Para mostrar la barra de menús del sistema, mueve el puntero a la parte superior de la zona de la muesca."
+          }
+        },
+        "es-419" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extiende la imagen en pantalla completa alrededor de la muesca de la MacBook. Para mostrar la barra de menús del sistema, mueve el puntero a la parte superior del área de la muesca."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laajentaa koko näytön kuvan MacBookin loven ympärille. Näytä järjestelmän valikkopalkki siirtämällä osoitin loven alueen yläosaan."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Étend l’image en plein écran autour de l’encoche du MacBook. Pour afficher la barre des menus du système, déplacez le pointeur vers le haut de la zone de l’encoche."
+          }
+        },
+        "fr-CA" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Étend l’image en plein écran autour de l’encoche du MacBook. Pour afficher la barre des menus du système, déplacez le pointeur vers le haut de la zone de l’encoche."
+          }
+        },
+        "gu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "પૂર્ણ સ્ક્રીન ચિત્રને MacBookના નૉચની આસપાસ વિસ્તારે છે. સિસ્ટમ મેનૂ બાર બતાવવા માટે પૉઇંટરને નૉચ વિસ્તારની ટોચ પર ખસેડો."
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "מרחיב את התמונה במסך מלא סביב המגרעת של ה‑MacBook. כדי להציג את שורת התפריטים של המערכת, יש להזיז את המצביע לראש אזור המגרעת."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पूर्ण-स्क्रीन तस्वीर को MacBook के नॉच के चारों ओर फैलाता है। सिस्टम मेनू बार दिखाने के लिए पॉइंटर को नॉच क्षेत्र के शीर्ष पर ले जाएँ।"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proširuje sliku na cijelom zaslonu oko ureza na MacBook računalu. Za prikaz trake s izbornicima sustava pomaknite pokazivač na vrh područja ureza."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kiterjeszti a teljes képernyős képet a MacBook kivágása köré. A rendszer menüsávjának megjelenítéséhez vigye a mutatót a kivágás területének tetejére."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memperluas gambar layar penuh di sekitar lekukan MacBook. Untuk menampilkan bar menu sistem, gerakkan penunjuk ke bagian atas area lekukan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estende l’immagine a schermo intero intorno alla tacca del MacBook. Per mostrare la barra dei menu di sistema, sposta il puntatore nella parte superiore dell’area della tacca."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フルスクリーンの映像をMacBookのノッチの周りまで広げます。システムのメニューバーを表示するには、ポインタをノッチ領域の上部に移動します。"
+          }
+        },
+        "kk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Толық экрандағы кескінді MacBook ойығының айналасына кеңейтеді. Жүйелік мәзір жолағын көрсету үшін меңзерді ойық аймағының жоғарғы жағына жылжытыңыз."
+          }
+        },
+        "kn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ಪೂರ್ಣ ಪರದೆಯ ಚಿತ್ರವನ್ನು MacBook ನಾಚ್ ಸುತ್ತಲೂ ವಿಸ್ತರಿಸುತ್ತದೆ. ಸಿಸ್ಟಂ ಮೆನು ಬಾರ್ ತೋರಿಸಲು ಪಾಯಿಂಟರ್ ಅನ್ನು ನಾಚ್ ಪ್ರದೇಶದ ಮೇಲ್ಭಾಗಕ್ಕೆ ಸರಿಸಿ."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전체 화면을 MacBook 노치 주변까지 확장합니다. 시스템 메뉴 막대를 표시하려면 포인터를 노치 영역 상단으로 이동하십시오."
+          }
+        },
+        "lt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Išplečia viso ekrano vaizdą aplink „MacBook” išpjovą. Kad parodytumėte sistemos meniu juostą, perkelkite žymeklį į išpjovos srities viršų."
+          }
+        },
+        "ml" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "പൂർണ്ണ സ്‌ക്രീൻ ചിത്രം MacBook നോച്ചിന് ചുറ്റും വ്യാപിപ്പിക്കുന്നു. സിസ്റ്റം മെനു ബാർ കാണിക്കാൻ പോയിന്റർ നോച്ച് ഭാഗത്തിന്റെ മുകൾഭാഗത്തേക്ക് നീക്കൂ."
+          }
+        },
+        "mr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "पूर्ण स्क्रीन चित्र MacBook च्या नॉचभोवती विस्तारते. सिस्टम मेनू बार दाखवण्यासाठी पॉइंटर नॉच भागाच्या वरच्या बाजूला हलवा."
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Melanjutkan gambar skrin penuh di sekeliling takuk MacBook. Untuk memaparkan bar menu sistem, gerakkan penuding ke bahagian atas kawasan takuk."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utvider fullskjermbildet rundt utskjæringen på MacBook. Flytt pekeren til toppen av området ved utskjæringen for å vise systemets menylinje."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Breidt het beeld op volledig scherm uit rond de inkeping van de MacBook. Om de menubalk van het systeem te tonen, beweeg je de aanwijzer naar de bovenkant van het gebied van de inkeping."
+          }
+        },
+        "or" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ପୂର୍ଣ୍ଣ-ସ୍କ୍ରିନ୍ ଛବିକୁ MacBook ର ନଚ୍ ଚାରିପାଖରେ ବିସ୍ତାର କରେ। ସିଷ୍ଟମ୍ ମେନୁ ବାର୍ ଦେଖାଇବା ପାଇଁ ପଏଣ୍ଟର୍‌କୁ ନଚ୍ ଅଞ୍ଚଳର ଉପର ଭାଗକୁ ନିଅନ୍ତୁ।"
+          }
+        },
+        "pa" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ਪੂਰੀ-ਸਕ੍ਰੀਨ ਤਸਵੀਰ ਨੂੰ MacBook ਦੇ ਨੌਚ ਦੇ ਆਲੇ-ਦੁਆਲੇ ਫੈਲਾਉਂਦਾ ਹੈ। ਸਿਸਟਮ ਮੀਨੂ ਬਾਰ ਦਿਖਾਉਣ ਲਈ ਪੁਆਇੰਟਰ ਨੂੰ ਨੌਚ ਖੇਤਰ ਦੇ ਸਿਖਰ ’ਤੇ ਲੈ ਜਾਓ।"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozszerza obraz pełnoekranowy wokół wycięcia MacBooka. Aby pokazać systemowy pasek menu, przesuń wskaźnik do górnej części obszaru wycięcia."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estende a imagem em tela cheia ao redor do recorte do MacBook. Para mostrar a barra de menus do sistema, mova o cursor para a parte superior da área do recorte."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estende a imagem em ecrã completo à volta do entalhe do MacBook. Para mostrar a barra de menus do sistema, desloque o cursor para a parte superior da área do entalhe."
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extinde imaginea în ecran complet în jurul decupajului de pe MacBook. Pentru a afișa bara de meniu a sistemului, mutați cursorul în partea de sus a zonei decupajului."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Расширяет полноэкранное изображение вокруг выреза MacBook. Чтобы показать системную строку меню, переместите указатель в верхнюю часть области выреза."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozšíri obraz na celej obrazovke okolo výrezu MacBooku. Systémovú lištu s ponukami zobrazíte presunutím kurzora do hornej časti oblasti výrezu."
+          }
+        },
+        "sl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Razširi celozaslonsko sliko okoli zareze računalnika MacBook. Za prikaz sistemske menijske vrstice premaknite kazalnik na vrh območja zareze."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utökar helskärmsbilden runt skåran på MacBook. Flytta pekaren högst upp i området vid skåran för att visa systemets menyrad."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "முழுத்திரைப் படத்தை MacBook நாட்ச்சைச் சுற்றி விரிவாக்குகிறது. சிஸ்டம் மெனுப் பட்டியைக் காட்ட பாயிண்டரை நாட்ச் பகுதியின் மேல் பகுதிக்கு நகர்த்தவும்."
+          }
+        },
+        "te" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "పూర్తి స్క్రీన్ చిత్రాన్ని MacBook నాచ్ చుట్టూ విస్తరిస్తుంది. సిస్టమ్ మెనూ బార్‌ను చూపడానికి పాయింటర్‌ను నాచ్ ప్రాంతం పైభాగానికి కదిలించాలి."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ขยายภาพแบบเต็มจอรอบรอยบากของ MacBook เมื่อต้องการแสดงแถบเมนูของระบบ ให้เลื่อนตัวชี้ไปยังด้านบนของบริเวณรอยบาก"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tam ekran görüntüyü MacBook çentiğinin etrafına genişletir. Sistem menü çubuğunu göstermek için imleci çentik alanının üst kısmına taşıyın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Розширює повноекранне зображення навколо вирізу MacBook. Щоб показати системний рядок меню, перемістіть вказівник у верхню частину ділянки вирізу."
+          }
+        },
+        "ur" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "پوری اسکرین کی تصویر کو MacBook کے نوچ کے گرد پھیلاتا ہے۔ سسٹم مینو بار دکھانے کے لیے پوائنٹر کو نوچ والے حصے کے اوپری سرے پر لے جائیں۔"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mở rộng hình ảnh toàn màn hình ra xung quanh phần khuyết của MacBook. Để hiển thị thanh menu hệ thống, hãy di chuyển con trỏ đến phần trên cùng của vùng phần khuyết."
+          }
+        },
+        "zh-HK" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "將全螢幕畫面延伸到 MacBook 瀏海兩側。必須將指標移動到瀏海區域頂部才能顯示系統選單列。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将全屏画面延伸到 MacBook 刘海两侧。必须将指针移动到刘海区域顶部才能呼出系统菜单栏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "將全螢幕畫面延伸到 MacBook 瀏海兩側。必須將指標移動到瀏海區域頂部才能顯示系統選單列。"
+          }
+        }
+      }
+    },
     "Extends the picture to the edges of the screen, where parts of it may be hidden by the rounded corners or the camera. When the pointer moves into a hidden part, that part is also shown nearby." : {
       "localizations" : {
         "ar" : {

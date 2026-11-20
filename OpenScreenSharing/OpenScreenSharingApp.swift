@@ -19,6 +19,7 @@ enum OpenScreenSharingMain {
         // -[NSPersistentUIRestorer _finishedRestoringWindowsWith_ZOrder:options:completionHandler:] 0x185ca0144..0x185ca01d0,
         // ___58-[NSApplication(NSAppleEventHandling) _handleAEOpenEvent:]_block_invoke 0x185024488..0x1850244c0).
         UserDefaults.standard.register(defaults: ["ApplePersistenceIgnoreState": true])
+        FullScreenCameraHousing.install()
         MacApp.main()
         #endif
     }

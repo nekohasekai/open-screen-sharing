@@ -37,13 +37,25 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
     private static let pointsPerLine: CGFloat = 10
     private static let wheelPointsPerZoomDoubling: CGFloat = 100
     private static let defaultPictureSize = CGSize(width: 1280, height: 800)
+    private static let cameraHousingRevealHeight: CGFloat = 6
     private static let views = NSHashTable<RemoteScreenNSView>.weakObjects()
 
     private let controller: SessionController
     private let touchRecognizer: DirectTouchRecognizer
     private let metalLayer = CAMetalLayer()
+    private let loupeLayer = CALayer()
     private var presenter: ScreenPresenter!
     private(set) var isOccluded = false
+    private var fillsScreen = AppSettings.shared.pictureFillsScreen
+    private var toolbarWindowObservation: NSKeyValueObservation?
+    private weak var fullScreenToolbarWindow: NSWindow?
+    private var hidWindowToolbar = false
+    private var locksMenuBar = false
+    private var cameraHousing: CGRect?
+    private var cameraHousingLocalMonitor: Any?
+    private var cameraHousingGlobalMonitor: Any?
+    private var pointerAtCameraHousingTop = false
+    private var menuBarIsRevealed = false
 
     private var zoom: CGFloat = 1
     private var viewportCenter: CGPoint?
@@ -92,6 +104,11 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
         wantsLayer = true
         layerContentsRedrawPolicy = .never
         metalLayer.backgroundColor = NSColor.black.cgColor
+        loupeLayer.isHidden = true
+        loupeLayer.borderWidth = LoupeSpot.borderWidth
+        loupeLayer.borderColor = CGColor(gray: 1, alpha: 0.85)
+        loupeLayer.actions = ["bounds": NSNull(), "position": NSNull(), "hidden": NSNull()]
+        metalLayer.addSublayer(loupeLayer)
         presenter = ScreenPresenter(screen: self, controller: controller, layer: metalLayer)
         controller.screen = self
         Self.views.add(self)
@@ -117,8 +134,8 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
 
     deinit {
         MainActor.assumeIsolated {
-            if let keyMonitor {
-                NSEvent.removeMonitor(keyMonitor)
+            for monitor in [keyMonitor, cameraHousingLocalMonitor, cameraHousingGlobalMonitor].compactMap(\.self) {
+                NSEvent.removeMonitor(monitor)
             }
             if isPointerLocked {
                 CGAssociateMouseAndMouseCursorPosition(1)
@@ -126,6 +143,9 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
             }
             if suspendsSymbolicHotKeys {
                 SymbolicHotKeys.resume()
+            }
+            if locksMenuBar {
+                FullScreenCameraHousing.setMenuBarLocked(Self.views.allObjects.contains { $0 !== self && $0.locksMenuBar })
             }
         }
     }
@@ -151,7 +171,9 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
         super.viewWillMove(toWindow: newWindow)
         guard let window, newWindow !== window else { return }
         setPointerLocked(false)
+        coverCameraHousing(false)
         NotificationCenter.default.removeObserver(self, name: nil, object: window)
+        NotificationCenter.default.removeObserver(self, name: NSApplication.didChangeScreenParametersNotification, object: nil)
         DistributedNotificationCenter.default().removeObserver(self)
     }
 
@@ -179,8 +201,11 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
         center.addObserver(self, selector: #selector(windowDidResignKey), name: NSWindow.didResignKeyNotification, object: window)
         center.addObserver(self, selector: #selector(windowOcclusionDidChange), name: NSWindow.didChangeOcclusionStateNotification, object: window)
         center.addObserver(self, selector: #selector(windowScreenDidChange), name: NSWindow.didChangeScreenNotification, object: window)
+        center.addObserver(self, selector: #selector(windowScreenDidChange), name: NSApplication.didChangeScreenParametersNotification, object: nil)
+        center.addObserver(self, selector: #selector(windowDidMove), name: NSWindow.didMoveNotification, object: window)
         center.addObserver(self, selector: #selector(windowFullScreenDidChange), name: NSWindow.didEnterFullScreenNotification, object: window)
         center.addObserver(self, selector: #selector(windowFullScreenDidChange), name: NSWindow.didExitFullScreenNotification, object: window)
+        center.addObserver(self, selector: #selector(windowWillExitFullScreen), name: NSWindow.willExitFullScreenNotification, object: window)
         DistributedNotificationCenter.default().addObserver(
             self, selector: #selector(keyboardSourceDidChange), name: NSNotification.Name(kTISNotifySelectedKeyboardInputSourceChanged as String),
             object: nil, suspensionBehavior: .deliverImmediately
@@ -218,6 +243,9 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
         super.setFrameSize(newSize)
         updateDrawableSize()
         geometryDidChange()
+        if controller.isFullScreen {
+            coverCameraHousing(true)
+        }
         if controller.scaleMode == .actualSize {
             applyScale(.actualSize)
         }
@@ -312,6 +340,30 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
         return views.allObjects.contains { $0.window === window }
     }
 
+    static func fillsCameraHousing(_ window: NSWindow?) -> Bool {
+        guard let window else { return false }
+        return views.allObjects.contains { $0.window === window && $0.fillsScreen }
+    }
+
+    static func updateFillsScreen(_ fills: Bool) {
+        for view in views.allObjects {
+            view.setFillsScreen(fills)
+        }
+    }
+
+    private func setFillsScreen(_ fills: Bool) {
+        guard fills != fillsScreen else { return }
+        fillsScreen = fills
+        guard controller.isFullScreen, let window else { return }
+        if !fills {
+            coverCameraHousing(false)
+        }
+        FullScreenCameraHousing.update(window)
+        coverCameraHousing(controller.isFullScreen)
+        geometryDidChange()
+        setNeedsRender()
+    }
+
     static func focusWindow(showing route: SessionRoute) -> Bool {
         let shown = views.allObjects.first { view in
             if let id = route.computerID, let computerID = view.controller.computerID {
@@ -337,6 +389,8 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
         controller.syncCapsLock(NSEvent.modifierFlags.contains(.capsLock))
         updatePointerLock()
         updateSymbolicHotKeys()
+        updatePointerAtCameraHousingTop()
+        updateMenuBar()
     }
 
     @objc private func windowDidResignKey() {
@@ -354,6 +408,8 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
         systemPointerLocation = nil
         controller.pointerLeftScreen()
         updateSymbolicHotKeys()
+        updatePointerAtCameraHousingTop()
+        updateMenuBar()
         setNeedsRender()
     }
 
@@ -380,6 +436,8 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
         guard let window else { return }
         isOccluded = !window.occlusionState.contains(.visible)
         controller.setScreenVisible(!isOccluded)
+        updatePointerAtCameraHousingTop()
+        updateMenuBar()
         if isOccluded {
             presenter.pause()
         } else {
@@ -391,12 +449,146 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
         guard let screen = window?.screen else { return }
         controller.displaySupportsHDR = screen.maximumPotentialExtendedDynamicRangeColorComponentValue > 1
         presenter.setRefreshRate(screen.maximumFramesPerSecond)
+        let fullScreen = controller.isFullScreen
+        coverCameraHousing(fullScreen)
+        updateLetterbox()
+        if fullScreen {
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.coverCameraHousing(self.controller.isFullScreen)
+                self.updateLetterbox()
+            }
+        }
+    }
+
+    @objc private func windowDidMove() {
+        guard controller.isFullScreen else { return }
+        coverCameraHousing(true)
     }
 
     @objc private func windowFullScreenDidChange() {
         let fullScreen = window?.styleMask.contains(.fullScreen) ?? false
         controller.isFullScreen = fullScreen
+        coverCameraHousing(fullScreen)
         updateLetterbox()
+    }
+
+    @objc private func windowWillExitFullScreen() {
+        controller.isFullScreen = false
+        coverCameraHousing(false)
+    }
+
+    private func coverCameraHousing(_ fullScreen: Bool) {
+        guard let window else { return }
+        let toolbarWindow = window.childWindows?.first { $0.className == "NSToolbarFullScreenWindow" }
+        guard fullScreen, let housing = FullScreenCameraHousing.housing(coveredBy: window), let toolbarWindow else {
+            let hadLoupe = !loupeLayer.isHidden
+            loupeLayer.isHidden = true
+            for monitor in [cameraHousingLocalMonitor, cameraHousingGlobalMonitor].compactMap(\.self) {
+                NSEvent.removeMonitor(monitor)
+            }
+            cameraHousingLocalMonitor = nil
+            cameraHousingGlobalMonitor = nil
+            toolbarWindowObservation = nil
+            pointerAtCameraHousingTop = false
+            menuBarIsRevealed = false
+            cameraHousing = nil
+            setMenuBarLocked(false)
+            for barWindow in [fullScreenToolbarWindow, toolbarWindow] {
+                barWindow?.contentView?.isHidden = false
+                barWindow?.ignoresMouseEvents = false
+            }
+            fullScreenToolbarWindow = nil
+            window.level = .normal
+            if hidWindowToolbar, let toolbar = window.toolbar {
+                toolbar.isVisible = true
+                hidWindowToolbar = !toolbar.isVisible
+            }
+            if hadLoupe {
+                setNeedsRender()
+            }
+            return
+        }
+        if let toolbar = window.toolbar, toolbar.isVisible {
+            toolbar.isVisible = false
+            if !toolbar.isVisible {
+                hidWindowToolbar = true
+            }
+        }
+        let pointerEvents: NSEvent.EventTypeMask = [.mouseMoved, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged]
+        if cameraHousingLocalMonitor == nil {
+            cameraHousingLocalMonitor = NSEvent.addLocalMonitorForEvents(matching: pointerEvents) { [weak self] event in
+                self?.updatePointerAtCameraHousingTop()
+                return event
+            }
+        }
+        if cameraHousingGlobalMonitor == nil {
+            cameraHousingGlobalMonitor = NSEvent.addGlobalMonitorForEvents(matching: pointerEvents) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    self?.updatePointerAtCameraHousingTop()
+                }
+            }
+        }
+        guard housing != cameraHousing || toolbarWindow !== fullScreenToolbarWindow else {
+            updatePointerAtCameraHousingTop()
+            updateMenuBar()
+            return
+        }
+        toolbarWindowObservation = nil
+        menuBarIsRevealed = false
+        if fullScreenToolbarWindow !== toolbarWindow {
+            fullScreenToolbarWindow?.contentView?.isHidden = false
+            fullScreenToolbarWindow?.ignoresMouseEvents = false
+        }
+        cameraHousing = housing
+        pointerAtCameraHousingTop = isPointerAtCameraHousingTop
+        fullScreenToolbarWindow = toolbarWindow
+        toolbarWindowObservation = toolbarWindow.observe(\.alphaValue, options: .initial) { [weak self] toolbarWindow, _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                let revealed = toolbarWindow.alphaValue > 0
+                let changed = revealed != self.menuBarIsRevealed
+                self.menuBarIsRevealed = revealed
+                if !revealed {
+                    self.pointerAtCameraHousingTop = self.isPointerAtCameraHousingTop
+                }
+                self.updateMenuBar()
+                if changed {
+                    self.setNeedsRender()
+                }
+            }
+        }
+    }
+
+    private var isPointerAtCameraHousingTop: Bool {
+        guard let cameraHousing, !isPointerLocked else { return false }
+        let point = NSEvent.mouseLocation
+        return point.x >= cameraHousing.minX && point.x <= cameraHousing.maxX
+            && point.y >= cameraHousing.maxY - Self.cameraHousingRevealHeight && point.y <= cameraHousing.maxY + 2
+    }
+
+    private func setMenuBarLocked(_ locked: Bool) {
+        guard locked != locksMenuBar else { return }
+        locksMenuBar = locked
+        FullScreenCameraHousing.setMenuBarLocked(Self.views.allObjects.contains { $0.locksMenuBar })
+    }
+
+    private func updateMenuBar() {
+        guard cameraHousing != nil else {
+            setMenuBarLocked(false)
+            return
+        }
+        window?.level = menuBarIsRevealed ? .normal : FullScreenCameraHousing.windowLevel
+        fullScreenToolbarWindow?.contentView?.isHidden = !menuBarIsRevealed
+        fullScreenToolbarWindow?.ignoresMouseEvents = !menuBarIsRevealed
+        setMenuBarLocked(!isOccluded && !menuBarIsRevealed && !pointerAtCameraHousingTop)
+    }
+
+    private func updatePointerAtCameraHousingTop() {
+        let atTop = isPointerAtCameraHousingTop
+        guard atTop != pointerAtCameraHousingTop else { return }
+        pointerAtCameraHousingTop = atTop
+        updateMenuBar()
     }
 
     private func setNeedsRender() {
@@ -611,6 +803,38 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
         return remoteCursor.map { ($0.drawn, drawsCursorLocally) }
     }
 
+    func loupe(for icon: CGRect?) -> LoupeSpot? {
+        guard let window, let cameraHousing, !menuBarIsRevealed, let icon, bounds.intersects(icon) else {
+            loupeLayer.isHidden = true
+            return nil
+        }
+        let occlusion = convert(window.convertFromScreen(cameraHousing), from: nil)
+        guard imageRect.intersects(occlusion),
+            let spot = ScreenObstructions(occlusions: [occlusion]).loupe(for: icon, in: bounds)
+        else {
+            loupeLayer.isHidden = true
+            return nil
+        }
+        let scale = backingScale
+        func pixelAligned(_ rect: CGRect) -> CGRect {
+            CGRect(
+                x: (rect.minX * scale).rounded() / scale, y: (rect.minY * scale).rounded() / scale,
+                width: (rect.width * scale).rounded() / scale, height: (rect.height * scale).rounded() / scale)
+        }
+        let aligned = LoupeSpot(source: pixelAligned(spot.source), frame: pixelAligned(spot.frame))
+        guard bounds.contains(aligned.frame) else {
+            loupeLayer.isHidden = true
+            return nil
+        }
+        let border = aligned.frame.insetBy(dx: -LoupeSpot.borderWidth, dy: -LoupeSpot.borderWidth)
+        loupeLayer.frame =
+            metalLayer.isGeometryFlipped
+            ? border
+            : CGRect(x: border.minX, y: metalLayer.bounds.height - border.maxY, width: border.width, height: border.height)
+        loupeLayer.isHidden = false
+        return aligned
+    }
+
     private func updateRemoteCursor(_ shape: CursorShape?, visible: Bool, scale: CGFloat) {
         var changed = visible != remoteCursorVisible
         remoteCursorVisible = visible
@@ -676,16 +900,18 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
 
     override func mouseEntered(with event: NSEvent) {
         systemPointerLocation = convert(event.locationInWindow, from: nil)
+        updatePointerAtCameraHousingTop()
         refreshCursor()
     }
 
     override func mouseExited(with event: NSEvent) {
         guard !isPointerLocked else { return }
         systemPointerLocation = nil
+        updatePointerAtCameraHousingTop()
         if clickedButtons.isEmpty {
             controller.pointerLeftScreen()
         }
-        if drawsCursorLocally {
+        if drawsCursorLocally || !loupeLayer.isHidden {
             setNeedsRender()
         }
     }
@@ -720,6 +946,7 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
         }
         let location = convert(event.locationInWindow, from: nil)
         systemPointerLocation = location
+        updatePointerAtCameraHousingTop()
         if clickedButtons == [.primary], !bounds.contains(location), let offer = controller.takeRemoteDrag() {
             controller.cancelRemoteDrag()
             clickedButtons = []
@@ -991,6 +1218,7 @@ final class RemoteScreenNSView: NSView, RemoteScreen {
                 controller.setPressedButtons([])
             }
         }
+        updatePointerAtCameraHousingTop()
         setNeedsRender()
     }
 
