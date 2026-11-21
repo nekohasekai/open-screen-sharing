@@ -50,5 +50,7 @@
 	</array>
 	<key>UIFileSharingEnabled</key>
 	<true/>
+	<key>UISupportsiPhoneResizing</key>
+	<false/>
 </dict>
 </plist>
