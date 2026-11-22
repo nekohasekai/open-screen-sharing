@@ -90,8 +90,9 @@
     <string name="home_network_quality">Желі сапасы</string>
     <string name="home_local_network">Жергілікті желі</string>
     <string name="home_internet">Интернет</string>
-    <string name="home_maximum_frame_rate">Ең жоғары кадр жиілігі</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Жоғары айқындық</string>
+    <string name="home_network_bandwidth">Желінің өткізу қабілеті</string>
+    <string name="home_mbps">%1$d Мбит/с</string>
     <string name="home_enter_name">Атауын енгізіңіз.</string>
     <string name="home_enter_valid_address">Жарамды сервер мекенжайын енгізіңіз.</string>
     <string name="home_authentication">Аутентификация</string>

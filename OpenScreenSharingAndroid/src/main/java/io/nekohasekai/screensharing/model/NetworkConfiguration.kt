@@ -31,29 +31,27 @@ enum class ChromaSampling {
     }
 }
 
-enum class MaximumFrameRate(val rawValue: Int) {
-    Thirty(30),
-    Sixty(60),
-    ;
-
-    companion object {
-        fun of(rawValue: Int): MaximumFrameRate? = entries.firstOrNull { it.rawValue == rawValue }
-    }
-}
-
 data class NetworkConfiguration(
     val quality: NetworkQuality = NetworkQuality.LocalNetwork,
-    val internetMaximumFrameRate: MaximumFrameRate = MaximumFrameRate.Sixty,
+    val internetHighDefinition: Boolean = false,
+    val internetBandwidthMbps: Int = DEFAULT_BANDWIDTH_MBPS,
 ) {
-    val usesCoreDevice: Boolean get() = quality == NetworkQuality.Internet
+    val usesCoreDevice: Boolean get() = quality == NetworkQuality.Internet && !internetHighDefinition
 
-    val bands: Int get() = if (usesCoreDevice) 1 else 4
+    val bands: Int get() = if (quality == NetworkQuality.LocalNetwork) 4 else 1
 
     val schedulesPresentation: Boolean get() = quality == NetworkQuality.LocalNetwork
 
-    val maximumFrameRate: MaximumFrameRate
-        get() = if (quality == NetworkQuality.LocalNetwork) MaximumFrameRate.Sixty else internetMaximumFrameRate
+    val bandwidthMbps: Int get() = internetBandwidthMbps.coerceIn(bandwidthRangeMbps)
+
+    val maximumBitrate: Long
+        get() = if (quality == NetworkQuality.Internet && internetHighDefinition) bandwidthMbps * 1_000_000L else 0L
 
     // Mode 5 negotiated 4:2:0 (observed on iPad17,1, iPadOS 27.2 24B5099f).
     val chroma: ChromaSampling get() = if (usesCoreDevice) ChromaSampling.Yuv420 else ChromaSampling.Yuv444
+
+    companion object {
+        val bandwidthRangeMbps = 5..60
+        const val DEFAULT_BANDWIDTH_MBPS = 15
+    }
 }

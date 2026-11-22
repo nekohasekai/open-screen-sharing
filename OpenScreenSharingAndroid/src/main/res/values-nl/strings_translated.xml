@@ -90,8 +90,9 @@
     <string name="home_network_quality">Netwerkkwaliteit</string>
     <string name="home_local_network">Lokaal netwerk</string>
     <string name="home_internet">Internet</string>
-    <string name="home_maximum_frame_rate">Maximale framesnelheid</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Hoge definitie</string>
+    <string name="home_network_bandwidth">Netwerkbandbreedte</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">Voer een naam in.</string>
     <string name="home_enter_valid_address">Voer een geldig serveradres in.</string>
     <string name="home_authentication">Authenticatie</string>

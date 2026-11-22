@@ -90,8 +90,9 @@
     <string name="home_network_quality">Качество сети</string>
     <string name="home_local_network">Локальная сеть</string>
     <string name="home_internet">Интернет</string>
-    <string name="home_maximum_frame_rate">Максимальная частота кадров</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Высокая чёткость</string>
+    <string name="home_network_bandwidth">Пропускная способность сети</string>
+    <string name="home_mbps">%1$d Мбит/с</string>
     <string name="home_enter_name">Введите имя.</string>
     <string name="home_enter_valid_address">Введите допустимый адрес сервера.</string>
     <string name="home_authentication">Аутентификация</string>

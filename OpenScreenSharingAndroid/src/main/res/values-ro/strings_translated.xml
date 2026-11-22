@@ -90,8 +90,9 @@
     <string name="home_network_quality">Calitatea rețelei</string>
     <string name="home_local_network">Rețea locală</string>
     <string name="home_internet">Internet</string>
-    <string name="home_maximum_frame_rate">Rată maximă de cadre</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Înaltă definiție</string>
+    <string name="home_network_bandwidth">Lățime de bandă a rețelei</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">Introduceți un nume.</string>
     <string name="home_enter_valid_address">Introduceți o adresă de server validă.</string>
     <string name="home_authentication">Autentificare</string>

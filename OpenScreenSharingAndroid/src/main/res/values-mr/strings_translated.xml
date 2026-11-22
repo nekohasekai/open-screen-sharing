@@ -90,8 +90,9 @@
     <string name="home_network_quality">नेटवर्क गुणवत्ता</string>
     <string name="home_local_network">स्थानिक नेटवर्क</string>
     <string name="home_internet">इंटरनेट</string>
-    <string name="home_maximum_frame_rate">कमाल फ्रेम रेट</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">हाय डेफिनिशन</string>
+    <string name="home_network_bandwidth">नेटवर्क बँडविड्थ</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">नाव एंटर करा.</string>
     <string name="home_enter_valid_address">वैध सर्व्हर पत्ता एंटर करा.</string>
     <string name="home_authentication">प्रमाणीकरण</string>

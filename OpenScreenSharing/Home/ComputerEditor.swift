@@ -60,6 +60,19 @@ struct ComputerEditor: View {
         !authenticates || !trimmedUsername.isEmpty
     }
 
+    private var bandwidthRange: ClosedRange<Double> {
+        let range = NetworkConfiguration.bandwidthRangeMbps
+        return Double(range.lowerBound)...Double(range.upperBound)
+    }
+
+    private var bandwidth: Binding<Double> {
+        Binding {
+            Double(networkConfiguration.bandwidthMbps)
+        } set: {
+            networkConfiguration.internetBandwidthMbps = Int($0.rounded())
+        }
+    }
+
     var body: some View {
         NavigationStackCompat {
             SheetForm(setup == nil ? Text("Edit Connection") : Text("New Connection")) {
@@ -114,12 +127,28 @@ struct ComputerEditor: View {
                         }
                         .pickerStyle(.menu)
                         if networkConfiguration.quality == .internet {
-                            Picker("Maximum Frame Rate", selection: $networkConfiguration.internetMaximumFrameRate) {
-                                ForEach(MaximumFrameRate.allCases) { rate in
-                                    Text("\(rate.rawValue) FPS").tag(rate)
+                            Toggle("High Definition", isOn: $networkConfiguration.internetHighDefinition)
+                            if networkConfiguration.internetHighDefinition {
+                                VStack {
+                                    LabeledContentCompat("Network Bandwidth") {
+                                        Text("\(networkConfiguration.bandwidthMbps) Mbps")
+                                            .monospacedDigit()
+                                    }
+                                    Slider(value: bandwidth, in: bandwidthRange, step: 1) {
+                                        Text("Network Bandwidth")
+                                    } minimumValueLabel: {
+                                        Text(verbatim: String(NetworkConfiguration.bandwidthRangeMbps.lowerBound))
+                                            .monospacedDigit()
+                                    } maximumValueLabel: {
+                                        Text(verbatim: String(NetworkConfiguration.bandwidthRangeMbps.upperBound))
+                                            .monospacedDigit()
+                                    }
+                                    #if os(macOS)
+                                    .labelsHidden()
+                                    #endif
+                                    .accessibilityValue(Text("\(networkConfiguration.bandwidthMbps) Mbps"))
                                 }
                             }
-                            .pickerStyle(.menu)
                         }
                     }
                 } footer: {

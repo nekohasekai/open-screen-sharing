@@ -115,6 +115,13 @@ enum AppDatabase {
             try db.execute(sql: "UPDATE computers SET usesNativeTouch = 1")
             #endif
         }
+        migrator.registerMigration("1.0.9") { db in
+            try db.alter(table: "computers") { t in
+                t.add(column: "internetHighDefinition", .boolean).notNull().defaults(to: false)
+                t.add(column: "internetBandwidthMbps", .integer).notNull().defaults(to: NetworkConfiguration.defaultBandwidthMbps)
+                t.drop(column: "internetMaximumFrameRate")
+            }
+        }
         return migrator
     }()
 

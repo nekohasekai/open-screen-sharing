@@ -90,8 +90,9 @@
     <string name="home_network_quality">নেটওয়ার্কের গুণমান</string>
     <string name="home_local_network">লোকাল নেটওয়ার্ক</string>
     <string name="home_internet">ইন্টারনেট</string>
-    <string name="home_maximum_frame_rate">সর্বোচ্চ ফ্রেম রেট</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">হাই ডেফিনিশন</string>
+    <string name="home_network_bandwidth">নেটওয়ার্ক ব্যান্ডউইথ</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">একটি নাম লিখুন।</string>
     <string name="home_enter_valid_address">একটি বৈধ সার্ভার ঠিকানা লিখুন।</string>
     <string name="home_authentication">প্রমাণীকরণ</string>

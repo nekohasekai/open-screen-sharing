@@ -90,8 +90,9 @@
     <string name="home_network_quality">جودة الشبكة</string>
     <string name="home_local_network">الشبكة المحلية</string>
     <string name="home_internet">الإنترنت</string>
-    <string name="home_maximum_frame_rate">الحد الأقصى لمعدل الإطارات</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">وضوح عالٍ</string>
+    <string name="home_network_bandwidth">النطاق الترددي للشبكة</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">يرجى إدخال اسم</string>
     <string name="home_enter_valid_address">يرجى إدخال عنوان خادم صالح</string>
     <string name="home_authentication">المصادقة</string>

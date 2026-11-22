@@ -90,8 +90,9 @@
     <string name="home_network_quality">Kualitas Jaringan</string>
     <string name="home_local_network">Jaringan Lokal</string>
     <string name="home_internet">Internet</string>
-    <string name="home_maximum_frame_rate">Kecepatan Bingkai Maksimum</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Definisi Tinggi</string>
+    <string name="home_network_bandwidth">Bandwidth Jaringan</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">Masukkan nama.</string>
     <string name="home_enter_valid_address">Masukkan alamat server yang valid.</string>
     <string name="home_authentication">Autentikasi</string>

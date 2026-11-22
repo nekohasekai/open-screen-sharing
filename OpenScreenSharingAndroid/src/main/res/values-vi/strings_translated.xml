@@ -90,8 +90,9 @@
     <string name="home_network_quality">Chất lượng mạng</string>
     <string name="home_local_network">Mạng cục bộ</string>
     <string name="home_internet">Internet</string>
-    <string name="home_maximum_frame_rate">Tốc độ khung hình tối đa</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Độ nét cao</string>
+    <string name="home_network_bandwidth">Băng thông mạng</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">Hãy nhập tên.</string>
     <string name="home_enter_valid_address">Hãy nhập địa chỉ máy chủ hợp lệ.</string>
     <string name="home_authentication">Xác thực</string>

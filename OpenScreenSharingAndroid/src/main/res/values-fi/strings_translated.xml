@@ -90,8 +90,9 @@
     <string name="home_network_quality">Verkon laatu</string>
     <string name="home_local_network">Lähiverkko</string>
     <string name="home_internet">Internet</string>
-    <string name="home_maximum_frame_rate">Enimmäiskuvataajuus</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Teräväpiirto</string>
+    <string name="home_network_bandwidth">Verkon kaistanleveys</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">Anna nimi.</string>
     <string name="home_enter_valid_address">Anna kelvollinen palvelinosoite.</string>
     <string name="home_authentication">Todentaminen</string>

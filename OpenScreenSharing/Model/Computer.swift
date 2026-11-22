@@ -18,7 +18,8 @@ nonisolated struct Computer: Codable, Identifiable, Hashable, FetchableRecord, P
     var createdAt = Date()
     var usesHighPerformance = false
     var networkQuality = NetworkQuality.localNetwork
-    var internetMaximumFrameRate = MaximumFrameRate.sixty
+    var internetHighDefinition = false
+    var internetBandwidthMbps = NetworkConfiguration.defaultBandwidthMbps
     var remoteProtocol = RemoteProtocol.vnc
     var trustedFingerprint = ""
     var keepsAlive = false
@@ -48,10 +49,17 @@ nonisolated struct Computer: Codable, Identifiable, Hashable, FetchableRecord, P
     }
 
     var networkConfiguration: NetworkConfiguration {
-        get { NetworkConfiguration(quality: networkQuality, internetMaximumFrameRate: internetMaximumFrameRate) }
+        get {
+            NetworkConfiguration(
+                quality: networkQuality,
+                internetHighDefinition: internetHighDefinition,
+                internetBandwidthMbps: internetBandwidthMbps
+            )
+        }
         set {
             networkQuality = newValue.quality
-            internetMaximumFrameRate = newValue.internetMaximumFrameRate
+            internetHighDefinition = newValue.internetHighDefinition
+            internetBandwidthMbps = newValue.internetBandwidthMbps
         }
     }
 

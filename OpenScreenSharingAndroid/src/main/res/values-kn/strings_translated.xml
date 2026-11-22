@@ -90,8 +90,9 @@
     <string name="home_network_quality">ನೆಟ್‌ವರ್ಕ್ ಗುಣಮಟ್ಟ</string>
     <string name="home_local_network">ಸ್ಥಳೀಯ ನೆಟ್‌ವರ್ಕ್</string>
     <string name="home_internet">ಇಂಟರ್ನೆಟ್</string>
-    <string name="home_maximum_frame_rate">ಗರಿಷ್ಠ ಫ್ರೇಮ್ ದರ</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">ಹೈ ಡೆಫಿನಿಷನ್</string>
+    <string name="home_network_bandwidth">ನೆಟ್‌ವರ್ಕ್ ಬ್ಯಾಂಡ್‌ವಿಡ್ತ್</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">ಹೆಸರನ್ನು ನಮೂದಿಸಿ.</string>
     <string name="home_enter_valid_address">ಮಾನ್ಯವಾದ ಸರ್ವರ್ ವಿಳಾಸವನ್ನು ನಮೂದಿಸಿ.</string>
     <string name="home_authentication">ದೃಢೀಕರಣ</string>

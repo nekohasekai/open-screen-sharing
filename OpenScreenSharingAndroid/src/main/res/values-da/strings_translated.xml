@@ -90,8 +90,9 @@
     <string name="home_network_quality">Netværkskvalitet</string>
     <string name="home_local_network">Lokalt netværk</string>
     <string name="home_internet">Internet</string>
-    <string name="home_maximum_frame_rate">Maksimal billedfrekvens</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Høj skarphed</string>
+    <string name="home_network_bandwidth">Netværksbåndbredde</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">Indtast et navn.</string>
     <string name="home_enter_valid_address">Indtast en gyldig serveradresse.</string>
     <string name="home_authentication">Godkendelse</string>

@@ -25,25 +25,26 @@ nonisolated enum ChromaSampling: Sendable {
     }
 }
 
-nonisolated enum MaximumFrameRate: Int, Codable, CaseIterable, Identifiable, Sendable {
-    case thirty = 30
-    case sixty = 60
-
-    var id: Self { self }
-}
-
 nonisolated struct NetworkConfiguration: Equatable, Sendable {
+    static let bandwidthRangeMbps = 5...60
+    static let defaultBandwidthMbps = 15
+
     var quality: NetworkQuality = .localNetwork
-    var internetMaximumFrameRate: MaximumFrameRate = .sixty
+    var internetHighDefinition = false
+    var internetBandwidthMbps = defaultBandwidthMbps
 
-    var usesCoreDevice: Bool { quality == .internet }
+    var usesCoreDevice: Bool { quality == .internet && !internetHighDefinition }
 
-    var bands: Int { usesCoreDevice ? 1 : 4 }
+    var bands: Int { quality == .localNetwork ? 4 : 1 }
 
     var schedulesPresentation: Bool { quality == .localNetwork }
 
-    var maximumFrameRate: MaximumFrameRate {
-        quality == .localNetwork ? .sixty : internetMaximumFrameRate
+    var bandwidthMbps: Int {
+        min(max(internetBandwidthMbps, Self.bandwidthRangeMbps.lowerBound), Self.bandwidthRangeMbps.upperBound)
+    }
+
+    var maximumBitrate: Int64 {
+        quality == .internet && internetHighDefinition ? Int64(bandwidthMbps) * 1_000_000 : 0
     }
 
     /// Mode 5 negotiated 4:2:0 (observed on iPad17,1, iPadOS 27.2 24B5099f).

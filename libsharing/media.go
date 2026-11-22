@@ -80,6 +80,8 @@ type HighPerformanceOptions struct {
 
 	VideoMode int32
 
+	MaximumBitrate int64
+
 	ImmediatePlayout bool
 }
 
@@ -332,6 +334,7 @@ func offerOptions(options *HighPerformanceOptions) (media.OfferOptions, error) {
 		Audio:            options.Audio,
 		TilesPerFrame:    int(options.Bands),
 		VideoMode:        media.VideoMode(options.VideoMode),
+		MaximumBitrate:   options.MaximumBitrate,
 		PixelFormats:     media.PixelFormats(options.PixelFormats),
 		ImmediatePlayout: options.ImmediatePlayout,
 	}

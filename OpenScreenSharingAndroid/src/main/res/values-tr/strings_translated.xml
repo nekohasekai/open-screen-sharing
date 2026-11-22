@@ -90,8 +90,9 @@
     <string name="home_network_quality">Ağ Kalitesi</string>
     <string name="home_local_network">Yerel Ağ</string>
     <string name="home_internet">İnternet</string>
-    <string name="home_maximum_frame_rate">Maksimum Kare Hızı</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Yüksek Netlik</string>
+    <string name="home_network_bandwidth">Ağ Bant Genişliği</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">Bir ad girin.</string>
     <string name="home_enter_valid_address">Geçerli bir sunucu adresi girin.</string>
     <string name="home_authentication">Kimlik Doğrulama</string>

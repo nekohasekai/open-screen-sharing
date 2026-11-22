@@ -90,8 +90,9 @@
     <string name="home_network_quality">Kakovost omrežja</string>
     <string name="home_local_network">Lokalno omrežje</string>
     <string name="home_internet">Internet</string>
-    <string name="home_maximum_frame_rate">Največja hitrost sličic</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Visoka ostrina</string>
+    <string name="home_network_bandwidth">Pasovna širina omrežja</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">Vnesite ime.</string>
     <string name="home_enter_valid_address">Vnesite veljaven naslov strežnika.</string>
     <string name="home_authentication">Preverjanje pristnosti</string>

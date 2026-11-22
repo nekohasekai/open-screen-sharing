@@ -90,8 +90,9 @@
     <string name="home_network_quality">ネットワーク品質</string>
     <string name="home_local_network">ローカルネットワーク</string>
     <string name="home_internet">インターネット</string>
-    <string name="home_maximum_frame_rate">最大フレームレート</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">高精細</string>
+    <string name="home_network_bandwidth">ネットワーク帯域幅</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">名前を入力してください。</string>
     <string name="home_enter_valid_address">有効なサーバアドレスを入力してください。</string>
     <string name="home_authentication">認証</string>

@@ -90,8 +90,9 @@
     <string name="home_network_quality">Nätverkskvalitet</string>
     <string name="home_local_network">Lokalt nätverk</string>
     <string name="home_internet">Internet</string>
-    <string name="home_maximum_frame_rate">Maximal bildfrekvens</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Hög skärpa</string>
+    <string name="home_network_bandwidth">Nätverksbandbredd</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">Ange ett namn.</string>
     <string name="home_enter_valid_address">Ange en giltig serveradress.</string>
     <string name="home_authentication">Autentisering</string>

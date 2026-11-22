@@ -90,8 +90,9 @@
     <string name="home_network_quality">Qualitat de la xarxa</string>
     <string name="home_local_network">Xarxa local</string>
     <string name="home_internet">Internet</string>
-    <string name="home_maximum_frame_rate">Freqüència de fotogrames màxima</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Alta definició</string>
+    <string name="home_network_bandwidth">Amplada de banda de la xarxa</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">Introdueix un nom.</string>
     <string name="home_enter_valid_address">Introdueix una adreça de servidor vàlida.</string>
     <string name="home_authentication">Autenticació</string>

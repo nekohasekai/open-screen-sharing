@@ -90,8 +90,9 @@
     <string name="home_network_quality">איכות הרשת</string>
     <string name="home_local_network">רשת מקומית</string>
     <string name="home_internet">אינטרנט</string>
-    <string name="home_maximum_frame_rate">קצב פריימים מרבי</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">חדות גבוהה</string>
+    <string name="home_network_bandwidth">רוחב פס רשת</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">יש להזין שם.</string>
     <string name="home_enter_valid_address">יש להזין כתובת שרת חוקית.</string>
     <string name="home_authentication">אימות</string>

@@ -90,8 +90,9 @@
     <string name="home_network_quality">Kualiti Rangkaian</string>
     <string name="home_local_network">Rangkaian Setempat</string>
     <string name="home_internet">Internet</string>
-    <string name="home_maximum_frame_rate">Kadar Bingkai Maksimum</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Definisi Tinggi</string>
+    <string name="home_network_bandwidth">Lebar Jalur Rangkaian</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">Masukkan nama.</string>
     <string name="home_enter_valid_address">Masukkan alamat pelayan yang sah.</string>
     <string name="home_authentication">Pengesahan</string>

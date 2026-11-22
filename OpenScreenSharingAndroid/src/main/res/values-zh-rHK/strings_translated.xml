@@ -90,8 +90,9 @@
     <string name="home_network_quality">網絡質素</string>
     <string name="home_local_network">本地網絡</string>
     <string name="home_internet">互聯網</string>
-    <string name="home_maximum_frame_rate">最高格率</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">高清晰度</string>
+    <string name="home_network_bandwidth">網絡頻寬</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">請輸入名稱。</string>
     <string name="home_enter_valid_address">請輸入有效的伺服器地址。</string>
     <string name="home_authentication">認證</string>

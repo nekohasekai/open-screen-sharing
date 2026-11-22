@@ -301,7 +301,6 @@ func rfbOptions(o *SessionOptions, seen func(fingerprint string)) (rfb.Options, 
 		Mode:                rfb.Mode(o.Mode),
 		Clipboard:           o.SharedClipboard,
 		DecoderMaxPixelRate: o.DecoderMaxPixelRate,
-		MaximumFrameRate:    int(o.MaximumFrameRate),
 		AutomaticUpdates:    true,
 		UpdateInterval:      updateInterval(o.UpdateRate),
 		Logger:              newLogger(),
@@ -325,11 +324,6 @@ func rfbOptions(o *SessionOptions, seen func(fingerprint string)) (rfb.Options, 
 	}
 	if options.Mode < rfb.ModeObserve || options.Mode > rfb.ModeExclusiveControl {
 		return options, E.New("unknown mode ", o.Mode, "; it must be ", ModeObserve, " to ", ModeExclusiveControl)
-	}
-	switch options.MaximumFrameRate {
-	case 0, 30, 60:
-	default:
-		return options, E.New("unsupported maximum frame rate ", o.MaximumFrameRate, "; it must be 0, 30 or 60")
 	}
 	return options, nil
 }

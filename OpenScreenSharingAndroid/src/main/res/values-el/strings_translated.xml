@@ -90,8 +90,9 @@
     <string name="home_network_quality">Ποιότητα δικτύου</string>
     <string name="home_local_network">Τοπικό δίκτυο</string>
     <string name="home_internet">Διαδίκτυο</string>
-    <string name="home_maximum_frame_rate">Μέγιστος ρυθμός καρέ</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Υψηλή ευκρίνεια</string>
+    <string name="home_network_bandwidth">Εύρος ζώνης δικτύου</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">Εισαγάγετε όνομα.</string>
     <string name="home_enter_valid_address">Εισαγάγετε έγκυρη διεύθυνση διακομιστή.</string>
     <string name="home_authentication">Έλεγχος ταυτότητας</string>

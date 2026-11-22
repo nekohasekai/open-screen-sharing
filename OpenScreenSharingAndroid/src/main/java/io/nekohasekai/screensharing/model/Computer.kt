@@ -50,7 +50,8 @@ data class Computer(
     val createdAt: Long = System.currentTimeMillis(),
     val usesHighPerformance: Boolean = false,
     val networkQuality: NetworkQuality = NetworkQuality.LocalNetwork,
-    val internetMaximumFrameRate: MaximumFrameRate = MaximumFrameRate.Sixty,
+    val internetHighDefinition: Boolean = false,
+    val internetBandwidthMbps: Int = NetworkConfiguration.DEFAULT_BANDWIDTH_MBPS,
     val remoteProtocol: RemoteProtocol = RemoteProtocol.Vnc,
     val trustedFingerprint: String = "",
     val keepsAlive: Boolean = false,
@@ -78,11 +79,13 @@ data class Computer(
         username = username,
     )
 
-    val networkConfiguration: NetworkConfiguration get() = NetworkConfiguration(networkQuality, internetMaximumFrameRate)
+    val networkConfiguration: NetworkConfiguration
+        get() = NetworkConfiguration(networkQuality, internetHighDefinition, internetBandwidthMbps)
 
     fun withNetworkConfiguration(configuration: NetworkConfiguration): Computer = copy(
         networkQuality = configuration.quality,
-        internetMaximumFrameRate = configuration.internetMaximumFrameRate,
+        internetHighDefinition = configuration.internetHighDefinition,
+        internetBandwidthMbps = configuration.internetBandwidthMbps,
     )
 
     val displaySelection: DisplaySelection?
@@ -149,7 +152,7 @@ data class Computer(
 
     private fun hashFields(): List<Any?> = listOf(
         id, name, host, port, username, password, authenticates, model, enclosureColor, lastConnected, createdAt,
-        usesHighPerformance, networkQuality, internetMaximumFrameRate, remoteProtocol, trustedFingerprint, keepsAlive,
+        usesHighPerformance, networkQuality, internetHighDefinition, internetBandwidthMbps, remoteProtocol, trustedFingerprint, keepsAlive,
         disablesUDP, reversesScrolling, quality, observes, sharesClipboard, resolutionScale, displayID, usesHDR, receivesAudio, sendsAudio,
         keyboardSources, windowWidth, windowHeight, locksPointer, usesNativeTouch,
     )

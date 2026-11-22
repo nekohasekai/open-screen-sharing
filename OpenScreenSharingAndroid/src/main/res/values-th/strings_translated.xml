@@ -90,8 +90,9 @@
     <string name="home_network_quality">คุณภาพเครือข่าย</string>
     <string name="home_local_network">เครือข่ายในพื้นที่</string>
     <string name="home_internet">อินเทอร์เน็ต</string>
-    <string name="home_maximum_frame_rate">อัตราเฟรมสูงสุด</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">ความคมชัดสูง</string>
+    <string name="home_network_bandwidth">แบนด์วิดท์เครือข่าย</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">ป้อนชื่อ</string>
     <string name="home_enter_valid_address">ป้อนที่อยู่เซิร์ฟเวอร์ที่ถูกต้อง</string>
     <string name="home_authentication">การตรวจสอบสิทธิ์</string>

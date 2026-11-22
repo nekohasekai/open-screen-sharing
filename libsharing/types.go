@@ -143,8 +143,6 @@ type SessionOptions struct {
 
 	DecoderMaxPixelRate int64
 
-	MaximumFrameRate int32
-
 	UpdateRate int32
 
 	AwaitVirtualDisplay bool

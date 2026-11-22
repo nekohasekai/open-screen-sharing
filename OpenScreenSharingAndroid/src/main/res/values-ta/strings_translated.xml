@@ -90,8 +90,9 @@
     <string name="home_network_quality">நெட்வொர்க் தரம்</string>
     <string name="home_local_network">உள்ளூர் நெட்வொர்க்</string>
     <string name="home_internet">இணையம்</string>
-    <string name="home_maximum_frame_rate">அதிகபட்ச ஃபிரேம் வீதம்</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">உயர் தெளிவுத்திறன்</string>
+    <string name="home_network_bandwidth">நெட்வொர்க் அலைவரிசை</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">பெயரை உள்ளிடவும்.</string>
     <string name="home_enter_valid_address">சரியான சர்வர் முகவரியை உள்ளிடவும்.</string>
     <string name="home_authentication">அங்கீகரிப்பு</string>

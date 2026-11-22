@@ -90,8 +90,9 @@
     <string name="home_network_quality">نیٹ ورک کا معیار</string>
     <string name="home_local_network">مقامی نیٹ ورک</string>
     <string name="home_internet">انٹرنیٹ</string>
-    <string name="home_maximum_frame_rate">زیادہ سے زیادہ فریم ریٹ</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">اعلیٰ وضاحت</string>
+    <string name="home_network_bandwidth">نیٹ ورک بینڈوتھ</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">نام درج کریں۔</string>
     <string name="home_enter_valid_address">درست سرور ایڈریس درج کریں۔</string>
     <string name="home_authentication">توثیق</string>

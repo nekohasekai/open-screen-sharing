@@ -90,8 +90,9 @@
     <string name="home_network_quality">Kvalita sítě</string>
     <string name="home_local_network">Místní síť</string>
     <string name="home_internet">Internet</string>
-    <string name="home_maximum_frame_rate">Maximální snímková frekvence</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Vysoká ostrost</string>
+    <string name="home_network_bandwidth">Šířka pásma sítě</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">Zadejte název.</string>
     <string name="home_enter_valid_address">Zadejte platnou adresu serveru.</string>
     <string name="home_authentication">Ověření totožnosti</string>

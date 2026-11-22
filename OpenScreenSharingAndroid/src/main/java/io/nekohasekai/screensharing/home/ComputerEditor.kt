@@ -2,8 +2,11 @@ package io.nekohasekai.screensharing.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -13,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -20,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -45,12 +50,13 @@ import io.nekohasekai.screensharing.model.Computer
 import io.nekohasekai.screensharing.model.ComputerAddress
 import io.nekohasekai.screensharing.model.ComputerStore
 import io.nekohasekai.screensharing.model.ConnectionTarget
-import io.nekohasekai.screensharing.model.MaximumFrameRate
+import io.nekohasekai.screensharing.model.NetworkConfiguration
 import io.nekohasekai.screensharing.model.NetworkQuality
 import io.nekohasekai.screensharing.model.RemoteProtocol
 import io.nekohasekai.screensharing.session.ServerAuthentication
 import io.nekohasekai.screensharing.session.SessionCredentials
 import io.nekohasekai.screensharing.session.SessionRoute
+import kotlin.math.roundToInt
 
 class ComputerEditorSetup(
     val credentials: SessionCredentials,
@@ -133,14 +139,12 @@ fun ComputerEditor(computer: Computer, setup: ComputerEditorSetup?, dismiss: () 
                     authenticates = authenticates,
                     username = if (authenticates) trimmedUsername else "",
                     password = if (authenticates) password else "",
-                    networkQuality = networkConfiguration.quality,
-                    internetMaximumFrameRate = networkConfiguration.internetMaximumFrameRate,
                     remoteProtocol = choice.remoteProtocol,
                     usesHighPerformance = choice.usesHighPerformance,
                     keepsAlive = keepsAlive,
                     disablesUDP = disablesUDP,
                     reversesScrolling = choice != ServerChoice.AppleVnc && reversesScrolling,
-                )
+                ).withNetworkConfiguration(networkConfiguration)
             }
         } catch (error: Exception) {
             alert = AlertState.failure(App.instance.getString(R.string.home_save_failed), error)
@@ -236,13 +240,38 @@ fun ComputerEditor(computer: Computer, setup: ComputerEditorSetup?, dismiss: () 
                 onSelect = { networkConfiguration = networkConfiguration.copy(quality = it) },
             )
             if (networkConfiguration.quality == NetworkQuality.Internet) {
-                DropdownField(
-                    label = stringResource(R.string.home_maximum_frame_rate),
-                    selected = networkConfiguration.internetMaximumFrameRate,
-                    options = MaximumFrameRate.entries,
-                    optionLabel = { stringResource(R.string.home_fps, it.rawValue) },
-                    onSelect = { networkConfiguration = networkConfiguration.copy(internetMaximumFrameRate = it) },
-                )
+                Spacer(Modifier.height(8.dp))
+                ListGroup {
+                    SwitchRow(
+                        stringResource(R.string.home_high_definition),
+                        networkConfiguration.internetHighDefinition,
+                        onCheckedChange = { networkConfiguration = networkConfiguration.copy(internetHighDefinition = it) },
+                    )
+                    if (networkConfiguration.internetHighDefinition) {
+                        Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    stringResource(R.string.home_network_bandwidth),
+                                    Modifier.weight(1f),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                                Text(
+                                    stringResource(R.string.home_mbps, networkConfiguration.bandwidthMbps),
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontFeatureSettings = "tnum"),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            val range = NetworkConfiguration.bandwidthRangeMbps
+                            Slider(
+                                value = networkConfiguration.bandwidthMbps.toFloat(),
+                                onValueChange = { networkConfiguration = networkConfiguration.copy(internetBandwidthMbps = it.roundToInt()) },
+                                valueRange = range.first.toFloat()..range.last.toFloat(),
+                                steps = range.last - range.first - 1,
+                            )
+                        }
+                    }
+                }
             }
         }
         if (setup == null) {

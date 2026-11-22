@@ -43,7 +43,6 @@ nonisolated final class LibsharingRemoteSession: RemoteSession, @unchecked Senda
         options.sharedClipboard = configuration.sharesClipboard
         options.clientName = configuration.clientName
         options.decoderMaxPixelRate = DecoderCapabilities.current.maximumPixelRate
-        options.maximumFrameRate = Int32(configuration.networkConfiguration.maximumFrameRate.rawValue)
         options.updateRate = Int32(configuration.updateRate)
         options.awaitVirtualDisplay = configuration.awaitsVirtualDisplay
         options.keepAlive = configuration.keepsAlive
@@ -296,6 +295,7 @@ nonisolated final class LibsharingRemoteSession: RemoteSession, @unchecked Senda
         lock.unlock()
         options.videoMode = network.usesCoreDevice ? LibsharingVideoModeCoreDevice : LibsharingVideoModeRemoteDesktop
         options.bands = Int32(network.bands)
+        options.maximumBitrate = network.maximumBitrate
         options.immediatePlayout = network.schedulesPresentation
         return options
     }

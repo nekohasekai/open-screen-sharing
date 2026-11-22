@@ -90,8 +90,9 @@
     <string name="home_network_quality">నెట్‌వర్క్ నాణ్యత</string>
     <string name="home_local_network">లోకల్ నెట్‌వర్క్</string>
     <string name="home_internet">ఇంటర్నెట్</string>
-    <string name="home_maximum_frame_rate">గరిష్ఠ ఫ్రేమ్ రేట్</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">హై డెఫినిషన్</string>
+    <string name="home_network_bandwidth">నెట్‌వర్క్ బ్యాండ్‌విడ్త్</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">పేరును నమోదు చేయండి.</string>
     <string name="home_enter_valid_address">చెల్లుబాటు అయ్యే సర్వర్ అడ్రస్‌ను నమోదు చేయండి.</string>
     <string name="home_authentication">ప్రామాణీకరణ</string>

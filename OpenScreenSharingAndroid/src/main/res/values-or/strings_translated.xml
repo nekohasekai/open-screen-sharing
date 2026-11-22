@@ -90,8 +90,9 @@
     <string name="home_network_quality">ନେଟ୍‌ୱର୍କ୍ ଗୁଣବତ୍ତା</string>
     <string name="home_local_network">ସ୍ଥାନୀୟ ନେଟ୍‌ୱର୍କ୍</string>
     <string name="home_internet">ଇଣ୍ଟରନେଟ୍</string>
-    <string name="home_maximum_frame_rate">ସର୍ବାଧିକ ଫ୍ରେମ୍ ରେଟ୍</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">ହାଏ ଡେଫିନିସନ୍</string>
+    <string name="home_network_bandwidth">ନେଟୱାର୍କ୍ ବ୍ୟାଣ୍ଡୱିଡଥ୍</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">ନାମ ଏଣ୍ଟର୍ କରନ୍ତୁ।</string>
     <string name="home_enter_valid_address">ବୈଧ ସର୍ଭର୍ ଠିକଣା ଏଣ୍ଟର୍ କରନ୍ତୁ।</string>
     <string name="home_authentication">ପ୍ରମାଣୀକରଣ</string>

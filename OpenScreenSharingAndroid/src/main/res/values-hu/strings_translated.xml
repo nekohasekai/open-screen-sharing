@@ -90,8 +90,9 @@
     <string name="home_network_quality">Hálózat minősége</string>
     <string name="home_local_network">Helyi hálózat</string>
     <string name="home_internet">Internet</string>
-    <string name="home_maximum_frame_rate">Maximális képkockasebesség</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Nagy felbontás (HD)</string>
+    <string name="home_network_bandwidth">Hálózati sávszélesség</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">Adjon meg egy nevet.</string>
     <string name="home_enter_valid_address">Adjon meg érvényes szervercímet.</string>
     <string name="home_authentication">Hitelesítés</string>

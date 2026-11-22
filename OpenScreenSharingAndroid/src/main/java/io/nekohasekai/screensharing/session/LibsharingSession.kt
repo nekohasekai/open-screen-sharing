@@ -68,7 +68,6 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         options.sharedClipboard = configuration.sharesClipboard
         options.clientName = configuration.clientName
         options.decoderMaxPixelRate = DecoderCapabilities.current.maximumPixelRate
-        options.maximumFrameRate = configuration.networkConfiguration.maximumFrameRate.rawValue
         options.updateRate = configuration.updateRate
         options.awaitVirtualDisplay = configuration.awaitsVirtualDisplay
         options.keepAlive = configuration.keepsAlive
@@ -292,6 +291,7 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         options.audio = synchronized(lock) { receivesAudio }
         options.videoMode = if (network.usesCoreDevice) Libsharing.VideoModeCoreDevice else Libsharing.VideoModeRemoteDesktop
         options.bands = network.bands
+        options.maximumBitrate = network.maximumBitrate
         options.immediatePlayout = network.schedulesPresentation
         return options
     }

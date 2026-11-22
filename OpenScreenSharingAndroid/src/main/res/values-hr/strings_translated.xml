@@ -90,8 +90,9 @@
     <string name="home_network_quality">Kvaliteta mreže</string>
     <string name="home_local_network">Lokalna mreža</string>
     <string name="home_internet">Internet</string>
-    <string name="home_maximum_frame_rate">Maksimalni broj sličica u sekundi</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Visoka razlučivost (HD)</string>
+    <string name="home_network_bandwidth">Mrežna propusnost</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">Unesite naziv.</string>
     <string name="home_enter_valid_address">Unesite valjanu adresu poslužitelja.</string>
     <string name="home_authentication">Autorizacija</string>

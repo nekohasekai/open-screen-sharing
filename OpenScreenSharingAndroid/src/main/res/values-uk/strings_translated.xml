@@ -90,8 +90,9 @@
     <string name="home_network_quality">Якість мережі</string>
     <string name="home_local_network">Локальна мережа</string>
     <string name="home_internet">Інтернет</string>
-    <string name="home_maximum_frame_rate">Максимальна частота кадрів</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">Висока чіткість</string>
+    <string name="home_network_bandwidth">Пропускна здатність мережі</string>
+    <string name="home_mbps">%1$d Мбіт/с</string>
     <string name="home_enter_name">Введіть назву.</string>
     <string name="home_enter_valid_address">Введіть дійсну адресу сервера.</string>
     <string name="home_authentication">Автентифікація</string>

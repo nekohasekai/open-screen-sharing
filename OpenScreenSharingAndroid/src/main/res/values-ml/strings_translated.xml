@@ -90,8 +90,9 @@
     <string name="home_network_quality">നെറ്റ്‌വർക്ക് നിലവാരം</string>
     <string name="home_local_network">ലോക്കൽ നെറ്റ്‌വർക്ക്</string>
     <string name="home_internet">ഇന്റർനെറ്റ്</string>
-    <string name="home_maximum_frame_rate">പരമാവധി ഫ്രെയിം റേറ്റ്</string>
-    <string name="home_fps">%1$d FPS</string>
+    <string name="home_high_definition">ഹൈ ഡെഫിനിഷൻ</string>
+    <string name="home_network_bandwidth">നെറ്റ്‌വർക്ക് ബാൻഡ്‌വിഡ്ത്ത്</string>
+    <string name="home_mbps">%1$d Mbps</string>
     <string name="home_enter_name">ഒരു പേര് നൽകൂ.</string>
     <string name="home_enter_valid_address">സാധുവായ ഒരു സെർവർ വിലാസം നൽകൂ.</string>
     <string name="home_authentication">ഓതന്റിക്കേഷൻ</string>
