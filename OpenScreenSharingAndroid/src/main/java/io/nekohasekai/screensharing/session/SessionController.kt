@@ -730,6 +730,8 @@ class SessionController(
         pointerButtons = PointerButtons.None
         pointerModifiers = emptySet()
         nativeTouchIDs.clear()
+        remotePointerVisible = true
+        pipeline.setCursorPosition(pointerPosition, true)
         dragID = null
         dropTarget = null
         remoteDragOffer = null
@@ -1947,6 +1949,14 @@ class SessionController(
     fun setNativeTouch(on: Boolean) {
         if (on == isNativeTouchOn) return
         isNativeTouchOn = on
+        if (on) {
+            if (touchesNatively && !isSystemPointerOverPicture && !isPointerLocked) {
+                hidePointerForTouch()
+            }
+        } else if (isControlling && !remotePointerVisible) {
+            remotePointerVisible = true
+            pipeline.setCursorPosition(pointerPosition, true)
+        }
         rememberState()
     }
 
@@ -1968,6 +1978,7 @@ class SessionController(
         val clamped = clampToImage(point)
         pointerPosition = clamped
         lastPointerMoveTime = System.nanoTime()
+        remotePointerVisible = true
         pipeline.setCursorPosition(clamped, true)
         if (!isControlling) {
             updateAssistCursor()
@@ -1978,12 +1989,27 @@ class SessionController(
 
     val touchesNatively: Boolean get() = isNativeTouchOn && SessionCapabilities.Touch in capabilities && isControlling
 
+    fun hidePointerForTouch() {
+        if (!remotePointerVisible) return
+        remotePointerVisible = false
+        pipeline.setCursorPosition(pointerPosition, false)
+    }
+
     fun sendTouches(touches: List<RemoteTouch>) {
         if (touches.isEmpty()) return
         for (touch in touches) {
             if (touch.phase != TouchPhase.Began) continue
             beginPointerInput()
             nativeTouchIDs.add(touch.id)
+        }
+        // A touch hides the cursor of macOS 27.3, and ScreensharingAgent reports the cursor only on WindowServer's
+        // hidden and visible notifications, never its state when a viewer connects, so a cursor that an earlier session
+        // hid is never reported hidden (ScreensharingAgent 768.2.15.1, macOS 27.3 26C5035r,
+        // UUID 868B12DB-A6D8-3667-80D7-45F925D58C5E, CursorNotificationHandler 0x10002a488..0x10002a49c;
+        // screensharingd 768.2.15.1, UUID C204A2B3-CA54-3094-BF76-DD1A007EDF34,
+        // daemon_SSDaemon_CursorStateChanged_rpc 0x100008b74..0x100008b8c).
+        if (touches.any { it.phase == TouchPhase.Began }) {
+            hidePointerForTouch()
         }
         session?.sendTouches(touches.map { it.copy(location = clampToImage(it.location)) })
         for (touch in touches) {

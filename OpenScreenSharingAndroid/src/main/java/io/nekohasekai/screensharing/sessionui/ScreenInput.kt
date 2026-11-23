@@ -133,6 +133,7 @@ class ScreenInput(
     private var handleTouch: Int? = null
     private val toolbarTouches = HashSet<Int>()
     private var systemPointerLocation: Offset? = null
+    private var suppressedHoverLocation: Offset? = null
     private var systemPointerOverPicture = false
         set(value) {
             if (value == field) return
@@ -930,7 +931,9 @@ class ScreenInput(
         val location = point(event, 0)
         val action = event.actionMasked
         if (action == MotionEvent.ACTION_HOVER_ENTER || action == MotionEvent.ACTION_HOVER_MOVE) {
-            trackSystemPointer(location, fromPointer = !isStylus(event, 0))
+            val fromPointer = !isStylus(event, 0)
+            if (isSuppressedHover(location, fromPointer)) return true
+            trackSystemPointer(location, fromPointer = fromPointer)
         }
         if (isPointerLocked || controller.isZoomModeOn) return true
         when (action) {
@@ -1121,6 +1124,20 @@ class ScreenInput(
         view.pointerIcon = pointerIcon ?: nullIcon
     }
 
+    private fun isSuppressedHover(location: Offset, fromPointer: Boolean): Boolean {
+        if (!fromPointer) {
+            suppressedHoverLocation = null
+            return false
+        }
+        val window = windowPoint(location)
+        val suppressed = suppressedHoverLocation
+        if (suppressed != null && (window - suppressed).getDistance() < density) {
+            return true
+        }
+        suppressedHoverLocation = null
+        return false
+    }
+
     private fun trackSystemPointer(location: Offset, fromPointer: Boolean) {
         if (isPointerLocked) return
         val window = windowPoint(location)
@@ -1133,12 +1150,22 @@ class ScreenInput(
 
     private fun windowTouchBegan(event: MotionEvent, index: Int) {
         if (!event.isFromSource(InputDevice.SOURCE_MOUSE)) {
+            val location = systemPointerLocation ?: controller.lastSystemPointerLocation
+            if (location != null) {
+                suppressedHoverLocation = location
+            }
+            if (systemPointerOverPicture && controller.touchesNatively) {
+                controller.hidePointerForTouch()
+            }
             systemPointerLocation = null
             systemPointerOverPicture = false
-        } else if (!isPointerLocked) {
-            val window = windowPoint(point(event, index))
-            systemPointerLocation = window
-            controller.lastSystemPointerLocation = window
+        } else {
+            suppressedHoverLocation = null
+            if (!isPointerLocked) {
+                val window = windowPoint(point(event, index))
+                systemPointerLocation = window
+                controller.lastSystemPointerLocation = window
+            }
         }
     }
 
