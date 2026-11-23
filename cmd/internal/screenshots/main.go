@@ -38,14 +38,15 @@ const (
 )
 
 type page struct {
-	name      string
+	demoName  string
+	fileName  string
 	localized bool
 }
 
-var pages = []page{
-	{"01-Session", false},
-	{"02-Connections", true},
-}
+var (
+	connectionsPage = page{demoName: "02-Connections", fileName: "01-Connections.png", localized: true}
+	sessionPage     = page{demoName: "01-Session", fileName: "02-Session.png"}
+)
 
 const appTimeout = 2 * time.Minute
 
@@ -102,13 +103,6 @@ var devices = []device{
 		deviceType:  "com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation",
 		displayType: "com.apple.CoreSimulator.SimDeviceType.iPhone-SE",
 		sizes:       []size{{640, 1136}},
-	},
-	{
-		name:       "duo-outer",
-		deviceType: "com.apple.CoreSimulator.SimDeviceType.iPhone-Duo",
-		sizes:      []size{{1398, 2034}},
-		pose:       "closed",
-		display:    "primary",
 	},
 	{
 		name:       "duo-inner",
@@ -214,6 +208,9 @@ func main() {
 			log.Fatal("unknown device: ", name)
 		}
 		device := devices[index]
+		if err := migrateScreenshotNames(outputDirectory, device, shots); err != nil {
+			log.Fatal(err)
+		}
 		pending := shots
 		if *resume {
 			pending = remainingScreenshots(outputDirectory, device, shots)
@@ -266,13 +263,13 @@ func main() {
 	}
 	var failures []error
 	hasSingleShotVMWork := remote != nil && slices.ContainsFunc(jobs, func(job captureJob) bool {
-		return slices.ContainsFunc(job.shots, func(s shot) bool { return s.page != "02-Connections" })
+		return slices.ContainsFunc(job.shots, func(s shot) bool { return s.page != connectionsPage })
 	})
 	maxConnectionsPerDevice := 0
 	for _, job := range jobs {
 		count := 0
 		for _, s := range job.shots {
-			if s.page == "02-Connections" {
+			if s.page == connectionsPage {
 				count++
 			}
 		}
@@ -285,7 +282,7 @@ func main() {
 		for _, job := range jobs {
 			var p1, p2 []shot
 			for _, s := range job.shots {
-				if s.page != "02-Connections" {
+				if s.page != connectionsPage {
 					p1 = append(p1, s)
 				} else {
 					p2 = append(p2, s)
@@ -331,7 +328,7 @@ type screenshotLanguage struct {
 }
 
 type shot struct {
-	page     string
+	page     page
 	language string
 	locales  []string
 }
@@ -392,7 +389,7 @@ func selectLanguages(languageNames, localeNames string) []screenshotLanguage {
 
 func planShots(languages []screenshotLanguage) []shot {
 	var shots []shot
-	for _, page := range pages {
+	for _, page := range []page{connectionsPage, sessionPage} {
 		groups := make(map[string]int)
 		for _, language := range languages {
 			var group string
@@ -403,12 +400,31 @@ func planShots(languages []screenshotLanguage) []shot {
 			if !grouped {
 				index = len(shots)
 				groups[group] = index
-				shots = append(shots, shot{page: page.name, language: language.language})
+				shots = append(shots, shot{page: page, language: language.language})
 			}
 			shots[index].locales = append(shots[index].locales, language.locales...)
 		}
 	}
 	return shots
+}
+
+func migrateScreenshotNames(outputDirectory string, device device, shots []shot) error {
+	for _, planned := range shots {
+		for _, locale := range planned.locales {
+			directory := filepath.Join(outputDirectory, locale, device.name)
+			path := filepath.Join(directory, planned.page.fileName)
+			if _, err := os.Lstat(path); err == nil {
+				continue
+			} else if !os.IsNotExist(err) {
+				return err
+			}
+			previousPath := filepath.Join(directory, planned.page.demoName+".png")
+			if err := os.Rename(previousPath, path); err != nil && !os.IsNotExist(err) {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func remainingScreenshots(outputDirectory string, device device, shots []shot) []shot {
@@ -417,7 +433,7 @@ func remainingScreenshots(outputDirectory string, device device, shots []shot) [
 		var reusable []byte
 		var missing []string
 		for _, locale := range planned.locales {
-			data, err := os.ReadFile(filepath.Join(outputDirectory, locale, device.name, planned.page+".png"))
+			data, err := os.ReadFile(filepath.Join(outputDirectory, locale, device.name, planned.page.fileName))
 			if err == nil {
 				_, err = png.Decode(bytes.NewReader(data))
 			}
@@ -434,7 +450,7 @@ func remainingScreenshots(outputDirectory string, device device, shots []shot) [
 			continue
 		}
 		if reusable != nil {
-			err := save(outputDirectory, reusable, device, missing, planned.page, time.Now())
+			err := save(outputDirectory, reusable, device, missing, planned.page.fileName, time.Now())
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -648,7 +664,7 @@ func shootDevice(outputDirectory string, device device, shots []shot, appearance
 	}
 	var singleShots, connectionsShots []shot
 	for _, planned := range shots {
-		if planned.page == "02-Connections" {
+		if planned.page == connectionsPage {
 			connectionsShots = append(connectionsShots, planned)
 		} else {
 			singleShots = append(singleShots, planned)
@@ -657,18 +673,18 @@ func shootDevice(outputDirectory string, device device, shots []shot, appearance
 	for _, planned := range singleShots {
 		err = takeScreenshot(outputDirectory, device, booted, planned, frames, saver)
 		if err != nil {
-			return E.Cause(err, "take ", planned.page, " in ", planned.language)
+			return E.Cause(err, "take ", planned.page.fileName, " in ", planned.language)
 		}
 	}
 	if len(connectionsShots) > 1 {
 		err = takeConnectionsBatch(outputDirectory, device, booted, connectionsShots, frames, saver)
 		if err != nil {
-			return E.Cause(err, "batch 02-Connections")
+			return E.Cause(err, "take connection lists")
 		}
 	} else if len(connectionsShots) == 1 {
 		err = takeScreenshot(outputDirectory, device, booted, connectionsShots[0], frames, saver)
 		if err != nil {
-			return E.Cause(err, "take ", connectionsShots[0].page, " in ", connectionsShots[0].language)
+			return E.Cause(err, "take ", connectionsPage.fileName, " in ", connectionsShots[0].language)
 		}
 	}
 	return nil
@@ -870,7 +886,7 @@ type saveRequest struct {
 	capturedPath    string
 	device          device
 	locales         []string
-	page            string
+	fileName        string
 	start           time.Time
 }
 
@@ -930,7 +946,7 @@ func processAndSave(req saveRequest) error {
 		}
 		data = opaque.Bytes()
 	}
-	return save(req.outputDirectory, data, req.device, req.locales, req.page, req.start)
+	return save(req.outputDirectory, data, req.device, req.locales, req.fileName, req.start)
 }
 
 func hasPNGAlpha(data []byte) bool {
@@ -958,7 +974,7 @@ func hasPNGAlpha(data []byte) bool {
 }
 
 func captureArgs(udid string, display string, outputPath string) []string {
-	args := []string{"io", udid, "screenshot", "--type=png"}
+	args := []string{"io", udid, "screenshot", "--type=png", "--mask=ignored"}
 	if display != "" {
 		args = append(args, "--display="+display)
 	}
@@ -1015,7 +1031,7 @@ func takeScreenshot(outputDirectory string, device device, booted simulator, pla
 	app, err := simctlCommand("launch", "--console-pty", "--terminate-running-process", booted.UDID, bundle,
 		"-AppleLanguages", "("+planned.language+")",
 		"-AppleLocale", planned.language,
-		"-DemoScreenshot", planned.page,
+		"-DemoScreenshot", planned.page.demoName,
 		"-DemoFrames", frames.directory,
 		"-Demo", "YES",
 	)
@@ -1060,7 +1076,7 @@ func takeScreenshot(outputDirectory string, device device, booted simulator, pla
 			line := strings.TrimSpace(lines.Text())
 			request, isFrame := strings.CutPrefix(line, "frame ")
 			switch {
-			case line == planned.page:
+			case line == planned.page.demoName:
 				select {
 				case <-shown:
 				default:
@@ -1092,7 +1108,7 @@ func takeScreenshot(outputDirectory string, device device, booted simulator, pla
 		case err = <-failed:
 			return err
 		case <-exited:
-			return E.New(bundle, " exited before it showed ", planned.page)
+			return E.New(bundle, " exited before it showed ", planned.page.fileName)
 		case change := <-pending:
 			waiting += change
 			if waiting == 0 {
@@ -1101,7 +1117,7 @@ func takeScreenshot(outputDirectory string, device device, booted simulator, pla
 				idle.Stop()
 			}
 		case <-idle.C:
-			return E.New(bundle, " did not show ", planned.page, " within ", appTimeout, " of its last frame")
+			return E.New(bundle, " did not show ", planned.page.fileName, " within ", appTimeout, " of its last frame")
 		}
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -1115,7 +1131,7 @@ func takeScreenshot(outputDirectory string, device device, booted simulator, pla
 		capturedPath:    captured,
 		device:          device,
 		locales:         planned.locales,
-		page:            planned.page,
+		fileName:        planned.page.fileName,
 		start:           start,
 	})
 	return nil
@@ -1137,7 +1153,7 @@ func takeConnectionsBatch(outputDirectory string, device device, booted simulato
 	port := ln.Addr().(*net.TCPAddr).Port
 
 	app, err := simctlCommand("launch", "--console-pty", "--terminate-running-process", booted.UDID, bundle,
-		"-DemoScreenshot", "02-Connections",
+		"-DemoScreenshot", connectionsPage.demoName,
 		"-DemoFrames", frames.directory,
 		"-DemoControlPort", strconv.Itoa(port),
 		"-Demo", "YES",
@@ -1265,7 +1281,7 @@ func takeConnectionsBatch(outputDirectory string, device device, booted simulato
 			capturedPath:    captured,
 			device:          device,
 			locales:         planned.locales,
-			page:            planned.page,
+			fileName:        planned.page.fileName,
 			start:           shotStart,
 		})
 	}
@@ -1274,13 +1290,13 @@ func takeConnectionsBatch(outputDirectory string, device device, booted simulato
 	return nil
 }
 
-func save(outputDirectory string, data []byte, device device, locales []string, page string, start time.Time) error {
+func save(outputDirectory string, data []byte, device device, locales []string, fileName string, start time.Time) error {
 	err := checkScreenshot(data, device.sizes)
 	if err != nil {
-		return E.Cause(err, "check ", page)
+		return E.Cause(err, "check ", fileName)
 	}
 	for _, locale := range locales {
-		path := filepath.Join(outputDirectory, locale, device.name, page+".png")
+		path := filepath.Join(outputDirectory, locale, device.name, fileName)
 		err = os.MkdirAll(filepath.Dir(path), 0o755)
 		if err != nil {
 			return err
