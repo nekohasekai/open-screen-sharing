@@ -90,7 +90,10 @@ internal fun ConnectToView(
     val found = nearby.computers.filter { found ->
         ComputerStore.computers.none { saved ->
             saved.remoteProtocol == found.remoteProtocol &&
-                (found.address?.let { saved.address.matches(it) } == true || nearby.computer(saved.address, saved.remoteProtocol)?.id == found.id)
+                saved.endpoints.any { endpoint ->
+                    found.address?.let { endpoint.address.matches(it) } == true ||
+                        nearby.computer(endpoint.address, saved.remoteProtocol)?.id == found.id
+                }
         }
     }
 

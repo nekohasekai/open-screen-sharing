@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Kapcsolat szerkesztése</string>
     <string name="home_name">Név</string>
     <string name="home_server_address">Szervercím</string>
-    <string name="home_server_type">Szervertípus</string>
+    <string name="home_connection_type">Kapcsolattípus</string>
+    <string name="home_addresses_and_networks">Címek és hálózatok</string>
+    <string name="home_addresses">Címek</string>
+    <string name="home_new_address">Új cím</string>
+    <string name="home_edit_address">Cím szerkesztése</string>
+    <string name="home_delete_address">Cím törlése</string>
+    <string name="home_suggested">Javasolt</string>
+    <string name="home_looking_for_addresses">Címek keresése…</string>
+    <string name="home_no_addresses_found">Nem található cím</string>
     <string name="home_network_quality">Hálózat minősége</string>
     <string name="home_local_network">Helyi hálózat</string>
     <string name="home_internet">Internet</string>

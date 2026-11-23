@@ -47,6 +47,7 @@ nonisolated final class LibsharingRemoteSession: RemoteSession, @unchecked Senda
         options.awaitVirtualDisplay = configuration.awaitsVirtualDisplay
         options.keepAlive = configuration.keepsAlive
         options.disableUDP = configuration.disablesUDP
+        options.cacheName = configuration.cacheName
         options.cacheDirectory = AppDirectory.caches.path
 
         let handler = LibsharingHandler(delegate: delegate, remoteProtocol: configuration.remoteProtocol, platform: configuration.platform)

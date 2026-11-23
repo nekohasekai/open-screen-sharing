@@ -86,7 +86,15 @@
     <string name="home_edit_connection">ਕਨੈਕਸ਼ਨ ਸੋਧੋ</string>
     <string name="home_name">ਨਾਮ</string>
     <string name="home_server_address">ਸਰਵਰ ਪਤਾ</string>
-    <string name="home_server_type">ਸਰਵਰ ਦੀ ਕਿਸਮ</string>
+    <string name="home_connection_type">ਕਨੈਕਸ਼ਨ ਦੀ ਕਿਸਮ</string>
+    <string name="home_addresses_and_networks">ਪਤੇ ਅਤੇ ਨੈੱਟਵਰਕ</string>
+    <string name="home_addresses">ਪਤੇ</string>
+    <string name="home_new_address">ਨਵਾਂ ਪਤਾ</string>
+    <string name="home_edit_address">ਪਤਾ ਸੰਪਾਦਿਤ ਕਰੋ</string>
+    <string name="home_delete_address">ਪਤਾ ਮਿਟਾਓ</string>
+    <string name="home_suggested">ਸੁਝਾਏ ਗਏ</string>
+    <string name="home_looking_for_addresses">ਪਤਿਆਂ ਦੀ ਖੋਜ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ…</string>
+    <string name="home_no_addresses_found">ਕੋਈ ਪਤਾ ਨਹੀਂ ਮਿਲਿਆ</string>
     <string name="home_network_quality">ਨੈੱਟਵਰਕ ਦੀ ਗੁਣਵੱਤਾ</string>
     <string name="home_local_network">ਸਥਾਨਕ ਨੈੱਟਵਰਕ</string>
     <string name="home_internet">ਇੰਟਰਨੈੱਟ</string>

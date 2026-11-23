@@ -86,7 +86,15 @@
     <string name="home_edit_connection">แก้ไขการเชื่อมต่อ</string>
     <string name="home_name">ชื่อ</string>
     <string name="home_server_address">ที่อยู่เซิร์ฟเวอร์</string>
-    <string name="home_server_type">ประเภทเซิร์ฟเวอร์</string>
+    <string name="home_connection_type">ประเภทการเชื่อมต่อ</string>
+    <string name="home_addresses_and_networks">ที่อยู่และเครือข่าย</string>
+    <string name="home_addresses">ที่อยู่</string>
+    <string name="home_new_address">ที่อยู่ใหม่</string>
+    <string name="home_edit_address">แก้ไขที่อยู่</string>
+    <string name="home_delete_address">ลบที่อยู่</string>
+    <string name="home_suggested">แนะนำ</string>
+    <string name="home_looking_for_addresses">กำลังค้นหาที่อยู่…</string>
+    <string name="home_no_addresses_found">ไม่พบที่อยู่</string>
     <string name="home_network_quality">คุณภาพเครือข่าย</string>
     <string name="home_local_network">เครือข่ายในพื้นที่</string>
     <string name="home_internet">อินเทอร์เน็ต</string>

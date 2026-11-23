@@ -86,7 +86,15 @@
     <string name="home_edit_connection">연결 편집</string>
     <string name="home_name">이름</string>
     <string name="home_server_address">서버 주소</string>
-    <string name="home_server_type">서버 유형</string>
+    <string name="home_connection_type">연결 유형</string>
+    <string name="home_addresses_and_networks">주소 및 네트워크</string>
+    <string name="home_addresses">주소</string>
+    <string name="home_new_address">새로운 주소</string>
+    <string name="home_edit_address">주소 편집</string>
+    <string name="home_delete_address">주소 삭제</string>
+    <string name="home_suggested">제안</string>
+    <string name="home_looking_for_addresses">주소 찾는 중…</string>
+    <string name="home_no_addresses_found">발견된 주소 없음</string>
     <string name="home_network_quality">네트워크 품질</string>
     <string name="home_local_network">로컬 네트워크</string>
     <string name="home_internet">인터넷</string>

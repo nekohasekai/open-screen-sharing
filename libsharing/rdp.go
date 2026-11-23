@@ -25,7 +25,11 @@ func rdpOptions(o *SessionOptions, seen func(fingerprint string)) (rdp.Options, 
 	address := net.JoinHostPort(o.Host, strconv.Itoa(int(o.Port)))
 	var graphicsCache string
 	if o.CacheDirectory != "" {
-		name := sha256.Sum256([]byte(address))
+		cacheKey := o.CacheName
+		if cacheKey == "" {
+			cacheKey = address
+		}
+		name := sha256.Sum256([]byte(cacheKey))
 		graphicsCache = filepath.Join(o.CacheDirectory, "RDP", hex.EncodeToString(name[:8])+".gfxcache")
 	}
 	return rdp.Options{
@@ -61,6 +65,7 @@ func checkRDPLogin(ctx context.Context, options *SessionOptions) (string, error)
 	if err != nil {
 		return "", err
 	}
+	rdpOptions.Address = net.JoinHostPort(resolveDialHost(ctx, options.Host), strconv.Itoa(int(options.Port)))
 	err = rdp.CheckLogin(ctx, rdpOptions)
 	return fingerprint, err
 }

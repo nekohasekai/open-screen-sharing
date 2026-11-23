@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Bağlantıyı Düzenle</string>
     <string name="home_name">Ad</string>
     <string name="home_server_address">Sunucu Adresi</string>
-    <string name="home_server_type">Sunucu Türü</string>
+    <string name="home_connection_type">Bağlantı Türü</string>
+    <string name="home_addresses_and_networks">Adresler ve Ağlar</string>
+    <string name="home_addresses">Adresler</string>
+    <string name="home_new_address">Yeni Adres</string>
+    <string name="home_edit_address">Adresi Düzenle</string>
+    <string name="home_delete_address">Adresi Sil</string>
+    <string name="home_suggested">Önerilen</string>
+    <string name="home_looking_for_addresses">Adresler aranıyor…</string>
+    <string name="home_no_addresses_found">Adres Bulunamadı</string>
     <string name="home_network_quality">Ağ Kalitesi</string>
     <string name="home_local_network">Yerel Ağ</string>
     <string name="home_internet">İnternet</string>

@@ -1,25 +1,29 @@
 package io.nekohasekai.screensharing.home
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,7 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
 import io.nekohasekai.screensharing.App
@@ -44,19 +48,16 @@ import io.nekohasekai.screensharing.app.ListGroup
 import io.nekohasekai.screensharing.app.PageScaffold
 import io.nekohasekai.screensharing.app.SectionHeader
 import io.nekohasekai.screensharing.app.SwitchRow
+import io.nekohasekai.screensharing.app.groupItemColors
+import io.nekohasekai.screensharing.app.slideTransition
 import io.nekohasekai.screensharing.discovery.NearbyBrowser
 import io.nekohasekai.screensharing.discovery.NearbyComputer
 import io.nekohasekai.screensharing.model.Computer
-import io.nekohasekai.screensharing.model.ComputerAddress
 import io.nekohasekai.screensharing.model.ComputerStore
-import io.nekohasekai.screensharing.model.ConnectionTarget
-import io.nekohasekai.screensharing.model.NetworkConfiguration
-import io.nekohasekai.screensharing.model.NetworkQuality
 import io.nekohasekai.screensharing.model.RemoteProtocol
 import io.nekohasekai.screensharing.session.ServerAuthentication
 import io.nekohasekai.screensharing.session.SessionCredentials
 import io.nekohasekai.screensharing.session.SessionRoute
-import kotlin.math.roundToInt
 
 class ComputerEditorSetup(
     val credentials: SessionCredentials,
@@ -86,30 +87,46 @@ private enum class ServerChoice {
 
 private enum class EditorProblem {
     EmptyName,
-    InvalidAddress,
 }
 
 @Composable
 fun ComputerEditor(computer: Computer, setup: ComputerEditorSetup?, dismiss: () -> Unit) {
     var name by remember(computer.id) { mutableStateOf(computer.displayName) }
-    var address by remember(computer.id) { mutableStateOf(computer.addressDescription) }
+    var endpoints by remember(computer.id) { mutableStateOf(computer.endpoints) }
     var authenticates by remember(computer.id) { mutableStateOf(computer.authenticates) }
     var username by remember(computer.id) { mutableStateOf(computer.username) }
     var password by remember(computer.id) { mutableStateOf(computer.password) }
     var choice by remember(computer.id) { mutableStateOf(ServerChoice.of(computer)) }
-    var networkConfiguration by remember(computer.id) { mutableStateOf(computer.networkConfiguration) }
     var keepsAlive by remember(computer.id) { mutableStateOf(computer.keepsAlive) }
     var disablesUDP by remember(computer.id) { mutableStateOf(computer.disablesUDP) }
     var reversesScrolling by remember(computer.id) { mutableStateOf(computer.reversesScrolling) }
+    var showingAddresses by remember(computer.id) { mutableStateOf(false) }
     var problem by remember { mutableStateOf<EditorProblem?>(null) }
     var alert by remember { mutableStateOf<AlertState?>(null) }
     val nameFocus = remember { FocusRequester() }
-    val addressFocus = remember { FocusRequester() }
     val usernameFocus = remember { FocusRequester() }
     val passwordFocus = remember { FocusRequester() }
 
+    if (setup == null) {
+        DisposableEffect(Unit) {
+            NearbyBrowser.shared.start()
+            onDispose { NearbyBrowser.shared.stop() }
+        }
+    }
+
     val trimmedUsername = username.trim()
-    val isComplete = !authenticates || trimmedUsername.isNotEmpty()
+    val activeEndpoints = if (setup != null) computer.endpoints else endpoints
+    val isComplete = activeEndpoints.isNotEmpty() && (!authenticates || trimmedUsername.isNotEmpty())
+    val editorCredentials: SessionCredentials? = when {
+        setup != null -> setup.credentials
+        authenticates && trimmedUsername.isNotEmpty() && password.isNotEmpty() -> SessionCredentials.Account(trimmedUsername, password)
+        else -> null
+    }
+    val endpointsSummary = when {
+        endpoints.isEmpty() -> ""
+        endpoints.size == 1 -> endpoints[0].address.description(choice.remoteProtocol.defaultPort)
+        else -> endpoints.size.toString()
+    }
 
     fun save() {
         val trimmedName = name.trim()
@@ -118,24 +135,23 @@ fun ComputerEditor(computer: Computer, setup: ComputerEditorSetup?, dismiss: () 
             nameFocus.requestFocus()
             return
         }
-        val endpoint = ConnectionTarget.parseEndpoint(address.trim())
-        if (endpoint == null) {
-            problem = EditorProblem.InvalidAddress
-            addressFocus.requestFocus()
-            return
-        }
-        val parsed = ComputerAddress(endpoint.first, endpoint.second ?: choice.remoteProtocol.defaultPort)
         if (!isComplete) {
             if (setup == null) usernameFocus.requestFocus()
             return
         }
         val saved = try {
             ComputerStore.save(computer) { stored ->
+                val previousEndpoints = stored.endpoints
+                val sharesEndpoint = activeEndpoints.any { candidate ->
+                    previousEndpoints.any { it.address.matches(candidate.address) }
+                }
                 stored.copy(
                     name = trimmedName,
-                    trustedFingerprint = if (stored.remoteProtocol != choice.remoteProtocol || !stored.address.matches(parsed)) "" else stored.trustedFingerprint,
-                    host = parsed.host,
-                    port = parsed.port,
+                    trustedFingerprint = if (setup == null && (stored.remoteProtocol != choice.remoteProtocol || !sharesEndpoint)) {
+                        ""
+                    } else {
+                        stored.trustedFingerprint
+                    },
                     authenticates = authenticates,
                     username = if (authenticates) trimmedUsername else "",
                     password = if (authenticates) password else "",
@@ -144,7 +160,7 @@ fun ComputerEditor(computer: Computer, setup: ComputerEditorSetup?, dismiss: () 
                     keepsAlive = keepsAlive,
                     disablesUDP = disablesUDP,
                     reversesScrolling = choice != ServerChoice.AppleVnc && reversesScrolling,
-                ).withNetworkConfiguration(networkConfiguration)
+                ).withEndpoints(activeEndpoints)
             }
         } catch (error: Exception) {
             alert = AlertState.failure(App.instance.getString(R.string.home_save_failed), error)
@@ -156,172 +172,160 @@ fun ComputerEditor(computer: Computer, setup: ComputerEditorSetup?, dismiss: () 
         dismiss()
     }
 
-    PageScaffold(
-        title = stringResource(if (setup == null) R.string.home_edit_connection else R.string.home_new_connection),
-        navigationIcon = {
-            IconButton(onClick = setup?.back ?: dismiss) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.home_back))
-            }
-        },
-    ) {
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            modifier = FieldModifier.focusRequester(nameFocus),
-            label = { Text(stringResource(R.string.home_name)) },
-            isError = problem == EditorProblem.EmptyName,
-            supportingText = if (problem == EditorProblem.EmptyName) {
-                { Text(stringResource(R.string.home_enter_name)) }
-            } else {
-                null
-            },
-            keyboardOptions = KeyboardOptions(imeAction = if (setup == null) ImeAction.Next else ImeAction.Go),
-            keyboardActions = KeyboardActions(onAny = { if (setup == null) addressFocus.requestFocus() else save() }),
-            singleLine = true,
-        )
-        OutlinedTextField(
-            value = address,
-            onValueChange = { address = it },
-            modifier = FieldModifier.focusRequester(addressFocus),
-            enabled = setup == null,
-            label = { Text(stringResource(R.string.home_server_address)) },
-            isError = problem == EditorProblem.InvalidAddress,
-            supportingText = if (problem == EditorProblem.InvalidAddress) {
-                { Text(stringResource(R.string.home_enter_valid_address)) }
-            } else {
-                null
-            },
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.None,
-                autoCorrectEnabled = false,
-                keyboardType = KeyboardType.Uri,
-                imeAction = if (authenticates && setup == null) ImeAction.Next else ImeAction.Done,
-            ),
-            keyboardActions = KeyboardActions(onNext = { usernameFocus.requestFocus() }),
-            singleLine = true,
-        )
-        DropdownField(
-            label = stringResource(R.string.home_server_type),
-            selected = choice,
-            options = buildList {
-                if (setup == null || computer.remoteProtocol == RemoteProtocol.Vnc) {
-                    add(ServerChoice.Vnc)
-                    add(ServerChoice.AppleVnc)
-                }
-                if (setup == null || computer.remoteProtocol == RemoteProtocol.Rdp) {
-                    add(ServerChoice.Rdp)
-                }
-            },
-            optionLabel = {
-                stringResource(
-                    when (it) {
-                        ServerChoice.Vnc -> R.string.home_vnc
-                        ServerChoice.AppleVnc -> R.string.home_apple_vnc
-                        ServerChoice.Rdp -> R.string.home_rdp
-                    },
-                )
-            },
-            onSelect = { choice = it },
-            enabled = !(setup != null && computer.remoteProtocol == RemoteProtocol.Rdp),
-        )
-        if (choice == ServerChoice.AppleVnc) {
-            DropdownField(
-                label = stringResource(R.string.home_network_quality),
-                selected = networkConfiguration.quality,
-                options = NetworkQuality.entries,
-                optionLabel = {
-                    stringResource(
-                        when (it) {
-                            NetworkQuality.LocalNetwork -> R.string.home_local_network
-                            NetworkQuality.Internet -> R.string.home_internet
-                        },
-                    )
-                },
-                onSelect = { networkConfiguration = networkConfiguration.copy(quality = it) },
+    AnimatedContent(
+        targetState = showingAddresses && setup == null,
+        transitionSpec = { slideTransition(forward = targetState) },
+        label = "editorAddresses",
+    ) { isAddresses ->
+        if (isAddresses) {
+            BackHandler { showingAddresses = false }
+            AddressesView(
+                endpoints = endpoints,
+                onEndpointsChange = { endpoints = it },
+                computerName = name.trim().ifEmpty { computer.displayName },
+                remoteProtocol = choice.remoteProtocol,
+                usesHighPerformance = choice.usesHighPerformance,
+                trustedFingerprint = computer.trustedFingerprint,
+                credentials = editorCredentials,
+                back = { showingAddresses = false },
             )
-            if (networkConfiguration.quality == NetworkQuality.Internet) {
-                Spacer(Modifier.height(8.dp))
-                ListGroup {
-                    SwitchRow(
-                        stringResource(R.string.home_high_definition),
-                        networkConfiguration.internetHighDefinition,
-                        onCheckedChange = { networkConfiguration = networkConfiguration.copy(internetHighDefinition = it) },
-                    )
-                    if (networkConfiguration.internetHighDefinition) {
-                        Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    stringResource(R.string.home_network_bandwidth),
-                                    Modifier.weight(1f),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                )
-                                Text(
-                                    stringResource(R.string.home_mbps, networkConfiguration.bandwidthMbps),
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontFeatureSettings = "tnum"),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                            val range = NetworkConfiguration.bandwidthRangeMbps
-                            Slider(
-                                value = networkConfiguration.bandwidthMbps.toFloat(),
-                                onValueChange = { networkConfiguration = networkConfiguration.copy(internetBandwidthMbps = it.roundToInt()) },
-                                valueRange = range.first.toFloat()..range.last.toFloat(),
-                                steps = range.last - range.first - 1,
-                            )
-                        }
+        } else {
+            PageScaffold(
+                title = stringResource(if (setup == null) R.string.home_edit_connection else R.string.home_new_connection),
+                navigationIcon = {
+                    IconButton(onClick = setup?.back ?: dismiss) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.home_back))
                     }
-                }
-            }
-        }
-        if (setup == null) {
-            SectionHeader(stringResource(R.string.home_authentication))
-            ListGroup {
-                SwitchRow(stringResource(R.string.home_enabled), authenticates, onCheckedChange = { authenticates = it })
-            }
-            if (authenticates) {
-                Spacer(Modifier.height(8.dp))
+                },
+            ) {
                 OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    modifier = FieldModifier.focusRequester(usernameFocus),
-                    label = { Text(stringResource(R.string.home_user_name)) },
-                    placeholder = { Text(stringResource(R.string.home_required)) },
+                    value = name,
+                    onValueChange = {
+                        name = it
+                        problem = null
+                    },
+                    modifier = FieldModifier.focusRequester(nameFocus),
+                    label = { Text(stringResource(R.string.home_name)) },
+                    isError = problem == EditorProblem.EmptyName,
+                    supportingText = if (problem == EditorProblem.EmptyName) {
+                        { Text(stringResource(R.string.home_enter_name)) }
+                    } else {
+                        null
+                    },
                     keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.None,
-                        autoCorrectEnabled = false,
-                        imeAction = ImeAction.Next,
+                        imeAction = when {
+                            setup == null && authenticates -> ImeAction.Next
+                            setup == null -> ImeAction.Done
+                            else -> ImeAction.Go
+                        },
                     ),
-                    keyboardActions = KeyboardActions(onAny = { passwordFocus.requestFocus() }),
+                    keyboardActions = KeyboardActions(onAny = {
+                        if (setup == null && authenticates) usernameFocus.requestFocus() else save()
+                    }),
                     singleLine = true,
                 )
-                PasswordField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = stringResource(R.string.home_password),
-                    focusRequester = passwordFocus,
-                    imeAction = ImeAction.Done,
-                    placeholder = stringResource(R.string.home_optional),
-                )
-            }
-        }
-        if (choice == ServerChoice.Rdp || choice == ServerChoice.AppleVnc) {
-            SectionHeader(stringResource(R.string.home_connection))
-            ListGroup {
-                if (choice == ServerChoice.Rdp) {
-                    SwitchRow(stringResource(R.string.home_disable_udp), disablesUDP, onCheckedChange = { disablesUDP = it })
+                if (setup == null) {
+                    Spacer(Modifier.height(8.dp))
+                    ListGroup {
+                        ListItem(
+                            headlineContent = { Text(stringResource(R.string.home_addresses_and_networks)) },
+                            trailingContent = {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                ) {
+                                    Text(
+                                        endpointsSummary,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
+                                }
+                            },
+                            colors = groupItemColors(),
+                            modifier = Modifier.clickable { showingAddresses = true },
+                        )
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    DropdownField(
+                        label = stringResource(R.string.home_connection_type),
+                        selected = choice,
+                        options = ServerChoice.entries,
+                        optionLabel = {
+                            stringResource(
+                                when (it) {
+                                    ServerChoice.Vnc -> R.string.home_vnc
+                                    ServerChoice.AppleVnc -> R.string.home_apple_vnc
+                                    ServerChoice.Rdp -> R.string.home_rdp
+                                },
+                            )
+                        },
+                        onSelect = { newChoice ->
+                            val oldDefaultPort = choice.remoteProtocol.defaultPort
+                            val newDefaultPort = newChoice.remoteProtocol.defaultPort
+                            if (oldDefaultPort != newDefaultPort) {
+                                endpoints = endpoints.map { endpoint ->
+                                    if (endpoint.address.port == oldDefaultPort) {
+                                        endpoint.copy(address = endpoint.address.copy(port = newDefaultPort))
+                                    } else {
+                                        endpoint
+                                    }
+                                }
+                            }
+                            choice = newChoice
+                        },
+                    )
+                    SectionHeader(stringResource(R.string.home_authentication))
+                    ListGroup {
+                        SwitchRow(stringResource(R.string.home_enabled), authenticates, onCheckedChange = { authenticates = it })
+                    }
+                    if (authenticates) {
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = username,
+                            onValueChange = { username = it },
+                            modifier = FieldModifier.focusRequester(usernameFocus),
+                            label = { Text(stringResource(R.string.home_user_name)) },
+                            placeholder = { Text(stringResource(R.string.home_required)) },
+                            keyboardOptions = KeyboardOptions(
+                                capitalization = KeyboardCapitalization.None,
+                                autoCorrectEnabled = false,
+                                imeAction = ImeAction.Next,
+                            ),
+                            keyboardActions = KeyboardActions(onAny = { passwordFocus.requestFocus() }),
+                            singleLine = true,
+                        )
+                        PasswordField(
+                            value = password,
+                            onValueChange = { password = it },
+                            label = stringResource(R.string.home_password),
+                            focusRequester = passwordFocus,
+                            imeAction = ImeAction.Done,
+                            placeholder = stringResource(R.string.home_optional),
+                        )
+                    }
                 }
-                SwitchRow(stringResource(R.string.home_keep_alive), keepsAlive, onCheckedChange = { keepsAlive = it })
+                if (choice == ServerChoice.Rdp || choice == ServerChoice.AppleVnc) {
+                    SectionHeader(stringResource(R.string.home_connection))
+                    ListGroup {
+                        if (choice == ServerChoice.Rdp) {
+                            SwitchRow(stringResource(R.string.home_disable_udp), disablesUDP, onCheckedChange = { disablesUDP = it })
+                        }
+                        SwitchRow(stringResource(R.string.home_keep_alive), keepsAlive, onCheckedChange = { keepsAlive = it })
+                    }
+                }
+                if (choice != ServerChoice.AppleVnc) {
+                    SectionHeader(stringResource(R.string.home_control))
+                    ListGroup {
+                        SwitchRow(stringResource(R.string.home_reverse_scroll_direction), reversesScrolling, onCheckedChange = { reversesScrolling = it })
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+                FormButton(stringResource(if (setup == null) R.string.save else R.string.connect), enabled = setup != null || isComplete, onClick = dropUnlessResumed { save() })
             }
         }
-        if (choice != ServerChoice.AppleVnc) {
-            SectionHeader(stringResource(R.string.home_control))
-            ListGroup {
-                SwitchRow(stringResource(R.string.home_reverse_scroll_direction), reversesScrolling, onCheckedChange = { reversesScrolling = it })
-            }
-        }
-        Spacer(Modifier.height(8.dp))
-        FormButton(stringResource(if (setup == null) R.string.save else R.string.connect), enabled = setup != null || isComplete, onClick = dropUnlessResumed { save() })
     }
     AlertHost(alert) { alert = null }
 }

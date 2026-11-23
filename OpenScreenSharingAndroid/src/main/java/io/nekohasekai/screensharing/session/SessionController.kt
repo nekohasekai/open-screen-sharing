@@ -29,6 +29,8 @@ import io.nekohasekai.screensharing.app.ContinuedTask
 import io.nekohasekai.screensharing.app.RuntimePermission
 import io.nekohasekai.screensharing.model.AppDirectory
 import io.nekohasekai.screensharing.model.AppSettings
+import io.nekohasekai.screensharing.model.ComputerAddress
+import io.nekohasekai.screensharing.model.ComputerEndpoint
 import io.nekohasekai.screensharing.model.ComputerStore
 import io.nekohasekai.screensharing.model.ConnectionRecord
 import io.nekohasekai.screensharing.model.CursorStyle
@@ -226,6 +228,7 @@ class SessionController(
         private set
     var hdrEnabled: Boolean by mutableStateOf(false)
         private set
+    private var hdrPreference = false
     override var displaySupportsHDR: Boolean by mutableStateOf(false)
     var receivesAudio: Boolean by mutableStateOf(true)
         private set
@@ -377,6 +380,7 @@ class SessionController(
     private var isScrollGliding = false
 
     private var server: ServerAuthentication? = route.server
+    private var activeAddress: ComputerAddress = route.address
     private var probeTask: Job? = null
     private var trustedFingerprint = ""
     private var allowsUnverifiedLogin = false
@@ -427,26 +431,72 @@ class SessionController(
             }
     }
 
+    private fun configuredEndpoints(): List<ComputerEndpoint> {
+        val saved = computerID?.let { ComputerStore.computer(it) }
+        if (saved != null) return saved.endpoints
+        return listOf(ComputerEndpoint(address = route.address, networkConfiguration = networkConfiguration))
+    }
+
     private fun askForCredentials(
         username: String,
         failure: SessionFailure? = null,
     ) {
         phase = SessionPhase.Connecting
-        server?.let {
-            presentCredentialPrompt(it, username, failure)
+        val endpoints = configuredEndpoints()
+        val knownServer = server
+        if (knownServer != null && (failure != null || endpoints.size <= 1)) {
+            if (failure == null) {
+                endpoints.firstOrNull()?.let { first ->
+                    activeAddress = first.address
+                    networkConfiguration = first.networkConfiguration
+                }
+            }
+            presentCredentialPrompt(
+                knownServer,
+                ComputerEndpoint(address = activeAddress, networkConfiguration = networkConfiguration),
+                username,
+                failure,
+            )
             return
         }
         val route = route
+        if (endpoints.size > 1) {
+            val trusted = trustedFingerprint
+            probeTask =
+                App.scope.launch(Dispatchers.Main) {
+                    val result = ServerProber.resolveRoute(endpoints, route.remoteProtocol, trusted)
+                    if (!isActive) return@launch
+                    probeTask = null
+                    if (phase != SessionPhase.Connecting) return@launch
+                    when (result) {
+                        is ProbeResult.Success -> {
+                            activeAddress = result.value.endpoint.address
+                            networkConfiguration = result.value.endpoint.networkConfiguration
+                            server = result.value.authentication
+                            presentCredentialPrompt(result.value.authentication, result.value.endpoint, username, failure)
+                        }
+
+                        is ProbeResult.Failure -> {
+                            phase = SessionPhase.Failed(result.failure)
+                        }
+                    }
+                }
+            return
+        }
+        val target = endpoints[0]
         probeTask =
             App.scope.launch(Dispatchers.Main) {
-                val result = ServerProber.probe(route.host, route.port, route.remoteProtocol)
+                val result = ServerProber.probe(target.address.host, target.address.port, route.remoteProtocol)
                 if (!isActive) return@launch
                 probeTask = null
                 if (phase != SessionPhase.Connecting) return@launch
                 when (result) {
                     is ProbeResult.Success -> {
+                        val resolved = ComputerEndpoint(address = result.value.address, networkConfiguration = target.networkConfiguration)
+                        activeAddress = resolved.address
+                        networkConfiguration = resolved.networkConfiguration
                         server = result.value.authentication
-                        presentCredentialPrompt(result.value.authentication, username, failure)
+                        presentCredentialPrompt(result.value.authentication, resolved, username, failure)
                     }
 
                     is ProbeResult.Failure -> {
@@ -458,13 +508,14 @@ class SessionController(
 
     private fun presentCredentialPrompt(
         server: ServerAuthentication,
+        endpoint: ComputerEndpoint,
         username: String,
         failure: SessionFailure?,
     ) {
         val openCredentials = server.openCredentials
         val form: CredentialPrompt.Form
         if (openCredentials != null && failure == null) {
-            connect(openCredentials)
+            connect(openCredentials, resolvedEndpoint = endpoint)
             return
         } else if (server.account || server.requestPermission) {
             form = CredentialPrompt.Form.Account(allowsRequest = server.requestPermission)
@@ -481,7 +532,7 @@ class SessionController(
                 remembers = usedSavedPassword,
                 failed = failure != null,
                 errorMessage = failure?.message ?: "",
-                server = ProbedServer(route.address, route.remoteProtocol, server, trustedFingerprint),
+                server = ProbedServer(endpoint.address, route.remoteProtocol, server, trustedFingerprint),
                 computerID = computerID,
                 allowsUnverifiedLogin = allowsUnverifiedLogin,
             )
@@ -512,6 +563,7 @@ class SessionController(
         clipboardSharing = memory.sharesClipboard
         resolutionScale = memory.resolutionScale
         chosenDisplay = memory.display
+        hdrPreference = memory.usesHDR
         hdrEnabled = memory.usesHDR && DecoderCapabilities.current.supportsHDR
         receivesAudio = memory.receivesAudio
         sendsAudio = memory.sendsAudio
@@ -528,7 +580,7 @@ class SessionController(
                 sharesClipboard = clipboardSharing,
                 resolutionScale = resolutionScale,
                 display = chosenDisplay,
-                usesHDR = hdrEnabled,
+                usesHDR = hdrPreference,
                 receivesAudio = receivesAudio,
                 sendsAudio = sendsAudio,
                 windowSize = windowSize,
@@ -558,7 +610,7 @@ class SessionController(
                     ConnectionRecord(
                         computerID = computerID,
                         name = route.name,
-                        address = route.address,
+                        address = activeAddress,
                         username = credentials.account?.username ?: "",
                         password = passwordUpdate,
                         remoteProtocol = route.remoteProtocol,
@@ -586,25 +638,71 @@ class SessionController(
         save { ComputerStore.setDevice(device, computerID) }
     }
 
-    private fun connect(credentials: SessionCredentials) {
+    private fun connect(
+        credentials: SessionCredentials,
+        resolvedEndpoint: ComputerEndpoint? = null,
+    ) {
         this.credentials = credentials
         awaitsDisplayArea = false
         var keepsAlive = false
         var disablesUDP = false
+        var endpoints = listOf(ComputerEndpoint(address = activeAddress, networkConfiguration = networkConfiguration))
         computerID?.let { ComputerStore.computer(it) }?.let { computer ->
-            networkConfiguration = computer.networkConfiguration
+            endpoints = computer.endpoints
             keepsAlive = computer.keepsAlive
             disablesUDP = computer.disablesUDP
             reversesScrolling = computer.reversesScrolling
         }
-        hdrEnabled = hdrEnabled && networkSupportsHDR
+        if (resolvedEndpoint != null) {
+            openSession(resolvedEndpoint, credentials, keepsAlive, disablesUDP)
+            return
+        }
+        if (endpoints.size <= 1) {
+            openSession(endpoints[0], credentials, keepsAlive, disablesUDP)
+            return
+        }
+        hasPicture = false
+        pipeline.holdPicture()
+        if (phase !is SessionPhase.Reconnecting) {
+            phase = SessionPhase.Connecting
+        }
+        val remoteProtocol = route.remoteProtocol
+        val trusted = if (allowsUnverifiedLogin) "" else trustedFingerprint
+        probeTask?.cancel()
+        probeTask =
+            App.scope.launch(Dispatchers.Main) {
+                val result = ServerProber.resolveRoute(endpoints, remoteProtocol, trusted)
+                if (!isActive) return@launch
+                probeTask = null
+                when (result) {
+                    is ProbeResult.Success -> {
+                        server = result.value.authentication
+                        openSession(result.value.endpoint, credentials, keepsAlive, disablesUDP)
+                    }
+
+                    is ProbeResult.Failure -> {
+                        handle(SessionPhase.Failed(result.failure))
+                    }
+                }
+            }
+    }
+
+    private fun openSession(
+        endpoint: ComputerEndpoint,
+        credentials: SessionCredentials,
+        keepsAlive: Boolean,
+        disablesUDP: Boolean,
+    ) {
+        activeAddress = endpoint.address
+        networkConfiguration = endpoint.networkConfiguration
+        hdrEnabled = hdrPreference && DecoderCapabilities.current.supportsHDR && networkSupportsHDR
         highPerformanceStartPending = usesHighPerformance
         hasPicture = false
         pipeline.setExpectsVideo(usesHighPerformance && io.nekohasekai.screensharing.demo.Demo.current == null)
         pipeline.setSchedulesPresentation(networkConfiguration.schedulesPresentation)
         val configuration =
             SessionConfiguration(
-                address = route.address,
+                address = activeAddress,
                 remoteProtocol = route.remoteProtocol,
                 platform = route.knownPlatform,
                 trustedFingerprint = trustedFingerprint,
@@ -629,6 +727,7 @@ class SessionController(
                 networkConfiguration = networkConfiguration,
                 keepsAlive = keepsAlive,
                 disablesUDP = disablesUDP,
+                cacheName = computerID?.toString().orEmpty(),
             )
         val sink = SessionEventSink(this, pipeline)
         val session = io.nekohasekai.screensharing.demo.Demo.current?.makeSession(this, sink) ?: LibsharingRemoteSession(configuration, sink)
@@ -646,7 +745,9 @@ class SessionController(
         restoresDisplay = chosenDisplay != null
         awaitsResolutionChange = false
         pipeline.holdPicture()
-        phase = SessionPhase.Connecting
+        if (phase !is SessionPhase.Reconnecting) {
+            phase = SessionPhase.Connecting
+        }
         // ScreenSharing configures virtual displays before SetEncodings (ScreenSharing 776.27, macOS 27.0.1 26A434,
         // UUID EC0B2C20-F816-3FCE-822D-F9403C09EB50, -[SSSession stConfigureSession] 0x1cc060514..0x1cc060590).
         if (hdrEnabled) {
@@ -1616,6 +1717,7 @@ class SessionController(
 
     fun setHDR(enabled: Boolean) {
         if (enabled && !canUseHDR) return
+        hdrPreference = enabled
         hdrEnabled = enabled
         session?.setHDR(enabled)
         rememberState()
@@ -1629,6 +1731,7 @@ class SessionController(
             failHighPerformance(MediaFailure(MediaFailure.Kind.Undecodable, error.localizedMessage ?: error.toString()))
             return
         }
+        hdrPreference = false
         hdrEnabled = false
         session?.setHDR(false)
         rememberState()

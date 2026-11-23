@@ -122,6 +122,11 @@ enum AppDatabase {
                 t.drop(column: "internetMaximumFrameRate")
             }
         }
+        migrator.registerMigration("1.0.10") { db in
+            try db.alter(table: "computers") { t in
+                t.add(column: "additionalEndpoints", .text).notNull().defaults(to: "[]")
+            }
+        }
         return migrator
     }()
 

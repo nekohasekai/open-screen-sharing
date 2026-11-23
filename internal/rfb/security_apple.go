@@ -172,6 +172,9 @@ func authenticateAppleRSA(h *handshake) ([]byte, error) {
 		}
 		return authenticateAppleRSAPlain(h, publicKey)
 	}
+	if h.options.VerifyServerKey != nil {
+		_ = h.options.VerifyServerKey(serverFingerprint, true)
+	}
 	identity := srpIdentityMessage(h.options.Username)
 	encrypted, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey, identity)
 	if err != nil {

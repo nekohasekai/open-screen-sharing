@@ -72,6 +72,7 @@ class LibsharingRemoteSession(private val configuration: SessionConfiguration, d
         options.awaitVirtualDisplay = configuration.awaitsVirtualDisplay
         options.keepAlive = configuration.keepsAlive
         options.disableUDP = configuration.disablesUDP
+        options.cacheName = configuration.cacheName
         options.cacheDirectory = AppDirectory.caches.path
 
         val handler = LibsharingHandler(delegate, configuration.remoteProtocol, configuration.platform)

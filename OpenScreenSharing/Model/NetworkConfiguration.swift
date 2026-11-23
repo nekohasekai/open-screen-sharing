@@ -25,13 +25,24 @@ nonisolated enum ChromaSampling: Sendable {
     }
 }
 
-nonisolated struct NetworkConfiguration: Equatable, Sendable {
+nonisolated struct NetworkConfiguration: Codable, Hashable, Sendable {
     static let bandwidthRangeMbps = 5...60
     static let defaultBandwidthMbps = 15
 
     var quality: NetworkQuality = .localNetwork
     var internetHighDefinition = false
     var internetBandwidthMbps = defaultBandwidthMbps
+
+    static func defaultConfiguration(for kind: AddressKind) -> NetworkConfiguration {
+        switch kind {
+        case .privateNetwork:
+            NetworkConfiguration(quality: .localNetwork)
+        case .tailscale:
+            NetworkConfiguration(quality: .internet, internetHighDefinition: true, internetBandwidthMbps: defaultBandwidthMbps)
+        case .publicNetwork:
+            NetworkConfiguration(quality: .internet)
+        }
+    }
 
     var usesCoreDevice: Bool { quality == .internet && !internetHighDefinition }
 

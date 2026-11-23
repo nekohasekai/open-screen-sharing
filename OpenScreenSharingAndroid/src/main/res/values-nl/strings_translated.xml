@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Wijzig verbinding</string>
     <string name="home_name">Naam</string>
     <string name="home_server_address">Serveradres</string>
-    <string name="home_server_type">Servertype</string>
+    <string name="home_connection_type">Verbindingstype</string>
+    <string name="home_addresses_and_networks">Adressen en netwerken</string>
+    <string name="home_addresses">Adressen</string>
+    <string name="home_new_address">Nieuw adres</string>
+    <string name="home_edit_address">Bewerk adres</string>
+    <string name="home_delete_address">Verwijder adres</string>
+    <string name="home_suggested">Voorgesteld</string>
+    <string name="home_looking_for_addresses">Zoeken naar adressen…</string>
+    <string name="home_no_addresses_found">Geen adressen gevonden</string>
     <string name="home_network_quality">Netwerkkwaliteit</string>
     <string name="home_local_network">Lokaal netwerk</string>
     <string name="home_internet">Internet</string>

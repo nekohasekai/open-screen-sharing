@@ -86,7 +86,15 @@
     <string name="home_edit_connection">कनेक्शन संपादित करें</string>
     <string name="home_name">नाम</string>
     <string name="home_server_address">सर्वर पता</string>
-    <string name="home_server_type">सर्वर प्रकार</string>
+    <string name="home_connection_type">कनेक्शन प्रकार</string>
+    <string name="home_addresses_and_networks">पते और नेटवर्क</string>
+    <string name="home_addresses">पते</string>
+    <string name="home_new_address">नया पता</string>
+    <string name="home_edit_address">पता संपादित करें</string>
+    <string name="home_delete_address">पता हटाएँ</string>
+    <string name="home_suggested">सुझाए गए</string>
+    <string name="home_looking_for_addresses">पते खोजे जा रहे हैं…</string>
+    <string name="home_no_addresses_found">कोई पता नहीं मिला</string>
     <string name="home_network_quality">नेटवर्क गुणवत्ता</string>
     <string name="home_local_network">स्थानीय नेटवर्क</string>
     <string name="home_internet">इंटरनेट</string>

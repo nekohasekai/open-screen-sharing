@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Editar Conexão</string>
     <string name="home_name">Nome</string>
     <string name="home_server_address">Endereço do Servidor</string>
-    <string name="home_server_type">Tipo de Servidor</string>
+    <string name="home_connection_type">Tipo de Conexão</string>
+    <string name="home_addresses_and_networks">Endereços e Redes</string>
+    <string name="home_addresses">Endereços</string>
+    <string name="home_new_address">Novo Endereço</string>
+    <string name="home_edit_address">Editar Endereço</string>
+    <string name="home_delete_address">Apagar Endereço</string>
+    <string name="home_suggested">Sugeridos</string>
+    <string name="home_looking_for_addresses">Procurando endereços…</string>
+    <string name="home_no_addresses_found">Nenhum endereço encontrado</string>
     <string name="home_network_quality">Qualidade da Rede</string>
     <string name="home_local_network">Rede Local</string>
     <string name="home_internet">Internet</string>

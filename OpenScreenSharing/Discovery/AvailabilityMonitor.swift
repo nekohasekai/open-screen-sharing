@@ -22,10 +22,26 @@ final class AvailabilityMonitor {
     @PerceptionIgnored private var pingedServers: Set<String>
     private static let pingedServersKey = "availabilityPingedServers"
     private static let refreshInterval: TimeInterval = 1
+    private static let remoteRefreshInterval: TimeInterval = 5
 
     init(nearby: NearbyBrowser) {
         self.nearby = nearby
         pingedServers = Set(PreferenceStore.shared.value([String].self, for: Self.pingedServersKey) ?? [])
+    }
+
+    func availability(of computer: Computer) -> ComputerAvailability? {
+        var hasUnknown = false
+        for endpoint in computer.endpoints {
+            switch availability(of: endpoint.address) {
+            case .available:
+                return .available
+            case nil:
+                hasUnknown = true
+            case .unavailable:
+                break
+            }
+        }
+        return hasUnknown ? nil : .unavailable
     }
 
     func availability(of address: ComputerAddress) -> ComputerAvailability? {
@@ -78,7 +94,8 @@ final class AvailabilityMonitor {
                 if availability[address] != result {
                     availability[address] = result
                 }
-                try? await Task.sleep(seconds: Self.refreshInterval)
+                let interval = address.kind == .privateNetwork ? Self.refreshInterval : Self.remoteRefreshInterval
+                try? await Task.sleep(seconds: interval)
             }
         }
     }

@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Edit Koneksi</string>
     <string name="home_name">Nama</string>
     <string name="home_server_address">Alamat Server</string>
-    <string name="home_server_type">Jenis Server</string>
+    <string name="home_connection_type">Jenis Koneksi</string>
+    <string name="home_addresses_and_networks">Alamat &amp; Jaringan</string>
+    <string name="home_addresses">Alamat</string>
+    <string name="home_new_address">Alamat Baru</string>
+    <string name="home_edit_address">Edit Alamat</string>
+    <string name="home_delete_address">Hapus Alamat</string>
+    <string name="home_suggested">Disarankan</string>
+    <string name="home_looking_for_addresses">Mencari Alamat…</string>
+    <string name="home_no_addresses_found">Alamat Tidak Ditemukan</string>
     <string name="home_network_quality">Kualitas Jaringan</string>
     <string name="home_local_network">Jaringan Lokal</string>
     <string name="home_internet">Internet</string>

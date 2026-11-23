@@ -132,6 +132,7 @@ final class SessionController: Identifiable {
     private(set) var isVideo = false
     private(set) var resolutionScale = VirtualDisplayMode.defaultResolutionScale
     private(set) var hdrEnabled = false
+    @PerceptionIgnored private var hdrPreference = false
     var displaySupportsHDR = false
     private(set) var receivesAudio = true
     private(set) var sendsAudio = false
@@ -261,6 +262,7 @@ final class SessionController: Identifiable {
     @PerceptionIgnored private var isScrollGliding = false
 
     @PerceptionIgnored private var server: ServerAuthentication?
+    @PerceptionIgnored private var activeAddress: ComputerAddress
     @PerceptionIgnored private var probeTask: Task<Void, Never>?
     @PerceptionIgnored private var trustedFingerprint = ""
     @PerceptionIgnored private var allowsUnverifiedLogin = false
@@ -270,6 +272,7 @@ final class SessionController: Identifiable {
 
     init(route: SessionRoute) {
         self.route = route
+        activeAddress = route.address
         title = route.name
         info = SessionInfo(remoteProtocol: route.remoteProtocol, platform: route.knownPlatform)
         computerID = route.computerID
@@ -334,31 +337,75 @@ final class SessionController: Identifiable {
         }
     }
 
+    private func configuredEndpoints() -> [ComputerEndpoint] {
+        if let computerID, let computer = store.computer(computerID) {
+            return computer.endpoints
+        }
+        return [ComputerEndpoint(address: route.address, networkConfiguration: networkConfiguration)]
+    }
+
     private func askForCredentials(username: String, failure: SessionFailure? = nil) {
         phase = .connecting
-        if let server {
-            presentCredentialPrompt(for: server, username: username, failure: failure)
+        let endpoints = configuredEndpoints()
+        if let server, failure != nil || endpoints.count <= 1 {
+            if failure == nil, let first = endpoints.first {
+                activeAddress = first.address
+                networkConfiguration = first.networkConfiguration
+            }
+            presentCredentialPrompt(
+                for: server,
+                endpoint: ComputerEndpoint(address: activeAddress, networkConfiguration: networkConfiguration),
+                username: username,
+                failure: failure
+            )
             return
         }
+        if endpoints.count > 1 {
+            let remoteProtocol = route.remoteProtocol
+            let trusted = trustedFingerprint
+            probeTask = Task { [weak self] in
+                let result = await ServerProber.resolveRoute(
+                    endpoints: endpoints, remoteProtocol: remoteProtocol, trustedFingerprint: trusted)
+                guard let self, !Task.isCancelled else { return }
+                probeTask = nil
+                guard phase == .connecting else { return }
+                switch result {
+                case .success(let resolved):
+                    activeAddress = resolved.endpoint.address
+                    networkConfiguration = resolved.endpoint.networkConfiguration
+                    server = resolved.authentication
+                    presentCredentialPrompt(for: resolved.authentication, endpoint: resolved.endpoint, username: username, failure: failure)
+                case .failure(let probeFailure):
+                    phase = .failed(probeFailure)
+                }
+            }
+            return
+        }
+        let target = endpoints[0]
         probeTask = Task { [weak self, route] in
-            let result = await ServerProber.probe(host: route.host, port: route.port, remoteProtocol: route.remoteProtocol)
+            let result = await ServerProber.probe(host: target.address.host, port: target.address.port, remoteProtocol: route.remoteProtocol)
             guard let self, !Task.isCancelled else { return }
             probeTask = nil
             guard phase == .connecting else { return }
             switch result {
-            case .success(let server):
-                self.server = server.authentication
-                presentCredentialPrompt(for: server.authentication, username: username, failure: failure)
-            case .failure(let failure):
-                phase = .failed(failure)
+            case .success(let probed):
+                let resolved = ComputerEndpoint(address: probed.address, networkConfiguration: target.networkConfiguration)
+                activeAddress = resolved.address
+                networkConfiguration = resolved.networkConfiguration
+                self.server = probed.authentication
+                presentCredentialPrompt(for: probed.authentication, endpoint: resolved, username: username, failure: failure)
+            case .failure(let probeFailure):
+                phase = .failed(probeFailure)
             }
         }
     }
 
-    private func presentCredentialPrompt(for server: ServerAuthentication, username: String, failure: SessionFailure?) {
+    private func presentCredentialPrompt(
+        for server: ServerAuthentication, endpoint: ComputerEndpoint, username: String, failure: SessionFailure?
+    ) {
         let form: CredentialPrompt.Form
         if let credentials = server.openCredentials, failure == nil {
-            connect(with: credentials)
+            connect(with: credentials, resolvedEndpoint: endpoint)
             return
         } else if server.account || server.requestPermission {
             form = .account(allowsRequest: server.requestPermission)
@@ -371,7 +418,7 @@ final class SessionController: Identifiable {
         credentialPrompt = CredentialPrompt(
             form: form, username: username, remembers: usedSavedPassword, failed: failure != nil, errorMessage: failure?.message ?? "",
             server: ProbedServer(
-                address: route.address, remoteProtocol: route.remoteProtocol, authentication: server, fingerprint: trustedFingerprint),
+                address: endpoint.address, remoteProtocol: route.remoteProtocol, authentication: server, fingerprint: trustedFingerprint),
             computerID: computerID, allowsUnverifiedLogin: allowsUnverifiedLogin)
     }
 
@@ -396,6 +443,7 @@ final class SessionController: Identifiable {
         clipboardSharing = memory.sharesClipboard
         resolutionScale = memory.resolutionScale
         chosenDisplay = memory.display
+        hdrPreference = memory.usesHDR
         hdrEnabled = memory.usesHDR && DecoderCapabilities.current.supportsHDR
         receivesAudio = memory.receivesAudio
         sendsAudio = memory.sendsAudio
@@ -411,7 +459,7 @@ final class SessionController: Identifiable {
             sharesClipboard: clipboardSharing,
             resolutionScale: resolutionScale,
             display: chosenDisplay,
-            usesHDR: hdrEnabled,
+            usesHDR: hdrPreference,
             receivesAudio: receivesAudio,
             sendsAudio: sendsAudio,
             windowSize: windowSize,
@@ -437,7 +485,7 @@ final class SessionController: Identifiable {
                 ConnectionRecord(
                     computerID: computerID,
                     name: route.name,
-                    address: route.address,
+                    address: activeAddress,
                     username: credentials.account?.username ?? "",
                     password: passwordUpdate,
                     remoteProtocol: route.remoteProtocol,
@@ -465,23 +513,60 @@ final class SessionController: Identifiable {
         }
     }
 
-    private func connect(with credentials: SessionCredentials) {
+    private func connect(with credentials: SessionCredentials, resolvedEndpoint: ComputerEndpoint? = nil) {
         self.credentials = credentials
         var keepsAlive = false
         var disablesUDP = false
+        var endpoints = [ComputerEndpoint(address: activeAddress, networkConfiguration: networkConfiguration)]
         if let computerID, let computer = store.computer(computerID) {
-            networkConfiguration = computer.networkConfiguration
+            endpoints = computer.endpoints
             keepsAlive = computer.keepsAlive
             disablesUDP = computer.disablesUDP
             reversesScrolling = computer.reversesScrolling
         }
-        hdrEnabled = hdrEnabled && networkSupportsHDR
+        if let resolvedEndpoint {
+            openSession(endpoint: resolvedEndpoint, credentials: credentials, keepsAlive: keepsAlive, disablesUDP: disablesUDP)
+            return
+        }
+        if endpoints.count <= 1 {
+            openSession(endpoint: endpoints[0], credentials: credentials, keepsAlive: keepsAlive, disablesUDP: disablesUDP)
+            return
+        }
+        hasPicture = false
+        pipeline.holdPicture()
+        if case .reconnecting = phase {} else {
+            phase = .connecting
+        }
+        let remoteProtocol = route.remoteProtocol
+        let trusted = allowsUnverifiedLogin ? "" : trustedFingerprint
+        probeTask?.cancel()
+        probeTask = Task { [weak self] in
+            let result = await ServerProber.resolveRoute(
+                endpoints: endpoints, remoteProtocol: remoteProtocol, trustedFingerprint: trusted)
+            guard let self, !Task.isCancelled else { return }
+            probeTask = nil
+            switch result {
+            case .success(let resolved):
+                server = resolved.authentication
+                openSession(endpoint: resolved.endpoint, credentials: credentials, keepsAlive: keepsAlive, disablesUDP: disablesUDP)
+            case .failure(let failure):
+                handle(phase: .failed(failure))
+            }
+        }
+    }
+
+    private func openSession(
+        endpoint: ComputerEndpoint, credentials: SessionCredentials, keepsAlive: Bool, disablesUDP: Bool
+    ) {
+        activeAddress = endpoint.address
+        networkConfiguration = endpoint.networkConfiguration
+        hdrEnabled = hdrPreference && DecoderCapabilities.current.supportsHDR && networkSupportsHDR
         highPerformanceStartPending = usesHighPerformance
         hasPicture = false
         pipeline.setExpectsVideo(usesHighPerformance)
         pipeline.setSchedulesPresentation(networkConfiguration.schedulesPresentation)
         let configuration = SessionConfiguration(
-            address: route.address,
+            address: activeAddress,
             remoteProtocol: route.remoteProtocol,
             platform: route.knownPlatform,
             trustedFingerprint: trustedFingerprint,
@@ -498,7 +583,8 @@ final class SessionController: Identifiable {
             awaitsVirtualDisplay: wantsVirtualDisplay,
             networkConfiguration: networkConfiguration,
             keepsAlive: keepsAlive,
-            disablesUDP: disablesUDP
+            disablesUDP: disablesUDP,
+            cacheName: computerID?.uuidString ?? ""
         )
         let sink = SessionEventSink(controller: self, pipeline: pipeline)
         let session = Demo.current?.makeSession(self, sink) ?? LibsharingRemoteSession(configuration: configuration, delegate: sink)
@@ -519,7 +605,9 @@ final class SessionController: Identifiable {
         restoresDisplay = chosenDisplay != nil
         awaitsResolutionChange = false
         pipeline.holdPicture()
-        phase = .connecting
+        if case .reconnecting = phase {} else {
+            phase = .connecting
+        }
         // ScreenSharing configures virtual displays before SetEncodings (ScreenSharing 776.27, macOS 27.0.1 26A434,
         // UUID EC0B2C20-F816-3FCE-822D-F9403C09EB50, -[SSSession stConfigureSession] 0x1cc060514..0x1cc060590).
         if hdrEnabled {
@@ -1379,6 +1467,7 @@ final class SessionController: Identifiable {
 
     func setHDR(_ enabled: Bool) {
         guard !enabled || canUseHDR else { return }
+        hdrPreference = enabled
         hdrEnabled = enabled
         session?.setHDR(enabled)
         rememberState()
@@ -1389,6 +1478,7 @@ final class SessionController: Identifiable {
             failHighPerformance(MediaFailure(.undecodable, message: error.localizedDescription))
             return
         }
+        hdrPreference = false
         hdrEnabled = false
         session?.setHDR(false)
         rememberState()

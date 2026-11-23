@@ -86,7 +86,15 @@
     <string name="home_edit_connection">接続を編集</string>
     <string name="home_name">名前</string>
     <string name="home_server_address">サーバアドレス</string>
-    <string name="home_server_type">サーバの種類</string>
+    <string name="home_connection_type">接続の種類</string>
+    <string name="home_addresses_and_networks">アドレスとネットワーク</string>
+    <string name="home_addresses">アドレス</string>
+    <string name="home_new_address">新規アドレス</string>
+    <string name="home_edit_address">アドレスを編集</string>
+    <string name="home_delete_address">アドレスを削除</string>
+    <string name="home_suggested">候補</string>
+    <string name="home_looking_for_addresses">アドレスを検索中…</string>
+    <string name="home_no_addresses_found">アドレスが見つかりません</string>
     <string name="home_network_quality">ネットワーク品質</string>
     <string name="home_local_network">ローカルネットワーク</string>
     <string name="home_internet">インターネット</string>

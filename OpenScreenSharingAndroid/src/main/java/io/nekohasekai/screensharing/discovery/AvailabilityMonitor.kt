@@ -15,6 +15,8 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import io.nekohasekai.screensharing.App
+import io.nekohasekai.screensharing.model.AddressKind
+import io.nekohasekai.screensharing.model.Computer
 import io.nekohasekai.screensharing.model.ComputerAddress
 import io.nekohasekai.screensharing.model.PreferenceStore
 import io.nekohasekai.screensharing.model.RemoteProtocol
@@ -56,6 +58,18 @@ class AvailabilityMonitor(private val nearby: NearbyBrowser) {
 
     private val silence: ComputerAvailability?
         get() = if (LocalNetworkAccess.permission.isGranted) ComputerAvailability.Unavailable else null
+
+    fun availability(computer: Computer): ComputerAvailability? {
+        var hasUnknown = false
+        for (endpoint in computer.endpoints) {
+            when (availability(endpoint.address)) {
+                ComputerAvailability.Available -> return ComputerAvailability.Available
+                null -> hasUnknown = true
+                ComputerAvailability.Unavailable -> Unit
+            }
+        }
+        return if (hasUnknown) null else ComputerAvailability.Unavailable
+    }
 
     fun availability(address: ComputerAddress): ComputerAvailability? {
         if (io.nekohasekai.screensharing.demo.Demo.current?.isAvailable(address) == true) {
@@ -154,7 +168,7 @@ class AvailabilityMonitor(private val nearby: NearbyBrowser) {
                 if (availability[address] != result) {
                     if (result == null) availability.remove(address) else availability[address] = result
                 }
-                delay(REFRESH_INTERVAL_MILLIS)
+                delay(if (address.kind == AddressKind.PrivateNetwork) REFRESH_INTERVAL_MILLIS else REMOTE_REFRESH_INTERVAL_MILLIS)
             }
         }
     }
@@ -192,6 +206,7 @@ class AvailabilityMonitor(private val nearby: NearbyBrowser) {
 
         private const val PINGED_SERVERS_KEY = "availabilityPingedServers"
         private const val REFRESH_INTERVAL_MILLIS = 1000L
+        private const val REMOTE_REFRESH_INTERVAL_MILLIS = 5000L
     }
 }
 

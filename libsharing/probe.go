@@ -60,8 +60,9 @@ func (r *ProbeRequest) probeServer(ctx context.Context, host string, port int32)
 			return &ServerProbe{ErrorCode: code, ErrorMessage: message}
 		}
 	}
-	methods, err := rfb.Probe(ctx, rfb.Options{
-		Address: net.JoinHostPort(host, strconv.Itoa(int(port))),
+	dialHost := resolveDialHost(ctx, host)
+	methods, fingerprint, err := rfb.Probe(ctx, rfb.Options{
+		Address: net.JoinHostPort(dialHost, strconv.Itoa(int(port))),
 		Logger:  newLogger(),
 	})
 	if err != nil {
@@ -76,6 +77,7 @@ func (r *ProbeRequest) probeServer(ctx context.Context, host string, port int32)
 	return &ServerProbe{
 		Protocol:               ProtocolRFB,
 		Port:                   port,
+		Fingerprint:            fingerprint,
 		SupportsAccount:        offers(rfb.AccountMethods(host)),
 		SupportsRequestControl: slices.Contains(methods, rfb.Method{Type: rfb.SecurityAskControl}),
 		SupportsRequestObserve: slices.Contains(methods, rfb.Method{Type: rfb.SecurityAskObserve}),
@@ -105,6 +107,7 @@ func (r *ProbeRequest) CheckLogin(options *SessionOptions) *LoginCheck {
 		code, message := classifyError(err)
 		return &LoginCheck{ErrorCode: code, ErrorMessage: message}
 	}
+	rfbOptions.Address = net.JoinHostPort(resolveDialHost(r.ctx, options.Host), strconv.Itoa(int(options.Port)))
 	info, err := rfb.CheckLogin(r.ctx, rfbOptions)
 	if err != nil {
 		code, message := classifyError(err)

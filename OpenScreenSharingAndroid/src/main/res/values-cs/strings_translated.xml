@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Úprava připojení</string>
     <string name="home_name">Název</string>
     <string name="home_server_address">Adresa serveru</string>
-    <string name="home_server_type">Typ serveru</string>
+    <string name="home_connection_type">Typ připojení</string>
+    <string name="home_addresses_and_networks">Adresy a sítě</string>
+    <string name="home_addresses">Adresy</string>
+    <string name="home_new_address">Nová adresa</string>
+    <string name="home_edit_address">Upravit adresu</string>
+    <string name="home_delete_address">Smazat adresu</string>
+    <string name="home_suggested">Navrhované</string>
+    <string name="home_looking_for_addresses">Vyhledávání adres…</string>
+    <string name="home_no_addresses_found">Nebyly nalezeny žádné adresy</string>
     <string name="home_network_quality">Kvalita sítě</string>
     <string name="home_local_network">Místní síť</string>
     <string name="home_internet">Internet</string>

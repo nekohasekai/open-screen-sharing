@@ -34,6 +34,38 @@ enum class SessionQuality(val rawValue: String) {
     Full("full"),
 }
 
+@Serializable
+data class StoredEndpoint(
+    @Serializable(with = UUIDSerializer::class) val id: UUID = UUID.randomUUID(),
+    val host: String,
+    val port: Int,
+    val quality: NetworkQuality,
+    val internetHighDefinition: Boolean,
+    val internetBandwidthMbps: Int,
+) {
+    constructor(endpoint: ComputerEndpoint, primaryID: UUID) : this(
+        id = if (endpoint.id == primaryID) UUID.randomUUID() else endpoint.id,
+        host = endpoint.address.host,
+        port = endpoint.address.port,
+        quality = endpoint.networkConfiguration.quality,
+        internetHighDefinition = endpoint.networkConfiguration.internetHighDefinition,
+        internetBandwidthMbps = endpoint.networkConfiguration.internetBandwidthMbps,
+    )
+
+    val endpoint: ComputerEndpoint
+        get() = ComputerEndpoint(
+            id = id,
+            address = ComputerAddress(host, port),
+            networkConfiguration = NetworkConfiguration(quality, internetHighDefinition, internetBandwidthMbps),
+        )
+}
+
+data class ComputerEndpoint(
+    val id: UUID = UUID.randomUUID(),
+    val address: ComputerAddress,
+    val networkConfiguration: NetworkConfiguration,
+)
+
 @Entity(tableName = "computers")
 data class Computer(
     @PrimaryKey val id: UUID = UUID.randomUUID(),
@@ -52,6 +84,7 @@ data class Computer(
     val networkQuality: NetworkQuality = NetworkQuality.LocalNetwork,
     val internetHighDefinition: Boolean = false,
     val internetBandwidthMbps: Int = NetworkConfiguration.DEFAULT_BANDWIDTH_MBPS,
+    val additionalEndpoints: List<StoredEndpoint> = emptyList(),
     val remoteProtocol: RemoteProtocol = RemoteProtocol.Vnc,
     val trustedFingerprint: String = "",
     val keepsAlive: Boolean = false,
@@ -98,6 +131,19 @@ data class Computer(
     val address: ComputerAddress get() = ComputerAddress(host, port)
 
     fun withAddress(address: ComputerAddress): Computer = copy(host = address.host, port = address.port)
+
+    val endpoints: List<ComputerEndpoint>
+        get() = listOf(ComputerEndpoint(id = id, address = address, networkConfiguration = networkConfiguration)) +
+            additionalEndpoints.map { it.endpoint }
+
+    fun withEndpoints(endpoints: List<ComputerEndpoint>): Computer {
+        val first = endpoints.firstOrNull() ?: return this
+        return copy(
+            host = first.address.host,
+            port = first.address.port,
+            additionalEndpoints = endpoints.drop(1).map { StoredEndpoint(it, id) },
+        ).withNetworkConfiguration(first.networkConfiguration)
+    }
 
     val addressDescription: String get() = address.description(remoteProtocol.defaultPort)
 
@@ -152,7 +198,7 @@ data class Computer(
 
     private fun hashFields(): List<Any?> = listOf(
         id, name, host, port, username, password, authenticates, model, enclosureColor, lastConnected, createdAt,
-        usesHighPerformance, networkQuality, internetHighDefinition, internetBandwidthMbps, remoteProtocol, trustedFingerprint, keepsAlive,
+        usesHighPerformance, networkQuality, internetHighDefinition, internetBandwidthMbps, additionalEndpoints, remoteProtocol, trustedFingerprint, keepsAlive,
         disablesUDP, reversesScrolling, quality, observes, sharesClipboard, resolutionScale, displayID, usesHDR, receivesAudio, sendsAudio,
         keyboardSources, windowWidth, windowHeight, locksPointer, usesNativeTouch,
     )

@@ -156,7 +156,13 @@ fun ComputersView(
     var dragOrder by remember { mutableStateOf<List<UUID>?>(null) }
 
     val servers = remember(computers) {
-        buildMap<ComputerAddress, RemoteProtocol> { computers.forEach { putIfAbsent(it.address, it.remoteProtocol) } }
+        buildMap<ComputerAddress, RemoteProtocol> {
+            computers.forEach { computer ->
+                computer.endpoints.forEach { endpoint ->
+                    putIfAbsent(endpoint.address, computer.remoteProtocol)
+                }
+            }
+        }
     }
     LaunchedEffect(servers) { AvailabilityMonitor.shared.update(servers) }
 
@@ -320,7 +326,7 @@ fun ComputersView(
                                         .then(itemModifier)
                                         .padding(CardInset),
                                     thumbnail = computer.thumbnail,
-                                    availability = AvailabilityMonitor.shared.availability(computer.address),
+                                    availability = AvailabilityMonitor.shared.availability(computer),
                                     isPC = computer.remoteProtocol == RemoteProtocol.Rdp,
                                 )
                             }
@@ -391,7 +397,7 @@ private fun ReorderableCollectionItemScope.ComputerListRow(
                     detail = computer.detailText,
                     device = computer.device,
                     modifier = itemModifier,
-                    availability = AvailabilityMonitor.shared.availability(computer.address),
+                    availability = AvailabilityMonitor.shared.availability(computer),
                     isPC = computer.remoteProtocol == RemoteProtocol.Rdp,
                 )
             }

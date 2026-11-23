@@ -86,7 +86,15 @@
     <string name="home_edit_connection">ସଂଯୋଗ ଏଡିଟ୍ କରନ୍ତୁ</string>
     <string name="home_name">ନାମ</string>
     <string name="home_server_address">ସର୍ଭର୍ ଠିକଣା</string>
-    <string name="home_server_type">ସର୍ଭର୍ ପ୍ରକାର</string>
+    <string name="home_connection_type">ସଂଯୋଗ ପ୍ରକାର</string>
+    <string name="home_addresses_and_networks">ଠିକଣା ଓ ନେଟୱର୍କ</string>
+    <string name="home_addresses">ଠିକଣା</string>
+    <string name="home_new_address">ନୂଆ ଠିକଣା</string>
+    <string name="home_edit_address">ଠିକଣା ଏଡିଟ୍ କରନ୍ତୁ</string>
+    <string name="home_delete_address">ଠିକଣା ଡିଲିଟ୍ କରନ୍ତୁ</string>
+    <string name="home_suggested">ପ୍ରସ୍ତାବିତ</string>
+    <string name="home_looking_for_addresses">ଠିକଣା ଖୋଜାଯାଉଛି…</string>
+    <string name="home_no_addresses_found">କୌଣସି ଠିକଣା ମିଳିଲା ନାହିଁ</string>
     <string name="home_network_quality">ନେଟ୍‌ୱର୍କ୍ ଗୁଣବତ୍ତା</string>
     <string name="home_local_network">ସ୍ଥାନୀୟ ନେଟ୍‌ୱର୍କ୍</string>
     <string name="home_internet">ଇଣ୍ଟରନେଟ୍</string>

@@ -1,7 +1,82 @@
 import Foundation
 import Network
 
-nonisolated struct ComputerAddress: Hashable, Sendable, CustomStringConvertible {
+nonisolated enum AddressKind: String, Codable, Hashable, Sendable {
+    case privateNetwork
+    case publicNetwork
+    case tailscale
+
+    init(host: String) {
+        var trimmed = host.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if trimmed.hasPrefix("["), trimmed.hasSuffix("]") {
+            trimmed = String(trimmed.dropFirst().dropLast())
+        }
+        while trimmed.hasSuffix(".") {
+            trimmed.removeLast()
+        }
+        if trimmed.hasSuffix(".ts.net") || trimmed.hasSuffix(".tailscale.net") {
+            self = .tailscale
+            return
+        }
+        let unzoned = trimmed.split(separator: "%", maxSplits: 1, omittingEmptySubsequences: false).first.map(String.init) ?? trimmed
+        if let ipv4 = IPv4Address(unzoned) {
+            self = Self.classifyIPv4(Array(ipv4.rawValue))
+            return
+        }
+        if let ipv6 = IPv6Address(unzoned) {
+            let bytes = Array(ipv6.rawValue)
+            if bytes.count == 16 {
+                if bytes[0..<10].allSatisfy({ $0 == 0 }), bytes[10] == 0xff, bytes[11] == 0xff {
+                    self = Self.classifyIPv4(Array(bytes[12..<16]))
+                    return
+                }
+                if bytes[0] == 0xfd, bytes[1] == 0x7a, bytes[2] == 0x11, bytes[3] == 0x5c, bytes[4] == 0xa1, bytes[5] == 0xe0 {
+                    self = .tailscale
+                    return
+                }
+                if (bytes[0..<15].allSatisfy({ $0 == 0 }) && bytes[15] == 1)
+                    || (bytes[0] == 0xfe && (bytes[1] & 0xc0) == 0x80)
+                    || (bytes[0] & 0xfe) == 0xfc
+                {
+                    self = .privateNetwork
+                    return
+                }
+            }
+            self = .publicNetwork
+            return
+        }
+        if trimmed == "localhost"
+            || trimmed.hasSuffix("._rfb._tcp.local")
+            || trimmed.hasSuffix(".local")
+            || trimmed.hasSuffix(".home.arpa")
+            || trimmed.hasSuffix(".lan")
+            || trimmed.hasSuffix(".internal")
+            || (!trimmed.isEmpty && !trimmed.contains("."))
+        {
+            self = .privateNetwork
+            return
+        }
+        self = .publicNetwork
+    }
+
+    private static func classifyIPv4(_ bytes: [UInt8]) -> AddressKind {
+        guard bytes.count == 4 else { return .publicNetwork }
+        if bytes[0] == 100, (bytes[1] & 0xc0) == 64 {
+            return .tailscale
+        }
+        if bytes[0] == 10
+            || (bytes[0] == 172 && (bytes[1] & 0xf0) == 16)
+            || (bytes[0] == 192 && bytes[1] == 168)
+            || bytes[0] == 127
+            || (bytes[0] == 169 && bytes[1] == 254)
+        {
+            return .privateNetwork
+        }
+        return .publicNetwork
+    }
+}
+
+nonisolated struct ComputerAddress: Codable, Hashable, Sendable, CustomStringConvertible {
     static let defaultPort = 5900
 
     var host: String
@@ -10,6 +85,10 @@ nonisolated struct ComputerAddress: Hashable, Sendable, CustomStringConvertible 
     init(host: String, port: Int = ComputerAddress.defaultPort) {
         self.host = host
         self.port = port
+    }
+
+    var kind: AddressKind {
+        AddressKind(host: host)
     }
 
     var description: String {

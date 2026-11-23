@@ -15,15 +15,16 @@ struct NewComputer: Hashable {
         saved.password = account?.password ?? ""
         saved.authenticates = account != nil
         saved.model = model ?? ""
-        saved.trustedFingerprint = check.fingerprint
+        saved.trustedFingerprint = check.fingerprint.isEmpty ? server.fingerprint : check.fingerprint
         saved.usesHighPerformance = check.supportsHighPerformance
+        saved.networkConfiguration = .defaultConfiguration(for: server.address.kind)
         saved.usesNativeTouch = SessionMemory.defaultUsesNativeTouch
         return SignedInComputer(computer: saved, credentials: credentials, server: server.authentication)
     }
 }
 
 struct SignedInComputer: Hashable {
-    let computer: Computer
+    var computer: Computer
     let credentials: SessionCredentials
     let server: ServerAuthentication?
 }
@@ -42,29 +43,41 @@ struct ConnectionSetupView: View {
     @State private var signingIn: NewComputer?
     @State private var isSigningIn = false
     @State private var signedIn: SignedInComputer?
+    @State private var endpoints: [ComputerEndpoint] = []
+    @State private var isShowingDirectAddresses = false
+    @State private var isShowingSignInAddresses = false
+    @State private var isConfiguringDirect = false
+    @State private var isConfiguringSignIn = false
     @State private var detent = SheetDetent.medium
 
     var body: some View {
-        Group {
-            if let signedIn {
-                ComputerEditor(
-                    computer: signedIn.computer,
-                    setup: ComputerEditor.Setup(
-                        credentials: signedIn.credentials,
-                        server: signedIn.server,
-                        connect: connect
-                    )
-                )
-                .transition(Self.pushTransition)
-            } else {
-                NavigationStackCompat {
-                    ConnectToView(link: link, close: { dismiss() }, signIn: signIn, signedIn: configure)
-                        .navigationDestinationCompat(isPresented: $isSigningIn) {
-                            if let signingIn {
-                                SetupSignInView(computer: signingIn, next: configure)
-                            }
-                        }
+        NavigationStackCompat {
+            ConnectToView(
+                link: link,
+                close: { dismiss() },
+                signIn: signIn,
+                signedIn: { computer in
+                    detent = .large
+                    signedIn = computer
+                    endpoints = computer.computer.endpoints
+                    isShowingDirectAddresses = true
                 }
+            )
+            .navigationDestinationCompat(isPresented: $isSigningIn) {
+                if let signingIn {
+                    SetupSignInView(computer: signingIn) { computer in
+                        detent = .large
+                        signedIn = computer
+                        endpoints = computer.computer.endpoints
+                        isShowingSignInAddresses = true
+                    }
+                    .navigationDestinationCompat(isPresented: $isShowingSignInAddresses) {
+                        addressesDestination(isConfiguring: $isConfiguringSignIn)
+                    }
+                }
+            }
+            .navigationDestinationCompat(isPresented: $isShowingDirectAddresses) {
+                addressesDestination(isConfiguring: $isConfiguringDirect)
             }
         }
         .phonePresentationDetents([.medium, .large], selection: $detent)
@@ -72,24 +85,37 @@ struct ConnectionSetupView: View {
         .onDisappear { nearby.stop() }
     }
 
-    private static var pushTransition: AnyTransition {
-        if #available(iOS 16, *) {
-            .push(from: .trailing)
-        } else {
-            .move(edge: .trailing)
+    @ViewBuilder
+    private func addressesDestination(isConfiguring: Binding<Bool>) -> some View {
+        if let signedIn {
+            AddressesView(
+                endpoints: $endpoints,
+                computerName: signedIn.computer.displayName,
+                remoteProtocol: signedIn.computer.remoteProtocol,
+                usesHighPerformance: signedIn.computer.usesHighPerformance,
+                trustedFingerprint: signedIn.computer.trustedFingerprint,
+                credentials: signedIn.credentials,
+                setupNext: { isConfiguring.wrappedValue = true }
+            )
+            .navigationDestinationCompat(isPresented: isConfiguring) {
+                var configured = signedIn.computer
+                let _ = (configured.endpoints = endpoints)
+                ComputerEditor(
+                    computer: configured,
+                    setup: ComputerEditor.Setup(
+                        credentials: signedIn.credentials,
+                        server: signedIn.server,
+                        connect: connect,
+                        close: { dismiss() }
+                    )
+                )
+            }
         }
     }
 
     private func signIn(_ computer: NewComputer) {
         signingIn = computer
         isSigningIn = true
-    }
-
-    private func configure(_ computer: SignedInComputer) {
-        withAnimation {
-            detent = .large
-            signedIn = computer
-        }
     }
 }
 

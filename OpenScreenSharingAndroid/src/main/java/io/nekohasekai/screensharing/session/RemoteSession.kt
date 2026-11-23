@@ -179,6 +179,7 @@ data class SessionConfiguration(
     val networkConfiguration: NetworkConfiguration = NetworkConfiguration(),
     val keepsAlive: Boolean = false,
     val disablesUDP: Boolean = false,
+    val cacheName: String = "",
 )
 
 data class SessionInfo(

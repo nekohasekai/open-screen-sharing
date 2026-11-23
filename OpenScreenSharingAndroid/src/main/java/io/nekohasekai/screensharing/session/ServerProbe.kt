@@ -5,6 +5,7 @@ import io.nekohasekai.libsharing.Libsharing
 import io.nekohasekai.libsharing.ProbeRequest
 import io.nekohasekai.libsharing.SessionOptions
 import io.nekohasekai.screensharing.model.ComputerAddress
+import io.nekohasekai.screensharing.model.ComputerEndpoint
 import io.nekohasekai.screensharing.model.RemoteProtocol
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +33,12 @@ data class ProbedServer(
 )
 
 data class LoginCheck(val supportsHighPerformance: Boolean, val fingerprint: String)
+
+data class ResolvedRoute(
+    val endpoint: ComputerEndpoint,
+    val authentication: ServerAuthentication,
+    val fingerprint: String,
+)
 
 sealed interface ProbeResult<out T> {
     data class Success<T>(val value: T) : ProbeResult<T>
@@ -80,6 +87,71 @@ object ServerProber {
             return@perform ProbeResult.Failure(failure(check.errorCode, check.errorMessage.orEmpty(), check.fingerprint.orEmpty()))
         }
         ProbeResult.Success(LoginCheck(check.supportsHighPerformance, check.fingerprint.orEmpty()))
+    }
+
+    suspend fun resolveRoute(
+        endpoints: List<ComputerEndpoint>,
+        remoteProtocol: RemoteProtocol,
+        trustedFingerprint: String,
+    ): ProbeResult<ResolvedRoute> {
+        if (endpoints.isEmpty()) {
+            return ProbeResult.Failure(SessionFailure(SessionFailure.Kind.HostNotFound))
+        }
+        val targets = endpoints.joinToString("\n") { endpoint ->
+            val host = if (endpoint.address.host.contains(':')) "[${endpoint.address.host}]" else endpoint.address.host
+            "$host:${endpoint.address.port}"
+        }
+        return Libsharing.newProbeRequest().perform {
+            val protocolValue = if (remoteProtocol == RemoteProtocol.Rdp) Libsharing.ProtocolRDP else Libsharing.ProtocolRFB
+            val resolved = resolveRoute(protocolValue, targets, trustedFingerprint)
+            val probe = resolved.probe ?: return@perform ProbeResult.Failure(SessionFailure(SessionFailure.Kind.Unreachable))
+            if (probe.errorCode != Libsharing.ErrorNone) {
+                return@perform ProbeResult.Failure(failure(probe.errorCode, probe.errorMessage.orEmpty(), probe.fingerprint.orEmpty()))
+            }
+            val index = resolved.index.takeIf { it in endpoints.indices } ?: 0
+            ProbeResult.Success(
+                ResolvedRoute(
+                    endpoint = endpoints[index],
+                    authentication = ServerAuthentication(
+                        account = probe.supportsAccount,
+                        requestPermission = probe.supportsRequestControl || probe.supportsRequestObserve,
+                        vncPassword = probe.supportsVNCPassword,
+                        noPassword = probe.supportsNoPassword,
+                    ),
+                    fingerprint = probe.fingerprint.orEmpty(),
+                ),
+            )
+        }
+    }
+
+    suspend fun suggestTailscaleAddresses(
+        name: String,
+        endpoints: List<ComputerEndpoint>,
+        remoteProtocol: RemoteProtocol,
+        trustedFingerprint: String,
+        sshHost: String?,
+        credentials: SessionCredentials?,
+    ): List<ComputerAddress> {
+        val existingHosts = endpoints.joinToString("\n") { it.address.host }
+        val account = credentials?.account
+        return Libsharing.newProbeRequest().perform {
+            val protocolValue = if (remoteProtocol == RemoteProtocol.Rdp) Libsharing.ProtocolRDP else Libsharing.ProtocolRFB
+            suggestTailscaleAddresses(
+                protocolValue,
+                remoteProtocol.defaultPort,
+                name,
+                existingHosts,
+                trustedFingerprint,
+                sshHost.orEmpty(),
+                account?.username.orEmpty(),
+                account?.password.orEmpty(),
+            )
+                .lineSequence()
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .map { ComputerAddress(it, remoteProtocol.defaultPort) }
+                .toList()
+        }
     }
 
     private suspend fun <T> ProbeRequest.perform(block: ProbeRequest.() -> T): T = coroutineScope {

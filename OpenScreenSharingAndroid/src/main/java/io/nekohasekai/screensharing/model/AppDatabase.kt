@@ -68,6 +68,12 @@ class AppConverters {
     fun toStrings(value: String): List<String> = Json.decodeFromString(value)
 
     @TypeConverter
+    fun fromEndpoints(value: List<StoredEndpoint>): String = Json.encodeToString(value)
+
+    @TypeConverter
+    fun toEndpoints(value: String): List<StoredEndpoint> = if (value.isBlank()) emptyList() else Json.decodeFromString(value)
+
+    @TypeConverter
     fun fromNetworkQuality(value: NetworkQuality): String = value.name
 
     @TypeConverter
@@ -86,7 +92,7 @@ class AppConverters {
     fun toSessionQuality(value: String): SessionQuality = SessionQuality.entries.firstOrNull { it.rawValue == value } ?: SessionQuality.Adaptive
 }
 
-@Database(entities = [Computer::class, Preference::class], version = 3, exportSchema = false)
+@Database(entities = [Computer::class, Preference::class], version = 4, exportSchema = false)
 @TypeConverters(AppConverters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun computers(): ComputerDao
@@ -126,6 +132,11 @@ abstract class AppDatabase : RoomDatabase() {
                             )
                             db.execSQL("DROP TABLE `computers`")
                             db.execSQL("ALTER TABLE `computers_new` RENAME TO `computers`")
+                        }
+                    },
+                    object : Migration(3, 4) {
+                        override fun migrate(db: SupportSQLiteDatabase) {
+                            db.execSQL("ALTER TABLE computers ADD COLUMN additionalEndpoints TEXT NOT NULL DEFAULT '[]'")
                         }
                     },
                 )

@@ -86,7 +86,15 @@
     <string name="home_edit_connection">עריכת חיבור</string>
     <string name="home_name">שם</string>
     <string name="home_server_address">כתובת השרת</string>
-    <string name="home_server_type">סוג השרת</string>
+    <string name="home_connection_type">סוג החיבור</string>
+    <string name="home_addresses_and_networks">כתובות ורשתות</string>
+    <string name="home_addresses">כתובות</string>
+    <string name="home_new_address">כתובת חדשה</string>
+    <string name="home_edit_address">עריכת כתובת</string>
+    <string name="home_delete_address">מחיקת כתובת</string>
+    <string name="home_suggested">הצעות</string>
+    <string name="home_looking_for_addresses">מחפש כתובות…</string>
+    <string name="home_no_addresses_found">לא נמצאו כתובות</string>
     <string name="home_network_quality">איכות הרשת</string>
     <string name="home_local_network">רשת מקומית</string>
     <string name="home_internet">אינטרנט</string>

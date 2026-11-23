@@ -244,7 +244,9 @@ func (s *Session) Connect() error {
 			return width, height, scale, nil
 		}
 		dial = func(ctx context.Context) (remote, error) {
-			client, err := rdp.Dial(ctx, options, &rdpSessionEvents{session: s})
+			dialOptions := options
+			dialOptions.Address = net.JoinHostPort(resolveDialHost(ctx, s.options.Host), strconv.Itoa(int(s.options.Port)))
+			client, err := rdp.Dial(ctx, dialOptions, &rdpSessionEvents{session: s})
 			if err != nil {
 				return nil, err
 			}
@@ -256,7 +258,9 @@ func (s *Session) Connect() error {
 			return err
 		}
 		dial = func(ctx context.Context) (remote, error) {
-			options.Prepare = func(client *rfb.Client) error {
+			dialOptions := options
+			dialOptions.Address = net.JoinHostPort(resolveDialHost(ctx, s.options.Host), strconv.Itoa(int(s.options.Port)))
+			dialOptions.Prepare = func(client *rfb.Client) error {
 				connected := rfbRemote{Client: client, session: s}
 				if connected.serverInfo().SupportsVirtualDisplay {
 					err := s.waitForDisplay(ctx)
@@ -267,7 +271,7 @@ func (s *Session) Connect() error {
 				connected.apply(s.takeSetup())
 				return nil
 			}
-			client, err := rfb.Dial(ctx, options, &sessionEvents{session: s})
+			client, err := rfb.Dial(ctx, dialOptions, &sessionEvents{session: s})
 			if err != nil {
 				return nil, err
 			}

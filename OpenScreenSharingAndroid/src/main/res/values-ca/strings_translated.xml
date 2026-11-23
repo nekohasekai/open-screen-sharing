@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Edició de la connexió</string>
     <string name="home_name">Nom</string>
     <string name="home_server_address">Adreça del servidor</string>
-    <string name="home_server_type">Tipus de servidor</string>
+    <string name="home_connection_type">Tipus de connexió</string>
+    <string name="home_addresses_and_networks">Adreces i xarxes</string>
+    <string name="home_addresses">Adreces</string>
+    <string name="home_new_address">Nova adreça</string>
+    <string name="home_edit_address">Edita l’adreça</string>
+    <string name="home_delete_address">Elimina l’adreça</string>
+    <string name="home_suggested">Suggeriments</string>
+    <string name="home_looking_for_addresses">Cercant adreces…</string>
+    <string name="home_no_addresses_found">No s’ha trobat cap adreça.</string>
     <string name="home_network_quality">Qualitat de la xarxa</string>
     <string name="home_local_network">Xarxa local</string>
     <string name="home_internet">Internet</string>

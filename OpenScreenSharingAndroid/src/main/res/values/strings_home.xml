@@ -23,7 +23,15 @@
     <string name="home_edit_connection">Edit connection</string>
     <string name="home_name">Name</string>
     <string name="home_server_address">Server address</string>
-    <string name="home_server_type">Server type</string>
+    <string name="home_connection_type">Connection type</string>
+    <string name="home_addresses_and_networks">Addresses &amp; networks</string>
+    <string name="home_addresses">Addresses</string>
+    <string name="home_new_address">New address</string>
+    <string name="home_edit_address">Edit address</string>
+    <string name="home_delete_address">Delete address</string>
+    <string name="home_suggested">Suggested</string>
+    <string name="home_looking_for_addresses">Looking for addresses…</string>
+    <string name="home_no_addresses_found">No addresses found</string>
     <string name="home_vnc" translatable="false">VNC</string>
     <string name="home_apple_vnc" translatable="false">Apple VNC</string>
     <string name="home_rdp" translatable="false">RDP</string>

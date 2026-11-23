@@ -285,6 +285,7 @@ nonisolated struct SessionConfiguration: Sendable {
     var networkConfiguration = NetworkConfiguration()
     var keepsAlive = false
     var disablesUDP = false
+    var cacheName = ""
 }
 
 nonisolated struct SessionInfo: Equatable, Sendable {

@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Қосылымды өңдеу</string>
     <string name="home_name">Атауы</string>
     <string name="home_server_address">Сервер мекенжайы</string>
-    <string name="home_server_type">Сервер түрі</string>
+    <string name="home_connection_type">Қосылым түрі</string>
+    <string name="home_addresses_and_networks">Мекенжайлар мен желілер</string>
+    <string name="home_addresses">Мекенжайлар</string>
+    <string name="home_new_address">Жаңа мекенжай</string>
+    <string name="home_edit_address">Мекенжайды өңдеу</string>
+    <string name="home_delete_address">Мекенжайды жою</string>
+    <string name="home_suggested">Ұсынылған</string>
+    <string name="home_looking_for_addresses">Мекенжайлар ізделуде…</string>
+    <string name="home_no_addresses_found">Мекенжайлар табылмады</string>
     <string name="home_network_quality">Желі сапасы</string>
     <string name="home_local_network">Жергілікті желі</string>
     <string name="home_internet">Интернет</string>

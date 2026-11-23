@@ -10,6 +10,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"time"
 	"unicode/utf8"
 
@@ -86,7 +87,24 @@ type handshake struct {
 	selected  func(SecurityType)
 }
 
+// screensharingd removes a viewer about 200 ms after a login check closes its connection. On macOS 27
+// ScreenSharingLiveActivityAgent then ends its Live Activity, takes that end for a request to disconnect
+// every viewer and passes it on; screensharingd closes all connections open at that moment and, if there
+// was any, closes new ones without a greeting for 480 ticks of 1/60 s (ScreenSharingLiveActivityAgent,
+// macOS 27.3 26C5047e, "Handling disconnect all request from Live Activity" 5 to 12 ms after
+// screensharingd's "Remove viewer"; screensharingd 756.36.5.2, macOS 27.0.1 26A434,
+// UUID 44908B06-F788-3822-ABC4-2285001F6A8D, sub_100007ab8 0x100007bdc..0x100007bf4,
+// sub_10002fcb4 0x10002fd14..0x10002fdb0).
+const loginCheckRemoval = time.Second
+
+var loginCheckClosed atomic.Int64
+
 func connect(ctx context.Context, options *Options, logger *slog.Logger, attempt func(h *handshake) error) error {
+	select {
+	case <-time.After(time.Until(time.Unix(0, loginCheckClosed.Load()).Add(loginCheckRemoval))):
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 	dialer := net.Dialer{
 		KeepAliveConfig: net.KeepAliveConfig{
 			Enable:   true,

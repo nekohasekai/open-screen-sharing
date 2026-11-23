@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Editare conexiune</string>
     <string name="home_name">Nume</string>
     <string name="home_server_address">Adresă server</string>
-    <string name="home_server_type">Tip server</string>
+    <string name="home_connection_type">Tip conexiune</string>
+    <string name="home_addresses_and_networks">Adrese și rețele</string>
+    <string name="home_addresses">Adrese</string>
+    <string name="home_new_address">Adresă nouă</string>
+    <string name="home_edit_address">Editare adresă</string>
+    <string name="home_delete_address">Șterge adresa</string>
+    <string name="home_suggested">Sugerate</string>
+    <string name="home_looking_for_addresses">Căutare adrese…</string>
+    <string name="home_no_addresses_found">Nu s-a găsit nicio adresă</string>
     <string name="home_network_quality">Calitatea rețelei</string>
     <string name="home_local_network">Rețea locală</string>
     <string name="home_internet">Internet</string>

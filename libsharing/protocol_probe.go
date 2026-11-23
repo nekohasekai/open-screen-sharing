@@ -59,7 +59,8 @@ func (r *ProbeRequest) ProbeProtocol(host string, port int32) *ServerProbe {
 }
 
 func (r *ProbeRequest) probeRDP(ctx context.Context, host string, port int32, rfbFallback bool) *ServerProbe {
-	conn, err := new(net.Dialer).DialContext(ctx, "tcp", net.JoinHostPort(host, strconv.Itoa(int(port))))
+	dialHost := resolveDialHost(ctx, host)
+	conn, err := new(net.Dialer).DialContext(ctx, "tcp", net.JoinHostPort(dialHost, strconv.Itoa(int(port))))
 	if err != nil {
 		return failedProbe(port, err)
 	}

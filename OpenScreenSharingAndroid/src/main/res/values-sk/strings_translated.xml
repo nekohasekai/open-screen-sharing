@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Upraviť pripojenie</string>
     <string name="home_name">Názov</string>
     <string name="home_server_address">Adresa servera</string>
-    <string name="home_server_type">Typ servera</string>
+    <string name="home_connection_type">Typ pripojenia</string>
+    <string name="home_addresses_and_networks">Adresy a siete</string>
+    <string name="home_addresses">Adresy</string>
+    <string name="home_new_address">Nová adresa</string>
+    <string name="home_edit_address">Upraviť adresu</string>
+    <string name="home_delete_address">Vymazať adresu</string>
+    <string name="home_suggested">Navrhované</string>
+    <string name="home_looking_for_addresses">Hľadám adresy…</string>
+    <string name="home_no_addresses_found">Nenašli sa žiadne adresy</string>
     <string name="home_network_quality">Kvalita siete</string>
     <string name="home_local_network">Lokálna sieť</string>
     <string name="home_internet">Internet</string>

@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Sửa kết nối</string>
     <string name="home_name">Tên</string>
     <string name="home_server_address">Địa chỉ máy chủ</string>
-    <string name="home_server_type">Loại máy chủ</string>
+    <string name="home_connection_type">Loại kết nối</string>
+    <string name="home_addresses_and_networks">Địa chỉ &amp; Mạng</string>
+    <string name="home_addresses">Địa chỉ</string>
+    <string name="home_new_address">Địa chỉ mới</string>
+    <string name="home_edit_address">Sửa địa chỉ</string>
+    <string name="home_delete_address">Xóa địa chỉ</string>
+    <string name="home_suggested">Được gợi ý</string>
+    <string name="home_looking_for_addresses">Đang tìm địa chỉ…</string>
+    <string name="home_no_addresses_found">Không tìm thấy địa chỉ</string>
     <string name="home_network_quality">Chất lượng mạng</string>
     <string name="home_local_network">Mạng cục bộ</string>
     <string name="home_internet">Internet</string>

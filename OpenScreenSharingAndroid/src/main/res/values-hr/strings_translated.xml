@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Uredi vezu</string>
     <string name="home_name">Naziv</string>
     <string name="home_server_address">Adresa poslužitelja</string>
-    <string name="home_server_type">Vrsta poslužitelja</string>
+    <string name="home_connection_type">Vrsta veze</string>
+    <string name="home_addresses_and_networks">Adrese i mreže</string>
+    <string name="home_addresses">Adrese</string>
+    <string name="home_new_address">Nova adresa</string>
+    <string name="home_edit_address">Uredi adresu</string>
+    <string name="home_delete_address">Obriši adresu</string>
+    <string name="home_suggested">Predloženo</string>
+    <string name="home_looking_for_addresses">Traženje adresa…</string>
+    <string name="home_no_addresses_found">Nije pronađena nijedna adresa</string>
     <string name="home_network_quality">Kvaliteta mreže</string>
     <string name="home_local_network">Lokalna mreža</string>
     <string name="home_internet">Internet</string>

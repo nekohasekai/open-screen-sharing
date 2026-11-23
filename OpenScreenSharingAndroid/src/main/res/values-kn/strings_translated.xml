@@ -86,7 +86,15 @@
     <string name="home_edit_connection">ಕನೆಕ್ಷನ್ ಎಡಿಟ್ ಮಾಡಿ</string>
     <string name="home_name">ಹೆಸರು</string>
     <string name="home_server_address">ಸರ್ವರ್ ವಿಳಾಸ</string>
-    <string name="home_server_type">ಸರ್ವರ್ ಪ್ರಕಾರ</string>
+    <string name="home_connection_type">ಕನೆಕ್ಷನ್ ಪ್ರಕಾರ</string>
+    <string name="home_addresses_and_networks">ವಿಳಾಸಗಳು ಮತ್ತು ನೆಟ್‌ವರ್ಕ್‌ಗಳು</string>
+    <string name="home_addresses">ವಿಳಾಸಗಳು</string>
+    <string name="home_new_address">ಹೊಸ ವಿಳಾಸ</string>
+    <string name="home_edit_address">ವಿಳಾಸವನ್ನು ಎಡಿಟ್ ಮಾಡಿ</string>
+    <string name="home_delete_address">ವಿಳಾಸವನ್ನು ಅಳಿಸಿ</string>
+    <string name="home_suggested">ಸೂಚಿಸಲಾದವು</string>
+    <string name="home_looking_for_addresses">ವಿಳಾಸಗಳಿಗಾಗಿ ಹುಡುಕಲಾಗುತ್ತಿದೆ…</string>
+    <string name="home_no_addresses_found">ಯಾವುದೇ ವಿಳಾಸಗಳು ಕಂಡುಬಂದಿಲ್ಲ</string>
     <string name="home_network_quality">ನೆಟ್‌ವರ್ಕ್ ಗುಣಮಟ್ಟ</string>
     <string name="home_local_network">ಸ್ಥಳೀಯ ನೆಟ್‌ವರ್ಕ್</string>
     <string name="home_internet">ಇಂಟರ್ನೆಟ್</string>

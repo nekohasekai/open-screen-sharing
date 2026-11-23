@@ -86,7 +86,15 @@
     <string name="home_edit_connection">کنکشن میں ترمیم کریں</string>
     <string name="home_name">نام</string>
     <string name="home_server_address">سرور ایڈریس</string>
-    <string name="home_server_type">سرور کی قسم</string>
+    <string name="home_connection_type">کنکشن کی قسم</string>
+    <string name="home_addresses_and_networks">ایڈریس اور نیٹ ورک</string>
+    <string name="home_addresses">ایڈریس</string>
+    <string name="home_new_address">نیا ایڈریس</string>
+    <string name="home_edit_address">ایڈریس میں ترمیم کریں</string>
+    <string name="home_delete_address">ایڈریس حذف کریں</string>
+    <string name="home_suggested">تجویز کردہ</string>
+    <string name="home_looking_for_addresses">ایڈریس تلاش کیے جا رہے ہیں…</string>
+    <string name="home_no_addresses_found">کوئی ایڈریس نہیں ملا</string>
     <string name="home_network_quality">نیٹ ورک کا معیار</string>
     <string name="home_local_network">مقامی نیٹ ورک</string>
     <string name="home_internet">انٹرنیٹ</string>

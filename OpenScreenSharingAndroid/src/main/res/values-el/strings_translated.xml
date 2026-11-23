@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Επεξεργασία σύνδεσης</string>
     <string name="home_name">Όνομα</string>
     <string name="home_server_address">Διεύθυνση διακομιστή</string>
-    <string name="home_server_type">Τύπος διακομιστή</string>
+    <string name="home_connection_type">Τύπος σύνδεσης</string>
+    <string name="home_addresses_and_networks">Διευθύνσεις και δίκτυα</string>
+    <string name="home_addresses">Διευθύνσεις</string>
+    <string name="home_new_address">Νέα διεύθυνση</string>
+    <string name="home_edit_address">Επεξεργασία διεύθυνσης</string>
+    <string name="home_delete_address">Διαγραφή διεύθυνσης</string>
+    <string name="home_suggested">Προτεινόμενα</string>
+    <string name="home_looking_for_addresses">Αναζήτηση διευθύνσεων…</string>
+    <string name="home_no_addresses_found">Δεν βρέθηκαν διευθύνσεις</string>
     <string name="home_network_quality">Ποιότητα δικτύου</string>
     <string name="home_local_network">Τοπικό δίκτυο</string>
     <string name="home_internet">Διαδίκτυο</string>

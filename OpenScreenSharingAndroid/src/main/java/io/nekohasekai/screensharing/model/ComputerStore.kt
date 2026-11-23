@@ -18,6 +18,7 @@ data class StoredComputer(
     val password: String?,
     val memory: SessionMemory,
     val networkConfiguration: NetworkConfiguration,
+    val endpoints: List<ComputerEndpoint>,
     val device: DeviceInfo?,
     val usesHighPerformance: Boolean,
     val keyboardSources: List<String>,
@@ -79,6 +80,7 @@ object ComputerStore {
             password = if (computer.authenticates) computer.password else null,
             memory = computer.memory,
             networkConfiguration = computer.networkConfiguration,
+            endpoints = computer.endpoints,
             device = if (computer.model.isEmpty()) null else DeviceInfo(computer.model, computer.enclosureColor),
             usesHighPerformance = computer.usesHighPerformance,
             keyboardSources = computer.keyboardSources,
@@ -94,7 +96,9 @@ object ComputerStore {
     }
 
     private fun matching(computers: List<Computer>, address: ComputerAddress, remoteProtocol: RemoteProtocol, username: String?): Computer? {
-        val candidates = computers.filter { it.remoteProtocol == remoteProtocol && it.address.matches(address) }
+        val candidates = computers.filter {
+            it.remoteProtocol == remoteProtocol && it.endpoints.any { endpoint -> endpoint.address.matches(address) }
+        }
         if (username == null) return candidates.firstOrNull()
         return candidates.firstOrNull { it.username == username } ?: candidates.firstOrNull { it.username.isEmpty() }
     }

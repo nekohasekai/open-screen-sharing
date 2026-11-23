@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Редагування зʼєднання</string>
     <string name="home_name">Назва</string>
     <string name="home_server_address">Адреса сервера</string>
-    <string name="home_server_type">Тип сервера</string>
+    <string name="home_connection_type">Тип зʼєднання</string>
+    <string name="home_addresses_and_networks">Адреси й мережі</string>
+    <string name="home_addresses">Адреси</string>
+    <string name="home_new_address">Нова адреса</string>
+    <string name="home_edit_address">Редагувати адресу</string>
+    <string name="home_delete_address">Видалити адресу</string>
+    <string name="home_suggested">Рекомендовані</string>
+    <string name="home_looking_for_addresses">Пошук адрес…</string>
+    <string name="home_no_addresses_found">Адрес не знайдено</string>
     <string name="home_network_quality">Якість мережі</string>
     <string name="home_local_network">Локальна мережа</string>
     <string name="home_internet">Інтернет</string>

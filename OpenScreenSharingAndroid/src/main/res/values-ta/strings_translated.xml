@@ -86,7 +86,15 @@
     <string name="home_edit_connection">இணைப்பைத் திருத்துதல்</string>
     <string name="home_name">பெயர்</string>
     <string name="home_server_address">சர்வர் முகவரி</string>
-    <string name="home_server_type">சர்வர் வகை</string>
+    <string name="home_connection_type">இணைப்பு வகை</string>
+    <string name="home_addresses_and_networks">முகவரிகள் &amp; நெட்வொர்க்குகள்</string>
+    <string name="home_addresses">முகவரிகள்</string>
+    <string name="home_new_address">புதிய முகவரி</string>
+    <string name="home_edit_address">முகவரியைத் திருத்து</string>
+    <string name="home_delete_address">முகவரியை நீக்கு</string>
+    <string name="home_suggested">பரிந்துரைக்கப்பட்டவை</string>
+    <string name="home_looking_for_addresses">முகவரிகள் தேடப்படுகின்றன…</string>
+    <string name="home_no_addresses_found">முகவரிகள் எதுவும் கண்டறியப்படவில்லை</string>
     <string name="home_network_quality">நெட்வொர்க் தரம்</string>
     <string name="home_local_network">உள்ளூர் நெட்வொர்க்</string>
     <string name="home_internet">இணையம்</string>

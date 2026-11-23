@@ -3,7 +3,88 @@ package io.nekohasekai.screensharing.model
 import java.net.URI
 import java.net.URLDecoder
 
+enum class AddressKind {
+    PrivateNetwork,
+    PublicNetwork,
+    Tailscale,
+    ;
+
+    companion object {
+        fun of(host: String): AddressKind {
+            var trimmed = host.trim().lowercase()
+            if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+                trimmed = trimmed.substring(1, trimmed.length - 1)
+            }
+            trimmed = trimmed.trimEnd('.')
+            if (trimmed.endsWith(".ts.net") || trimmed.endsWith(".tailscale.net")) {
+                return Tailscale
+            }
+            val numeric = parseNumericAddress(trimmed.substringBefore('%'))
+            if (numeric != null) {
+                val bytes = numeric.address
+                if (bytes.size == 4) {
+                    return classifyIPv4(bytes)
+                }
+                if (bytes.size == 16) {
+                    if ((0 until 10).all { bytes[it].toInt() == 0 } && (bytes[10].toInt() and 0xff) == 0xff && (bytes[11].toInt() and 0xff) == 0xff) {
+                        return classifyIPv4(bytes.copyOfRange(12, 16))
+                    }
+                    if ((bytes[0].toInt() and 0xff) == 0xfd &&
+                        (bytes[1].toInt() and 0xff) == 0x7a &&
+                        (bytes[2].toInt() and 0xff) == 0x11 &&
+                        (bytes[3].toInt() and 0xff) == 0x5c &&
+                        (bytes[4].toInt() and 0xff) == 0xa1 &&
+                        (bytes[5].toInt() and 0xff) == 0xe0
+                    ) {
+                        return Tailscale
+                    }
+                    val first = bytes[0].toInt() and 0xff
+                    val second = bytes[1].toInt() and 0xff
+                    if (((0 until 15).all { bytes[it].toInt() == 0 } && bytes[15].toInt() == 1) ||
+                        (first == 0xfe && (second and 0xc0) == 0x80) ||
+                        (first and 0xfe) == 0xfc
+                    ) {
+                        return PrivateNetwork
+                    }
+                }
+                return PublicNetwork
+            }
+            if (trimmed == "localhost" ||
+                trimmed.endsWith("._rfb._tcp.local") ||
+                trimmed.endsWith(".local") ||
+                trimmed.endsWith(".home.arpa") ||
+                trimmed.endsWith(".lan") ||
+                trimmed.endsWith(".internal") ||
+                (trimmed.isNotEmpty() && !trimmed.contains('.'))
+            ) {
+                return PrivateNetwork
+            }
+            return PublicNetwork
+        }
+
+        private fun classifyIPv4(bytes: ByteArray): AddressKind {
+            if (bytes.size != 4) return PublicNetwork
+            val first = bytes[0].toInt() and 0xff
+            val second = bytes[1].toInt() and 0xff
+            if (first == 100 && (second and 0xc0) == 64) {
+                return Tailscale
+            }
+            if (first == 10 ||
+                (first == 172 && (second and 0xf0) == 16) ||
+                (first == 192 && second == 168) ||
+                first == 127 ||
+                (first == 169 && second == 254)
+            ) {
+                return PrivateNetwork
+            }
+            return PublicNetwork
+        }
+    }
+}
+
 data class ComputerAddress(val host: String, val port: Int = DEFAULT_PORT) {
+    val kind: AddressKind get() = AddressKind.of(host)
+
     override fun toString(): String = description(DEFAULT_PORT)
 
     fun description(defaultPort: Int): String = when {

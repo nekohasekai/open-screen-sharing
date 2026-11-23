@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"log/slog"
 	"slices"
+	"time"
 
 	"github.com/sagernet/sing/common"
 )
 
-func Probe(ctx context.Context, options Options) ([]Method, error) {
+func Probe(ctx context.Context, options Options) ([]Method, string, error) {
 	rsaAESIn := func(securityTypes []SecurityType) SecurityType {
 		return common.Find(rsaAESTypes, func(securityType SecurityType) bool {
 			return slices.Contains(securityTypes, securityType)
@@ -18,6 +19,7 @@ func Probe(ctx context.Context, options Options) ([]Method, error) {
 	}
 	var subtypes []SecurityType
 	var rsaAESSubtype uint8
+	var serverFingerprint string
 	extend := func(h *handshake, direct bool) error {
 		var variant SecurityType
 		if !direct && slices.Contains(h.info.SecurityTypes, SecurityVeNCrypt) {
@@ -40,6 +42,13 @@ func Probe(ctx context.Context, options Options) ([]Method, error) {
 		} else {
 			variant = rsaAESIn(h.info.SecurityTypes)
 			if variant == 0 {
+				if slices.Contains(h.info.SecurityTypes, SecurityAppleRSA) {
+					_, der, err := requestRSAKey(h)
+					if err != nil {
+						return err
+					}
+					serverFingerprint = fingerprint(der)
+				}
 				return nil
 			}
 			err := h.writer.Write([][]byte{{byte(variant)}})
@@ -48,7 +57,7 @@ func Probe(ctx context.Context, options Options) ([]Method, error) {
 			}
 		}
 		var err error
-		rsaAESSubtype, _, err = h.startRSAAES(variant)
+		rsaAESSubtype, serverFingerprint, err = h.startRSAAES(variant)
 		return err
 	}
 	steps := func(direct bool) func(h *handshake) error {
@@ -74,22 +83,22 @@ func Probe(ctx context.Context, options Options) ([]Method, error) {
 	}
 	info, err := exchange(ctx, options, steps(false))
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	if slices.Contains(info.SecurityTypes, SecurityVeNCrypt) && rsaAESIn(info.SecurityTypes) != 0 && rsaAESIn(subtypes) == 0 {
 		_, err = exchange(ctx, options, steps(true))
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
 	}
 	offered := common.Filter(info.SecurityTypes, func(securityType SecurityType) bool {
 		return securityType != SecurityVeNCrypt
 	})
-	return methodsOf(rsaAESSubtype, append(offered, subtypes...)...), nil
+	return methodsOf(rsaAESSubtype, append(offered, subtypes...)...), serverFingerprint, nil
 }
 
 func CheckLogin(ctx context.Context, options Options) (ServerInfo, error) {
-	return exchange(ctx, options, func(h *handshake) error {
+	info, err := exchange(ctx, options, func(h *handshake) error {
 		err := h.negotiateVersion()
 		if err != nil {
 			return err
@@ -100,6 +109,10 @@ func CheckLogin(ctx context.Context, options Options) (ServerInfo, error) {
 		}
 		return h.initialize()
 	})
+	if info.Dialect == DialectApple {
+		loginCheckClosed.Store(time.Now().UnixNano())
+	}
+	return info, err
 }
 
 func exchange(ctx context.Context, options Options, steps func(h *handshake) error) (ServerInfo, error) {

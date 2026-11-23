@@ -42,6 +42,8 @@ import io.nekohasekai.screensharing.app.PageScaffold
 import io.nekohasekai.screensharing.app.slideTransition
 import io.nekohasekai.screensharing.discovery.NearbyBrowser
 import io.nekohasekai.screensharing.model.Computer
+import io.nekohasekai.screensharing.model.ComputerEndpoint
+import io.nekohasekai.screensharing.model.NetworkConfiguration
 import io.nekohasekai.screensharing.model.RemoteLink
 import io.nekohasekai.screensharing.model.RemoteProtocol
 import io.nekohasekai.screensharing.session.LoginCheck
@@ -72,10 +74,10 @@ data class NewComputer(
             password = account?.password ?: "",
             authenticates = account != null,
             model = model ?: "",
-            trustedFingerprint = check.fingerprint,
+            trustedFingerprint = check.fingerprint.ifEmpty { server.fingerprint },
             usesHighPerformance = check.supportsHighPerformance,
             usesNativeTouch = SessionMemory.defaultUsesNativeTouch,
-        )
+        ).withNetworkConfiguration(NetworkConfiguration.defaultConfiguration(server.address.kind))
         return SignedInComputer(saved, credentials, server.authentication)
     }
 }
@@ -89,13 +91,15 @@ data class SignedInComputer(
 private sealed interface SetupStep {
     data object ConnectTo : SetupStep
     data class SignIn(val computer: NewComputer) : SetupStep
+    data class Addresses(val computer: SignedInComputer, val endpoints: List<ComputerEndpoint>, val previous: SetupStep) : SetupStep
     data class Configure(val computer: SignedInComputer, val previous: SetupStep) : SetupStep
 
     val depth: Int
         get() = when (this) {
             ConnectTo -> 0
             is SignIn -> 1
-            is Configure -> 2
+            is Addresses -> 2
+            is Configure -> 3
         }
 }
 
@@ -119,15 +123,35 @@ fun ConnectionSetupView(link: RemoteLink?, connect: (SessionRoute) -> Unit, dism
                     link = link,
                     close = dismiss,
                     signIn = { step = SetupStep.SignIn(it) },
-                    signedIn = { step = SetupStep.Configure(it, SetupStep.ConnectTo) },
+                    signedIn = { step = SetupStep.Addresses(it, it.computer.endpoints, SetupStep.ConnectTo) },
                 )
             }
             is SetupStep.SignIn -> {
                 BackHandler { step = SetupStep.ConnectTo }
                 SetupSignInView(
                     computer = shown.computer,
-                    next = { signedIn, typed -> step = SetupStep.Configure(signedIn, SetupStep.SignIn(typed)) },
+                    next = { signedIn, typed -> step = SetupStep.Addresses(signedIn, signedIn.computer.endpoints, SetupStep.SignIn(typed)) },
                     back = { step = SetupStep.ConnectTo },
+                )
+            }
+            is SetupStep.Addresses -> {
+                val back = { step = shown.previous }
+                BackHandler(onBack = back)
+                AddressesView(
+                    endpoints = shown.endpoints,
+                    onEndpointsChange = { updated ->
+                        step = shown.copy(endpoints = updated)
+                    },
+                    computerName = shown.computer.computer.displayName,
+                    remoteProtocol = shown.computer.computer.remoteProtocol,
+                    usesHighPerformance = shown.computer.computer.usesHighPerformance,
+                    trustedFingerprint = shown.computer.computer.trustedFingerprint,
+                    credentials = shown.computer.credentials,
+                    back = back,
+                    setupNext = {
+                        val updatedComputer = shown.computer.copy(computer = shown.computer.computer.withEndpoints(shown.endpoints))
+                        step = SetupStep.Configure(updatedComputer, shown)
+                    },
                 )
             }
             is SetupStep.Configure -> {

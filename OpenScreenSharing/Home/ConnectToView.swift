@@ -29,8 +29,10 @@ struct ConnectToView: View {
         nearby.computers.filter { found in
             !store.computers.contains { saved in
                 saved.remoteProtocol == found.remoteProtocol
-                    && (found.address.map(saved.address.matches) == true
-                        || nearby.computer(matching: saved.address, remoteProtocol: saved.remoteProtocol)?.id == found.id)
+                    && saved.endpoints.contains { endpoint in
+                        found.address.map(endpoint.address.matches) == true
+                            || nearby.computer(matching: endpoint.address, remoteProtocol: saved.remoteProtocol)?.id == found.id
+                    }
             }
         }
     }

@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Rediger forbindelse</string>
     <string name="home_name">Navn</string>
     <string name="home_server_address">Serveradresse</string>
-    <string name="home_server_type">Servertype</string>
+    <string name="home_connection_type">Forbindelsestype</string>
+    <string name="home_addresses_and_networks">Adresser og netværk</string>
+    <string name="home_addresses">Adresser</string>
+    <string name="home_new_address">Ny adresse</string>
+    <string name="home_edit_address">Rediger adresse</string>
+    <string name="home_delete_address">Slet adresse</string>
+    <string name="home_suggested">Foreslåede</string>
+    <string name="home_looking_for_addresses">Søger efter adresser…</string>
+    <string name="home_no_addresses_found">Ingen adresser fundet</string>
     <string name="home_network_quality">Netværkskvalitet</string>
     <string name="home_local_network">Lokalt netværk</string>
     <string name="home_internet">Internet</string>

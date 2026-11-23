@@ -72,7 +72,11 @@ struct ComputersView: View {
                 }
                 .alert($alert)
                 .onChangeCompat(
-                    of: Dictionary(store.computers.map { ($0.address, $0.remoteProtocol) }, uniquingKeysWith: { first, _ in first }), initial: true
+                    of: Dictionary(
+                        store.computers.flatMap { computer in computer.endpoints.map { ($0.address, computer.remoteProtocol) } },
+                        uniquingKeysWith: { first, _ in first }
+                    ),
+                    initial: true
                 ) { servers in
                     availabilityMonitor.update(servers: servers)
                 }
@@ -230,7 +234,7 @@ struct ComputersView: View {
         } label: {
             ComputerCard(
                 name: computer.displayName, detail: computer.detailText(in: locale), device: computer.device,
-                thumbnail: computer.thumbnail, availability: availabilityMonitor.availability(of: computer.address))
+                thumbnail: computer.thumbnail, availability: availabilityMonitor.availability(of: computer))
         }
         .buttonStyle(.plain)
         .hoverEffectDisabledCompat()
@@ -244,7 +248,7 @@ struct ComputersView: View {
         } label: {
             ComputerRow(
                 name: computer.displayName, detail: computer.detailText(in: locale), device: computer.device,
-                availability: availabilityMonitor.availability(of: computer.address))
+                availability: availabilityMonitor.availability(of: computer))
         }
         .foregroundStyle(.primary)
         .contextMenu { menu(computer) }
@@ -258,7 +262,7 @@ struct ComputersView: View {
     private func card(_ computer: Computer) -> some View {
         ComputerCard(
             name: computer.displayName, detail: computer.detailText, device: computer.device,
-            thumbnail: computer.thumbnail, availability: availabilityMonitor.availability(of: computer.address),
+            thumbnail: computer.thumbnail, availability: availabilityMonitor.availability(of: computer),
             isSelected: selection.contains(computer.id))
         .onGeometryChangeCompat(for: CGFloat.self, of: { $0.size.height - $0.size.width / ComputerCard.aspectRatio }) { cardLabelHeight = $0 }
         .onTapGesture(count: 2) { connect(SessionRoute(computer: computer)) }
@@ -274,7 +278,7 @@ struct ComputersView: View {
     private func row(_ computer: Computer) -> some View {
         ComputerRow(
             name: computer.displayName, detail: computer.detailText, device: computer.device,
-            availability: availabilityMonitor.availability(of: computer.address))
+            availability: availabilityMonitor.availability(of: computer))
     }
 
     private func selectedComputer(in ids: Set<Computer.ID>) -> Computer? {

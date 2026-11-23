@@ -53,5 +53,15 @@ data class NetworkConfiguration(
     companion object {
         val bandwidthRangeMbps = 5..60
         const val DEFAULT_BANDWIDTH_MBPS = 15
+
+        fun defaultConfiguration(kind: AddressKind): NetworkConfiguration = when (kind) {
+            AddressKind.PrivateNetwork -> NetworkConfiguration(quality = NetworkQuality.LocalNetwork)
+            AddressKind.Tailscale -> NetworkConfiguration(
+                quality = NetworkQuality.Internet,
+                internetHighDefinition = true,
+                internetBandwidthMbps = DEFAULT_BANDWIDTH_MBPS,
+            )
+            AddressKind.PublicNetwork -> NetworkConfiguration(quality = NetworkQuality.Internet)
+        }
     }
 }

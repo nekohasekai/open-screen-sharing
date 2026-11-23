@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Изменение подключения</string>
     <string name="home_name">Имя</string>
     <string name="home_server_address">Адрес сервера</string>
-    <string name="home_server_type">Тип сервера</string>
+    <string name="home_connection_type">Тип подключения</string>
+    <string name="home_addresses_and_networks">Адреса и сети</string>
+    <string name="home_addresses">Адреса</string>
+    <string name="home_new_address">Новый адрес</string>
+    <string name="home_edit_address">Изменить адрес</string>
+    <string name="home_delete_address">Удалить адрес</string>
+    <string name="home_suggested">Предложенные</string>
+    <string name="home_looking_for_addresses">Поиск адресов…</string>
+    <string name="home_no_addresses_found">Адреса не найдены</string>
     <string name="home_network_quality">Качество сети</string>
     <string name="home_local_network">Локальная сеть</string>
     <string name="home_internet">Интернет</string>

@@ -1,3 +1,4 @@
+import Perception
 import SwiftUI
 
 struct ComputerEditor: View {
@@ -8,16 +9,17 @@ struct ComputerEditor: View {
         var credentials: SessionCredentials
         var server: ServerAuthentication?
         var connect: (SessionRoute) -> Void
+        var close: () -> Void
     }
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(NearbyBrowser.self) private var nearby
     @State private var name: String
-    @State private var address: String
+    @State private var endpoints: [ComputerEndpoint]
     @State private var authenticates: Bool
     @State private var username: String
     @State private var password: String
     @State private var choice: ServerChoice
-    @State private var networkConfiguration: NetworkConfiguration
     @State private var keepsAlive: Bool
     @State private var disablesUDP: Bool
     @State private var reversesScrolling: Bool
@@ -27,26 +29,23 @@ struct ComputerEditor: View {
 
     enum Field {
         case name
-        case address
         case username
         case password
     }
 
     enum Problem {
         case emptyName
-        case invalidAddress
     }
 
     init(computer: Computer, setup: Setup? = nil) {
         self.computer = computer
         self.setup = setup
         _name = State(initialValue: computer.displayName)
-        _address = State(initialValue: computer.addressDescription)
+        _endpoints = State(initialValue: computer.endpoints)
         _authenticates = State(initialValue: computer.authenticates)
         _username = State(initialValue: computer.username)
         _password = State(initialValue: computer.password)
         _choice = State(initialValue: ServerChoice(computer))
-        _networkConfiguration = State(initialValue: computer.networkConfiguration)
         _keepsAlive = State(initialValue: computer.keepsAlive)
         _disablesUDP = State(initialValue: computer.disablesUDP)
         _reversesScrolling = State(initialValue: computer.reversesScrolling)
@@ -57,173 +56,171 @@ struct ComputerEditor: View {
     }
 
     private var isComplete: Bool {
-        !authenticates || !trimmedUsername.isEmpty
+        !endpoints.isEmpty && (!authenticates || !trimmedUsername.isEmpty)
     }
 
-    private var bandwidthRange: ClosedRange<Double> {
-        let range = NetworkConfiguration.bandwidthRangeMbps
-        return Double(range.lowerBound)...Double(range.upperBound)
+    private var editorCredentials: SessionCredentials? {
+        if let setup { return setup.credentials }
+        guard authenticates, !trimmedUsername.isEmpty, !password.isEmpty else { return nil }
+        return .account(username: trimmedUsername, password: password)
     }
 
-    private var bandwidth: Binding<Double> {
-        Binding {
-            Double(networkConfiguration.bandwidthMbps)
-        } set: {
-            networkConfiguration.internetBandwidthMbps = Int($0.rounded())
+    private var endpointsSummary: String {
+        guard let first = endpoints.first else { return "" }
+        if endpoints.count == 1 {
+            return first.address.description(defaultPort: choice.remoteProtocol.defaultPort)
         }
+        return String(endpoints.count)
     }
 
     var body: some View {
-        NavigationStackCompat {
-            SheetForm(setup == nil ? Text("Edit Connection") : Text("New Connection")) {
-                Section {
-                    LabeledContentCompat("Name") {
-                        TextField("Name", text: $name, prompt: Text(verbatim: ""))
-                            .multilineTextAlignment(.trailing)
-                            .focused($focusedField, equals: .name)
-                            .submitLabel(setup == nil ? .next : .go)
-                            .onSubmit {
-                                if setup == nil {
-                                    focusedField = .address
-                                } else {
-                                    save()
-                                }
-                            }
-                    }
-                    LabeledContentCompat("Server Address") {
-                        TextField("Server Address", text: $address, prompt: Text(verbatim: ""))
-                            .multilineTextAlignment(.trailing)
-                            #if os(iOS)
-                            .keyboardType(.URL)
-                            .textInputAutocapitalization(.never)
-                            #endif
-                            .autocorrectionDisabled()
-                            .focused($focusedField, equals: .address)
-                            .submitLabel(authenticates ? .next : .done)
-                            .onSubmit {
-                                if authenticates {
-                                    focusedField = .username
-                                } else {
-                                    save()
-                                }
-                            }
-                            .disabled(setup != nil)
-                    }
-                    Picker("Server Type", selection: $choice) {
-                        if setup == nil || computer.remoteProtocol == .vnc {
-                            Text(verbatim: "VNC").tag(ServerChoice.vnc)
-                            Text(verbatim: "Apple VNC").tag(ServerChoice.appleVNC)
+        if setup == nil {
+            NavigationStackCompat {
+                form
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel", role: .cancel) { dismiss() }
                         }
-                        if setup == nil || computer.remoteProtocol == .rdp {
-                            Text(verbatim: "RDP").tag(ServerChoice.rdp)
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Save", role: .confirmCompat, action: save)
+                                .disabled(!isComplete)
                         }
                     }
-                    .pickerStyle(.menu)
-                    .disabled(setup != nil && computer.remoteProtocol == .rdp)
-                    if choice == .appleVNC {
-                        Picker("Network Quality", selection: $networkConfiguration.quality) {
-                            Text("Local Network").tag(NetworkQuality.localNetwork)
-                            Text("Internet").tag(NetworkQuality.internet)
-                        }
-                        .pickerStyle(.menu)
-                        if networkConfiguration.quality == .internet {
-                            Toggle("High Definition", isOn: $networkConfiguration.internetHighDefinition)
-                            if networkConfiguration.internetHighDefinition {
-                                VStack {
-                                    LabeledContentCompat("Network Bandwidth") {
-                                        Text("\(networkConfiguration.bandwidthMbps) Mbps")
-                                            .monospacedDigit()
-                                    }
-                                    Slider(value: bandwidth, in: bandwidthRange, step: 1) {
-                                        Text("Network Bandwidth")
-                                    } minimumValueLabel: {
-                                        Text(verbatim: String(NetworkConfiguration.bandwidthRangeMbps.lowerBound))
-                                            .monospacedDigit()
-                                    } maximumValueLabel: {
-                                        Text(verbatim: String(NetworkConfiguration.bandwidthRangeMbps.upperBound))
-                                            .monospacedDigit()
-                                    }
-                                    #if os(macOS)
-                                    .labelsHidden()
-                                    #endif
-                                    .accessibilityValue(Text("\(networkConfiguration.bandwidthMbps) Mbps"))
-                                }
-                            }
-                        }
-                    }
-                } footer: {
-                    switch problem {
-                    case .emptyName: Text("Enter a name.").foregroundStyle(.red)
-                    case .invalidAddress: Text("Enter a valid server address.").foregroundStyle(.red)
-                    case nil: EmptyView()
-                    }
-                }
-                if setup == nil {
-                    Section {
-                        Toggle("Enabled", isOn: $authenticates)
-                        if authenticates {
-                            LabeledContentCompat("User Name") {
-                                TextField("User Name", text: $username, prompt: Text("Required"))
-                                    .multilineTextAlignment(.trailing)
-                                    #if os(iOS)
-                                    .textInputAutocapitalization(.never)
-                                    #endif
-                                    .autocorrectionDisabled()
-                                    .focused($focusedField, equals: .username)
-                                    .submitLabel(.next)
-                                    .onSubmit { focusedField = .password }
-                            }
-                            LabeledContentCompat("Password") {
-                                TextField("Password", text: $password.masked { focusedField == .password }, prompt: Text("Optional"))
-                                    .textContentType(.oneTimeCode)
-                                    #if os(iOS)
-                                    .textInputAutocapitalization(.never)
-                                    #endif
-                                    .autocorrectionDisabled()
-                                    .focused($focusedField, equals: .password)
-                                    .multilineTextAlignment(.trailing)
-                                    .submitLabel(.done)
-                                    .onSubmit(save)
-                            }
-                        }
-                    } header: {
-                        Text("Authentication")
-                    }
-                }
-                if choice == .rdp || choice == .appleVNC {
-                    Section {
-                        if choice == .rdp {
-                            Toggle("Disable UDP", isOn: $disablesUDP)
-                        }
-                        Toggle("Keep Alive", isOn: $keepsAlive)
-                    } header: {
-                        Text("Connection")
-                    }
-                }
-                if choice != .appleVNC {
-                    Section {
-                        Toggle("Reverse Scroll Direction", isOn: $reversesScrolling)
-                    } header: {
-                        Text("Control")
-                    }
-                }
             }
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", role: .cancel) { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    if setup == nil {
-                        Button("Save", role: .confirmCompat, action: save)
-                            .disabled(!isComplete)
-                    } else {
+            .onAppear { nearby.start() }
+            .onDisappear { nearby.stop() }
+        } else {
+            form
+                .toolbar {
+                    #if os(macOS)
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Back") { dismiss() }
+                    }
+                    #endif
+                    ToolbarItem(placement: .confirmationAction) {
                         Button("Connect", role: .confirmCompat, action: save)
                             .keyboardShortcut(.defaultAction)
                     }
                 }
-            }
-            .alert($alert)
         }
+    }
+
+    private var form: some View {
+        SheetForm(setup == nil ? Text("Edit Connection") : Text("New Connection")) {
+            Section {
+                LabeledContentCompat("Name") {
+                    TextField("Name", text: $name, prompt: Text(verbatim: ""))
+                        .multilineTextAlignment(.trailing)
+                        .focused($focusedField, equals: .name)
+                        .submitLabel(setup == nil && authenticates ? .next : setup == nil ? .done : .go)
+                        .onSubmit {
+                            if setup == nil, authenticates {
+                                focusedField = .username
+                            } else {
+                                save()
+                            }
+                        }
+                        .onChangeCompat(of: name) { problem = nil }
+                }
+                if setup == nil {
+                    NavigationLink {
+                        AddressesView(
+                            endpoints: $endpoints,
+                            computerName: name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                                ? computer.displayName : name.trimmingCharacters(in: .whitespacesAndNewlines),
+                            remoteProtocol: choice.remoteProtocol,
+                            usesHighPerformance: choice.usesHighPerformance,
+                            trustedFingerprint: computer.trustedFingerprint,
+                            credentials: editorCredentials
+                        )
+                    } label: {
+                        LabeledContentCompat {
+                            Text(verbatim: endpointsSummary)
+                                .lineLimit(1)
+                        } label: {
+                            Text("Addresses & Networks")
+                        }
+                    }
+                    Picker("Connection Type", selection: choiceBinding) {
+                        Text(verbatim: "VNC").tag(ServerChoice.vnc)
+                        Text(verbatim: "Apple VNC").tag(ServerChoice.appleVNC)
+                        Text(verbatim: "RDP").tag(ServerChoice.rdp)
+                    }
+                    .pickerStyle(.menu)
+                }
+            } footer: {
+                switch problem {
+                case .emptyName: Text("Enter a name.").foregroundStyle(.red)
+                case nil: EmptyView()
+                }
+            }
+            if setup == nil {
+                Section {
+                    Toggle("Enabled", isOn: $authenticates)
+                    if authenticates {
+                        LabeledContentCompat("User Name") {
+                            TextField("User Name", text: $username, prompt: Text("Required"))
+                                .multilineTextAlignment(.trailing)
+                                #if os(iOS)
+                                .textInputAutocapitalization(.never)
+                                #endif
+                                .autocorrectionDisabled()
+                                .focused($focusedField, equals: .username)
+                                .submitLabel(.next)
+                                .onSubmit { focusedField = .password }
+                        }
+                        LabeledContentCompat("Password") {
+                            TextField("Password", text: $password.masked { focusedField == .password }, prompt: Text("Optional"))
+                                .textContentType(.oneTimeCode)
+                                #if os(iOS)
+                                .textInputAutocapitalization(.never)
+                                #endif
+                                .autocorrectionDisabled()
+                                .focused($focusedField, equals: .password)
+                                .multilineTextAlignment(.trailing)
+                                .submitLabel(.done)
+                                .onSubmit(save)
+                        }
+                    }
+                } header: {
+                    Text("Authentication")
+                }
+            }
+            if choice == .rdp || choice == .appleVNC {
+                Section {
+                    if choice == .rdp {
+                        Toggle("Disable UDP", isOn: $disablesUDP)
+                    }
+                    Toggle("Keep Alive", isOn: $keepsAlive)
+                } header: {
+                    Text("Connection")
+                }
+            }
+            if choice != .appleVNC {
+                Section {
+                    Toggle("Reverse Scroll Direction", isOn: $reversesScrolling)
+                } header: {
+                    Text("Control")
+                }
+            }
+        }
+        .alert($alert)
+    }
+
+    private var choiceBinding: Binding<ServerChoice> {
+        Binding(
+            get: { choice },
+            set: { newChoice in
+                let oldDefaultPort = choice.remoteProtocol.defaultPort
+                let newDefaultPort = newChoice.remoteProtocol.defaultPort
+                if oldDefaultPort != newDefaultPort {
+                    for index in endpoints.indices where endpoints[index].address.port == oldDefaultPort {
+                        endpoints[index].address.port = newDefaultPort
+                    }
+                }
+                choice = newChoice
+            }
+        )
     }
 
     private func save() {
@@ -233,28 +230,28 @@ struct ComputerEditor: View {
             focusedField = .name
             return
         }
-        guard let endpoint = ConnectionTarget.endpoint(parsing: Substring(address.trimmingCharacters(in: .whitespacesAndNewlines))) else {
-            problem = .invalidAddress
-            focusedField = .address
-            return
-        }
-        let address = ComputerAddress(host: endpoint.host, port: endpoint.port ?? choice.remoteProtocol.defaultPort)
-        guard isComplete else {
+        let activeEndpoints = setup != nil ? self.computer.endpoints : endpoints
+        guard !activeEndpoints.isEmpty, isComplete else {
             focusedField = .username
             return
         }
-        let computer: Computer
+        let saved: Computer
         do {
-            computer = try ComputerStore.shared.save(self.computer) { computer in
+            saved = try ComputerStore.shared.save(self.computer) { computer in
+                let previousEndpoints = computer.endpoints
                 computer.name = name
-                if computer.remoteProtocol != choice.remoteProtocol || !computer.address.matches(address) {
-                    computer.trustedFingerprint = ""
+                if setup == nil {
+                    let sharesEndpoint = activeEndpoints.contains { candidate in
+                        previousEndpoints.contains { $0.address.matches(candidate.address) }
+                    }
+                    if computer.remoteProtocol != choice.remoteProtocol || !sharesEndpoint {
+                        computer.trustedFingerprint = ""
+                    }
                 }
-                computer.address = address
+                computer.endpoints = activeEndpoints
                 computer.authenticates = authenticates
                 computer.username = authenticates ? trimmedUsername : ""
                 computer.password = authenticates ? password : ""
-                computer.networkConfiguration = networkConfiguration
                 computer.remoteProtocol = choice.remoteProtocol
                 computer.usesHighPerformance = choice.usesHighPerformance
                 computer.keepsAlive = keepsAlive
@@ -266,12 +263,14 @@ struct ComputerEditor: View {
             return
         }
         if let setup {
-            var route = SessionRoute(computer: computer)
+            var route = SessionRoute(computer: saved)
             route.credentials = setup.credentials
             route.server = setup.server
             setup.connect(route)
+            setup.close()
+        } else {
+            dismiss()
         }
-        dismiss()
     }
 }
 

@@ -86,7 +86,15 @@
     <string name="home_edit_connection">കണക്ഷൻ എഡിറ്റ് ചെയ്യൂ</string>
     <string name="home_name">പേര്</string>
     <string name="home_server_address">സെർവർ വിലാസം</string>
-    <string name="home_server_type">സെർവർ തരം</string>
+    <string name="home_connection_type">കണക്ഷൻ തരം</string>
+    <string name="home_addresses_and_networks">വിലാസങ്ങളും നെറ്റ്‌വർക്കുകളും</string>
+    <string name="home_addresses">വിലാസങ്ങൾ</string>
+    <string name="home_new_address">പുതിയ വിലാസം</string>
+    <string name="home_edit_address">വിലാസം എഡിറ്റ് ചെയ്യുക</string>
+    <string name="home_delete_address">വിലാസം ഡിലീറ്റ് ചെയ്യുക</string>
+    <string name="home_suggested">നിർദ്ദേശിച്ചവ</string>
+    <string name="home_looking_for_addresses">വിലാസങ്ങൾക്കായി തിരയുന്നു…</string>
+    <string name="home_no_addresses_found">വിലാസങ്ങളൊന്നും കണ്ടെത്തിയില്ല</string>
     <string name="home_network_quality">നെറ്റ്‌വർക്ക് നിലവാരം</string>
     <string name="home_local_network">ലോക്കൽ നെറ്റ്‌വർക്ക്</string>
     <string name="home_internet">ഇന്റർനെറ്റ്</string>

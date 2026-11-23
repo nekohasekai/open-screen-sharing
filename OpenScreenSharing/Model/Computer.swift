@@ -1,6 +1,56 @@
 import Foundation
 import GRDB
 
+nonisolated struct StoredEndpoint: Codable, Hashable, Sendable {
+    var id: UUID
+    var host: String
+    var port: Int
+    var quality: NetworkQuality
+    var internetHighDefinition: Bool
+    var internetBandwidthMbps: Int
+
+    var endpoint: ComputerEndpoint {
+        ComputerEndpoint(
+            id: id,
+            address: ComputerAddress(host: host, port: port),
+            networkConfiguration: NetworkConfiguration(
+                quality: quality,
+                internetHighDefinition: internetHighDefinition,
+                internetBandwidthMbps: internetBandwidthMbps
+            )
+        )
+    }
+
+    init(_ endpoint: ComputerEndpoint, primaryID: UUID) {
+        id = endpoint.id == primaryID ? UUID() : endpoint.id
+        host = endpoint.address.host
+        port = endpoint.address.port
+        quality = endpoint.networkConfiguration.quality
+        internetHighDefinition = endpoint.networkConfiguration.internetHighDefinition
+        internetBandwidthMbps = endpoint.networkConfiguration.internetBandwidthMbps
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, host, port, quality, internetHighDefinition, internetBandwidthMbps
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        host = try container.decode(String.self, forKey: .host)
+        port = try container.decode(Int.self, forKey: .port)
+        quality = try container.decode(NetworkQuality.self, forKey: .quality)
+        internetHighDefinition = try container.decode(Bool.self, forKey: .internetHighDefinition)
+        internetBandwidthMbps = try container.decode(Int.self, forKey: .internetBandwidthMbps)
+    }
+}
+
+nonisolated struct ComputerEndpoint: Codable, Identifiable, Hashable, Sendable {
+    var id = UUID()
+    var address: ComputerAddress
+    var networkConfiguration: NetworkConfiguration
+}
+
 nonisolated struct Computer: Codable, Identifiable, Hashable, FetchableRecord, PersistableRecord {
     static let databaseTableName = "computers"
 
@@ -20,6 +70,7 @@ nonisolated struct Computer: Codable, Identifiable, Hashable, FetchableRecord, P
     var networkQuality = NetworkQuality.localNetwork
     var internetHighDefinition = false
     var internetBandwidthMbps = NetworkConfiguration.defaultBandwidthMbps
+    var additionalEndpoints: [StoredEndpoint] = []
     var remoteProtocol = RemoteProtocol.vnc
     var trustedFingerprint = ""
     var keepsAlive = false
@@ -85,6 +136,19 @@ nonisolated struct Computer: Codable, Identifiable, Hashable, FetchableRecord, P
         set {
             host = newValue.host
             port = newValue.port
+        }
+    }
+
+    var endpoints: [ComputerEndpoint] {
+        get {
+            [ComputerEndpoint(id: id, address: address, networkConfiguration: networkConfiguration)] + additionalEndpoints.map(\.endpoint)
+        }
+        set {
+            guard let first = newValue.first else { return }
+            address = first.address
+            networkConfiguration = first.networkConfiguration
+            let primaryID = id
+            additionalEndpoints = newValue.dropFirst().map { StoredEndpoint($0, primaryID: primaryID) }
         }
     }
 

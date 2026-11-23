@@ -86,7 +86,15 @@
     <string name="home_edit_connection">編輯連線</string>
     <string name="home_name">名稱</string>
     <string name="home_server_address">伺服器地址</string>
-    <string name="home_server_type">伺服器類型</string>
+    <string name="home_connection_type">連線類型</string>
+    <string name="home_addresses_and_networks">地址與網絡</string>
+    <string name="home_addresses">地址</string>
+    <string name="home_new_address">新增地址</string>
+    <string name="home_edit_address">編輯地址</string>
+    <string name="home_delete_address">刪除地址</string>
+    <string name="home_suggested">建議</string>
+    <string name="home_looking_for_addresses">正在尋找地址…</string>
+    <string name="home_no_addresses_found">找不到地址</string>
     <string name="home_network_quality">網絡質素</string>
     <string name="home_local_network">本地網絡</string>
     <string name="home_internet">互聯網</string>

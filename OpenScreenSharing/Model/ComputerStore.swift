@@ -7,6 +7,7 @@ struct StoredComputer {
     var password: String?
     var memory: SessionMemory
     var networkConfiguration: NetworkConfiguration
+    var endpoints: [ComputerEndpoint]
     var device: DeviceInfo?
     var usesHighPerformance: Bool
     var keyboardSources: [String]
@@ -70,6 +71,7 @@ final class ComputerStore {
             password: computer.authenticates ? computer.password : nil,
             memory: computer.memory,
             networkConfiguration: computer.networkConfiguration,
+            endpoints: computer.endpoints,
             device: computer.model.isEmpty ? nil : DeviceInfo(model: computer.model, enclosureColor: computer.enclosureColor),
             usesHighPerformance: computer.usesHighPerformance,
             keyboardSources: computer.keyboardSources,
@@ -90,7 +92,7 @@ final class ComputerStore {
         -> Computer?
     {
         let computers = try Computer.order(Column("createdAt")).fetchAll(db).filter {
-            $0.remoteProtocol == remoteProtocol && $0.address.matches(address)
+            $0.remoteProtocol == remoteProtocol && $0.endpoints.contains { $0.address.matches(address) }
         }
         guard let username else { return computers.first }
         return computers.first { $0.username == username } ?? computers.first { $0.username.isEmpty }

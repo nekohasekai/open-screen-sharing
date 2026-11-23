@@ -86,7 +86,15 @@
     <string name="home_edit_connection">تعديل الاتصال</string>
     <string name="home_name">الاسم</string>
     <string name="home_server_address">عنوان الخادم</string>
-    <string name="home_server_type">نوع الخادم</string>
+    <string name="home_connection_type">نوع الاتصال</string>
+    <string name="home_addresses_and_networks">العناوين والشبكات</string>
+    <string name="home_addresses">العناوين</string>
+    <string name="home_new_address">عنوان جديد</string>
+    <string name="home_edit_address">تعديل العنوان</string>
+    <string name="home_delete_address">حذف العنوان</string>
+    <string name="home_suggested">مقترحة</string>
+    <string name="home_looking_for_addresses">يجري البحث عن العناوين…</string>
+    <string name="home_no_addresses_found">لم يتم العثور على عناوين</string>
     <string name="home_network_quality">جودة الشبكة</string>
     <string name="home_local_network">الشبكة المحلية</string>
     <string name="home_internet">الإنترنت</string>

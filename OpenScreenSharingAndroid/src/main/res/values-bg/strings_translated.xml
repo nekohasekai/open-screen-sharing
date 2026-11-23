@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Редактиране на връзка</string>
     <string name="home_name">Име</string>
     <string name="home_server_address">Адрес на сървъра</string>
-    <string name="home_server_type">Тип сървър</string>
+    <string name="home_connection_type">Тип връзка</string>
+    <string name="home_addresses_and_networks">Адреси и мрежи</string>
+    <string name="home_addresses">Адреси</string>
+    <string name="home_new_address">Нов адрес</string>
+    <string name="home_edit_address">Редактиране на адрес</string>
+    <string name="home_delete_address">Изтриване на адрес</string>
+    <string name="home_suggested">Предложени</string>
+    <string name="home_looking_for_addresses">Търсене на адреси…</string>
+    <string name="home_no_addresses_found">Няма намерени адреси</string>
     <string name="home_network_quality">Качество на мрежата</string>
     <string name="home_local_network">Локална мрежа</string>
     <string name="home_internet">Интернет</string>

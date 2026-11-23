@@ -86,7 +86,15 @@
     <string name="home_edit_connection">Redigera anslutning</string>
     <string name="home_name">Namn</string>
     <string name="home_server_address">Serveradress</string>
-    <string name="home_server_type">Servertyp</string>
+    <string name="home_connection_type">Anslutningstyp</string>
+    <string name="home_addresses_and_networks">Adresser och nätverk</string>
+    <string name="home_addresses">Adresser</string>
+    <string name="home_new_address">Ny adress</string>
+    <string name="home_edit_address">Redigera adress</string>
+    <string name="home_delete_address">Radera adress</string>
+    <string name="home_suggested">Föreslagna</string>
+    <string name="home_looking_for_addresses">Söker efter adresser…</string>
+    <string name="home_no_addresses_found">Inga adresser hittades</string>
     <string name="home_network_quality">Nätverkskvalitet</string>
     <string name="home_local_network">Lokalt nätverk</string>
     <string name="home_internet">Internet</string>
