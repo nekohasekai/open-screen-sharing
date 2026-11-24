@@ -240,6 +240,7 @@ class SessionController(
     var isToolbarDocked: Boolean by mutableStateOf(false)
     var letterbox: Letterbox? by mutableStateOf(null)
     var debugInfoObstructions: ScreenObstructions? by mutableStateOf(null)
+    var screenObstructions: ScreenObstructions by mutableStateOf(ScreenObstructions())
     var isPointerLockOn: Boolean by mutableStateOf(false)
         private set
     var isNativeTouchOn: Boolean by mutableStateOf(SessionMemory.defaultUsesNativeTouch)
@@ -2066,7 +2067,6 @@ class SessionController(
     fun setZoomMode(on: Boolean) {
         if (on == isZoomModeOn) return
         isZoomModeOn = on
-        if (on && isToolbarVisible) toggleToolbar()
     }
 
     val pointerLockCanResume: Boolean

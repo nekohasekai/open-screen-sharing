@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.captionBar
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -64,6 +65,8 @@ import io.nekohasekai.screensharing.app.AlertHost
 import io.nekohasekai.screensharing.app.AppTheme
 import io.nekohasekai.screensharing.app.FormDialog
 import io.nekohasekai.screensharing.model.AppSettings
+import io.nekohasekai.screensharing.model.FloatingToolbarAnchor
+import io.nekohasekai.screensharing.model.FloatingToolbarPlacement
 import io.nekohasekai.screensharing.model.ToolbarLayout
 import io.nekohasekai.screensharing.session.ScreenPicture
 import io.nekohasekai.screensharing.session.SessionController
@@ -94,15 +97,40 @@ fun SessionScreen(
                 with(density) { ToolbarDock.of(controller.letterbox, ToolbarDock.barThickness.toPx(), ToolbarLayout.dockClearance.toPx()) }
             }
         val safeInsets = WindowInsets.systemBars.union(WindowInsets.displayCutout)
-        val toolbarWidth =
-            with(density) {
-                (constraints.maxWidth - safeInsets.getLeft(this, layoutDirection) - safeInsets.getRight(this, layoutDirection)).toDp()
+        val floatingInsets = WindowInsets.systemBars.union(WindowInsets.captionBar).union(WindowInsets.ime)
+        val closesToolbar = WindowInsets.captionBar.getTop(density) == 0
+        val insetLeft = floatingInsets.getLeft(density, layoutDirection)
+        val insetTop = floatingInsets.getTop(density)
+        val insetRight = floatingInsets.getRight(density, layoutDirection)
+        val insetBottom = floatingInsets.getBottom(density)
+        val extraBottomPx = if (controller.isKeyboardVisible) with(density) { 64.dp.roundToPx() } else 0
+        val floatingWidth = with(density) { (constraints.maxWidth - insetLeft - insetRight).toDp() }
+        val floatingHeight = with(density) { (constraints.maxHeight - insetTop - insetBottom).toDp() } - if (controller.isKeyboardVisible) 64.dp else 0.dp
+        val toolbarSlots =
+            if (dock != null) {
+                ToolbarLayout.capsuleSlots(with(density) { dock.length.toDp() }, itemSize)
+            } else {
+                FloatingToolbarPlacement.of(
+                    width = floatingWidth,
+                    height = floatingHeight,
+                    anchor = AppSettings.floatingToolbarAnchor,
+                    itemWidth = itemSize,
+                    closes = closesToolbar,
+                    obstructions =
+                    FloatingToolbarAnchor.localObstructions(
+                        obstructions = controller.screenObstructions,
+                        density = density.density,
+                        insetLeftPx = insetLeft,
+                        insetTopPx = insetTop,
+                        insetRightPx = insetRight,
+                        insetBottomPx = insetBottom + extraBottomPx,
+                    ),
+                ).slots
             }
-        val toolbarSlots = ToolbarLayout.capsuleSlots(dock?.let { with(density) { it.length.toDp() } } ?: toolbarWidth, itemSize)
         val plan = ToolbarLayout.layout(controller).plan(controller, toolbarSlots)
         val pointerLockAvailable = SessionCommand.PointerLock.isOffered(controller) && controller.canLockPointer
         val pointerLockPaused =
-            controller.isToolbarVisible || controller.isZoomModeOn || !controller.isControlling ||
+            (controller.isToolbarVisible && !controller.isToolbarDocked) || controller.isZoomModeOn || !controller.isControlling ||
                 controller.isKeyboardVisible || controller.picture == ScreenPicture.None || controller.isShowingResolution ||
                 controller.isCustomizingToolbar || controller.isEditingQuickInputs || controller.credentialPrompt != null ||
                 controller.alert != null
@@ -121,13 +149,9 @@ fun SessionScreen(
         LaunchedEffect(screenView, locksPointer) {
             screenView?.input?.setLocksPointer(locksPointer)
         }
-        LaunchedEffect(controller) {
-            snapshotFlow { controller.isFullScreen }.drop(1).collect { controller.isToolbarVisible = false }
-        }
         val docked = dock != null
         LaunchedEffect(docked) {
             controller.isToolbarDocked = docked
-            if (docked) controller.isToolbarVisible = false
         }
         val resolutionAvailable = SessionCommand.Resolution.isOffered(controller) && SessionCommand.Resolution.isEnabled(controller)
         LaunchedEffect(resolutionAvailable) {
@@ -168,13 +192,6 @@ fun SessionScreen(
                 },
             )
         }
-        FloatingToolbar(
-            controller,
-            plan,
-            dock,
-            closes = WindowInsets.captionBar.getTop(density) == 0,
-            onClose = controller::close,
-        )
         if (controller.isControlling) {
             val gestures = WindowInsets.systemGestures
             val left = gestures.getLeft(density, LayoutDirection.Ltr)
@@ -193,6 +210,13 @@ fun SessionScreen(
                 GestureExclusion(IntRect(constraints.maxWidth - right, top, constraints.maxWidth, top + height))
             }
         }
+        FloatingToolbar(
+            controller,
+            plan,
+            dock,
+            closes = closesToolbar,
+            onClose = controller::close,
+        )
         if (controller.isKeyboardVisible) {
             val view = screenView
             DisposableEffect(view) {

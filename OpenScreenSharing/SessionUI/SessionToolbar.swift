@@ -33,6 +33,16 @@ struct ToolbarDock: Equatable {
 }
 
 struct FloatingToolbar: View {
+    #if os(iOS)
+    private static let coordinateSpaceName = "floatingToolbar"
+
+    private struct IdleKey: Equatable {
+        var visible: Bool
+        var dragging: Bool
+        var anchor: FloatingToolbarAnchor
+    }
+    #endif
+
     let controller: SessionController
     let plan: ToolbarPlan
     let dock: ToolbarDock?
@@ -42,6 +52,14 @@ struct FloatingToolbar: View {
     @ScaledMetric(relativeTo: .body) private var itemSize = ToolbarLayout.itemSize
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.layoutDirection) private var layoutDirection
+    #if os(iOS)
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @GestureState private var isDragging = false
+    @State private var dragStart: CGPoint?
+    @State private var dragPoint: CGPoint?
+    @State private var isIdle = false
+    private let settings = AppSettings.shared
+    #endif
 
     private var glassTint: Color? {
         colorScheme == .dark ? .black.opacity(0.4) : nil
@@ -78,36 +96,198 @@ struct FloatingToolbar: View {
     }
 
     #if os(iOS)
+    private var ballOpacity: Double {
+        if controller.isToolbarVisible || dragPoint != nil || !isIdle {
+            return 1
+        }
+        return reduceTransparency ? 0.75 : 0.45
+    }
+
     private var floating: some View {
-        VStack(spacing: 0) {
-            Button {
-                controller.toggleToolbar()
-            } label: {
-                Image(systemName: controller.isToolbarVisible ? "chevron.compact.up" : "chevron.compact.down")
-                    .font(.system(size: 12, weight: .heavy))
-                    .frame(width: 34, height: 14)
-                    .glassEffectCompat(tint: glassTint, in: Capsule())
-                    .padding(.top, 8)
-                    .frame(width: 88, height: 44, alignment: .top)
-                    .contentShape(Rectangle())
+        GeometryReader { proxy in
+            WithPerceptionTracking {
+                floatingContent(in: proxy.size)
             }
-            .buttonStyle(.plain)
-            .hoverEffect()
-            .accessibilityLabel(Text(controller.isToolbarVisible ? "Hide Toolbar" : "Show Toolbar"))
-            .allowsHitTesting(!controller.isPointerLocked)
-            .onGeometryChangeCompat(for: CGRect.self) { $0.frame(in: .global) } action: { controller.toolbarHandleFrame = $0 }
-            if controller.isToolbarVisible {
-                SessionCommandBar(controller: controller, plan: plan, onClose: closes ? onClose : nil)
-                    .onGeometryChangeCompat(for: CGRect.self) { $0.frame(in: .global) } action: { frame in
-                        if controller.isToolbarVisible { controller.toolbarBarFrame = frame }
-                    }
-                    .transition(.move(edge: .top).combined(with: .opacity))
+        }
+        .ignoresSafeArea(controller.isFullScreen ? .container : [])
+        .coordinateSpace(name: Self.coordinateSpaceName)
+        .environment(\.layoutDirection, .leftToRight)
+        .task(id: IdleKey(visible: controller.isToolbarVisible, dragging: dragPoint != nil, anchor: settings.floatingToolbarAnchor)) {
+            if controller.isToolbarVisible || dragPoint != nil {
+                isIdle = false
+                return
+            }
+            isIdle = false
+            do {
+                try await Task.sleep(seconds: 2.5)
+            } catch { return }
+            withAnimation(.easeInOut(duration: 0.35)) {
+                isIdle = true
             }
         }
         .onDisappear { controller.toolbarHandleFrame = nil }
     }
+
+    private func floatingContent(in size: CGSize) -> some View {
+        let obstructions = controller.isFullScreen ? controller.screenObstructions : ScreenObstructions()
+        let placement = FloatingToolbarPlacement(
+            size: size,
+            anchor: settings.floatingToolbarAnchor,
+            itemWidth: itemSize,
+            closes: closes,
+            obstructions: obstructions
+        )
+        let floatingPlan = ToolbarLayout.layout(for: controller).plan(for: controller, slots: placement.slots)
+        let center = dragPoint ?? placement.ballCenter
+        let half = itemSize / 2
+        let gap = ToolbarLayout.capsuleGroupSpacing
+        let margin = ToolbarLayout.floatingMargin
+        let barLeading = FloatingToolbarAnchor.clamp(center.x, margin + half, size.width - margin - half) - half
+        let barTop = FloatingToolbarAnchor.clamp(center.y, margin + half, size.height - margin - half) - half
+        return ZStack(alignment: .topLeading) {
+            if controller.isToolbarVisible, dragPoint == nil {
+                floatingBar(
+                    plan: floatingPlan,
+                    direction: placement.direction,
+                    center: center,
+                    barLeading: barLeading,
+                    barTop: barTop,
+                    half: half,
+                    gap: gap,
+                    margin: margin,
+                    size: size
+                )
+            }
+            Button {
+                controller.toggleToolbar()
+            } label: {
+                AssistiveBallLabel(size: itemSize)
+                    .glassEffectCompat(tint: glassTint, in: Circle())
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .contentShape(.hoverEffect, Circle())
+            .hoverEffect(.highlight)
+            .opacity(ballOpacity)
+            .accessibilityLabel(Text(controller.isToolbarVisible ? "Hide Toolbar" : "Show Toolbar"))
+            .allowsHitTesting(!controller.isPointerLocked)
+            .onGeometryChangeCompat(for: CGRect.self) { $0.frame(in: .global) } action: { controller.toolbarHandleFrame = $0 }
+            .highPriorityGesture(
+                DragGesture(minimumDistance: 6, coordinateSpace: .named(Self.coordinateSpaceName))
+                    .updating($isDragging) { _, state, _ in state = true }
+                    .onChanged { value in
+                        let start = dragStart ?? placement.ballCenter
+                        if dragStart == nil {
+                            dragStart = start
+                            isIdle = false
+                        }
+                        dragPoint = FloatingToolbarAnchor.clampBall(
+                            CGPoint(x: start.x + value.translation.width, y: start.y + value.translation.height),
+                            in: size,
+                            ballSize: itemSize,
+                            obstructions: obstructions
+                        )
+                    }
+                    .onEnded { value in
+                        let start = dragStart ?? placement.ballCenter
+                        let projected = CGPoint(
+                            x: start.x + value.translation.width + (value.predictedEndTranslation.width - value.translation.width) * 0.2,
+                            y: start.y + value.translation.height + (value.predictedEndTranslation.height - value.translation.height) * 0.2
+                        )
+                        finishDrag(at: projected, in: size, obstructions: obstructions)
+                    }
+            )
+            .onChangeCompat(of: isDragging) { dragging in
+                if !dragging, let point = dragPoint {
+                    finishDrag(at: point, in: size, obstructions: obstructions)
+                }
+            }
+            .padding(.leading, max(0, center.x - half))
+            .padding(.top, max(0, center.y - half))
+            .frame(width: size.width, height: size.height, alignment: .topLeading)
+        }
+        .frame(width: size.width, height: size.height, alignment: .topLeading)
+    }
+
+    @ViewBuilder
+    private func floatingBar(
+        plan: ToolbarPlan,
+        direction: FloatingToolbarDirection,
+        center: CGPoint,
+        barLeading: CGFloat,
+        barTop: CGFloat,
+        half: CGFloat,
+        gap: CGFloat,
+        margin: CGFloat,
+        size: CGSize
+    ) -> some View {
+        let bar = SessionCommandBar(
+            controller: controller,
+            plan: plan,
+            axis: direction.axis,
+            onClose: closes ? onClose : nil
+        )
+        .environment(\.layoutDirection, layoutDirection)
+        .onGeometryChangeCompat(for: CGRect.self) { $0.frame(in: .global) } action: { frame in
+            if controller.isToolbarVisible { controller.toolbarBarFrame = frame }
+        }
+        .transition(.scale(scale: 0.85, anchor: direction.transitionAnchor).combined(with: .opacity))
+
+        switch direction {
+        case .right:
+            bar
+                .padding(.leading, max(margin, center.x + half + gap))
+                .padding(.top, max(0, barTop))
+                .frame(width: size.width, height: size.height, alignment: .topLeading)
+        case .left:
+            bar
+                .padding(.trailing, max(margin, size.width - (center.x - half - gap)))
+                .padding(.top, max(0, barTop))
+                .frame(width: size.width, height: size.height, alignment: .topTrailing)
+        case .down:
+            bar
+                .padding(.leading, max(0, barLeading))
+                .padding(.top, max(margin, center.y + half + gap))
+                .frame(width: size.width, height: size.height, alignment: .topLeading)
+        case .up:
+            bar
+                .padding(.leading, max(0, barLeading))
+                .padding(.bottom, max(margin, size.height - (center.y - half - gap)))
+                .frame(width: size.width, height: size.height, alignment: .bottomLeading)
+        }
+    }
+
+    private func finishDrag(at point: CGPoint, in size: CGSize, obstructions: ScreenObstructions) {
+        let anchor = FloatingToolbarAnchor.snap(point: point, in: size, ballSize: itemSize, obstructions: obstructions)
+        dragStart = nil
+        withAnimation(.smoothCompat(duration: 0.25)) {
+            settings.floatingToolbarAnchor = anchor
+            dragPoint = nil
+        }
+    }
     #endif
 }
+
+#if os(iOS)
+private struct AssistiveBallLabel: View {
+    let size: CGFloat
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(.primary.opacity(0.20))
+                .frame(width: size * (28.0 / 44.0), height: size * (28.0 / 44.0))
+            Circle()
+                .fill(.primary.opacity(0.38))
+                .frame(width: size * (21.0 / 44.0), height: size * (21.0 / 44.0))
+            Circle()
+                .fill(.primary.opacity(0.85))
+                .frame(width: size * (14.0 / 44.0), height: size * (14.0 / 44.0))
+        }
+        .frame(width: size, height: size)
+    }
+}
+#endif
 
 enum SessionBarStyle {
     case glass

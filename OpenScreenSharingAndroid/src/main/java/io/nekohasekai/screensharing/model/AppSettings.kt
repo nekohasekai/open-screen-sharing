@@ -20,6 +20,8 @@ object AppSettings {
 
     var pictureFillsScreen: Boolean by Persisted("pictureFillsScreen", serializer<Boolean>(), true)
 
+    var floatingToolbarAnchor: FloatingToolbarAnchor by Persisted("floatingToolbarAnchor", serializer<FloatingToolbarAnchor>(), FloatingToolbarAnchor())
+
     var computerLayout: ComputerLayout by Persisted("computerLayout", serializer<ComputerLayout>(), ComputerLayout.Grid)
 
     var computerOrder: List<UUID> by Persisted("computerOrder", ListSerializer(UUIDSerializer), emptyList())

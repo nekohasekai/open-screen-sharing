@@ -31,7 +31,7 @@ final class PointerLoupeView: UIView {
 }
 #endif
 
-struct ScreenObstructions {
+struct ScreenObstructions: Equatable {
     private static let occlusionGap: CGFloat = 8
 
     var occlusions: [CGRect] = []
@@ -39,6 +39,7 @@ struct ScreenObstructions {
     var topRight: CGFloat = 0
     var bottomLeft: CGFloat = 0
     var bottomRight: CGFloat = 0
+    var areaHeight: CGFloat = 0
 
     private var corners: [(radius: CGFloat, left: Bool, top: Bool)] {
         [(topLeft, true, true), (topRight, false, true), (bottomLeft, true, false), (bottomRight, false, false)]

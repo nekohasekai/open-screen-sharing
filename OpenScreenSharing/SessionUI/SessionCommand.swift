@@ -238,9 +238,6 @@ struct SessionCommandView: View {
         case .keyboard:
             Button {
                 controller.toggleKeyboard()
-                if style == .barItem, controller.isToolbarVisible {
-                    controller.toggleToolbar()
-                }
             } label: {
                 Label(
                     controller.isKeyboardVisible ? "Hide Keyboard" : "Show Keyboard",

@@ -19,14 +19,27 @@ struct SessionView: View {
     }
     #if os(iOS)
     @Environment(\.scenePhase) private var scenePhase
-    @State private var toolbarWidth: CGFloat = 0
+    @State private var tabBarWidth: CGFloat = 0
+    @State private var toolbarArea = CGSize.zero
 
     private var isActive: Bool { isSelectedTab != false }
 
+    private var closesToolbar: Bool { controller.isFullScreen || !hasOwnWindow }
+
     private var toolbarSlots: Int {
-        isSelectedTab == nil
-            ? ToolbarLayout.capsuleSlots(width: dock?.length ?? toolbarWidth, itemWidth: toolbarItemWidth)
-            : ToolbarLayout.tabBarSlots(width: toolbarWidth, itemWidth: toolbarItemWidth)
+        if isSelectedTab != nil {
+            return ToolbarLayout.tabBarSlots(width: tabBarWidth, itemWidth: toolbarItemWidth)
+        }
+        if let dock {
+            return ToolbarLayout.capsuleSlots(width: dock.length, itemWidth: toolbarItemWidth)
+        }
+        return FloatingToolbarPlacement(
+            size: toolbarArea,
+            anchor: settings.floatingToolbarAnchor,
+            itemWidth: toolbarItemWidth,
+            closes: closesToolbar,
+            obstructions: controller.isFullScreen ? controller.screenObstructions : ScreenObstructions()
+        ).slots
     }
 
     private var locksPointer: Bool {
@@ -54,7 +67,8 @@ struct SessionView: View {
     }
 
     private var pointerLockPaused: Bool {
-        controller.isToolbarVisible || controller.isZoomModeOn || !controller.isControlling || controller.isKeyboardVisible
+        (controller.isToolbarVisible && !controller.isToolbarDocked) || controller.isZoomModeOn || !controller.isControlling
+            || controller.isKeyboardVisible
             || controller.picture == .none
             || controller.isShowingResolution
             || controller.isCustomizingToolbar || controller.isEditingQuickInputs
@@ -93,15 +107,20 @@ struct SessionView: View {
                             .allowsHitTesting(false)
                     }
                 }
-                .overlay(alignment: .top) {
+                .overlay {
                     if isSelectedTab == nil {
-                        FloatingToolbar(controller: controller, plan: plan, dock: dock, closes: controller.isFullScreen || !hasOwnWindow, onClose: controller.close)
+                        FloatingToolbar(controller: controller, plan: plan, dock: dock, closes: closesToolbar, onClose: controller.close)
                     }
                 }
                 .onGeometryChangeCompat(for: CGFloat.self) { proxy in
                     proxy.size.width - proxy.safeAreaInsets.leading - proxy.safeAreaInsets.trailing
                 } action: { width in
-                    toolbarWidth = width
+                    tabBarWidth = width
+                }
+                .background {
+                    Color.clear
+                        .onGeometryChangeCompat(for: CGSize.self) { $0.size } action: { toolbarArea = $0 }
+                        .ignoresSafeArea(controller.isFullScreen ? .container : [])
                 }
                 .preferredColorScheme(isActive ? colorScheme : nil)
                 .statusBarHidden(controller.isFullScreen)
@@ -162,14 +181,8 @@ struct SessionView: View {
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
                     controller.abort()
                 }
-                .onChangeCompat(of: controller.isFullScreen) {
-                    controller.isToolbarVisible = false
-                }
                 .onChangeCompat(of: dock != nil || isSelectedTab != nil, initial: true) { docked in
                     controller.isToolbarDocked = docked
-                    if docked {
-                        controller.isToolbarVisible = false
-                    }
                 }
                 .onChangeCompat(of: isSelectedTab) { isSelected in
                     if isSelected == false {

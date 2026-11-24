@@ -346,7 +346,6 @@ private fun BarCommand(
                 enabled,
             ) {
                 controller.toggleKeyboard()
-                if (controller.isToolbarVisible) controller.toggleToolbar()
             }
         }
         SessionCommand.MissionControl, SessionCommand.AppWindows, SessionCommand.ShowDesktop, SessionCommand.Launchpad -> {

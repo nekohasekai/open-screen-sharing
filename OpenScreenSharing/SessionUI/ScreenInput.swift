@@ -40,7 +40,6 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
     private var pointerTouches: Set<UITouch> = []
     private var lockedButtons: PointerButtons = []
     private var handleTouch: UITouch?
-    private var toolbarTouches: Set<UITouch> = []
     private let systemPointerHover = UIHoverGestureRecognizer()
     private let windowTouches = TouchObserver(target: nil, action: nil)
     private var systemPointerLocation: CGPoint?
@@ -144,7 +143,7 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
     }
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        if controller.isToolbarVisible || drag.isDragging, !(gestureRecognizer is UIHoverGestureRecognizer) {
+        if drag.isDragging, !(gestureRecognizer is UIHoverGestureRecognizer) {
             return false
         }
         if controller.isZoomModeOn, gestureRecognizer.numberOfTouches > 0 || gestureRecognizer === rotationGesture {
@@ -180,8 +179,6 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
             switch touch.type {
             case .indirectPointer where isPointerLocked:
                 break
-            case _ where controller.isToolbarVisible:
-                toolbarTouches.insert(touch)
             case _ where controller.isZoomModeOn:
                 zoomTouchBegan(touch)
             case .direct, .pencil:
@@ -218,10 +215,6 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
         let native = touches.filter { nativeTouches[$0] != nil }
         liftNativeTouches(native, phase: .ended)
         for touch in touches.subtracting(native) {
-            if toolbarTouches.remove(touch) != nil {
-                if controller.isToolbarVisible { controller.toggleToolbar() }
-                continue
-            }
             if zoomTouches[touch] != nil {
                 zoomTouchEnded(touch, cancelled: false)
                 continue
@@ -244,7 +237,6 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
         let native = touches.filter { nativeTouches[$0] != nil }
         liftNativeTouches(native, phase: .cancelled)
         for touch in touches.subtracting(native) {
-            if toolbarTouches.remove(touch) != nil { continue }
             if touch === drag.takenTouch {
                 fingers.remove(touch)
                 pointerTouches.remove(touch)
@@ -644,7 +636,7 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
         case .began, .changed:
             guard !isSuppressedHover(gesture) else { return }
             let location = gesture.location(in: view)
-            if !controller.isToolbarVisible, view.imageRect.insetBy(dx: -40, dy: -40).contains(location) {
+            if view.imageRect.insetBy(dx: -40, dy: -40).contains(location) {
                 controller.movePointer(to: view.imagePoint(for: location))
             }
         default:
@@ -779,7 +771,7 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
     }
 
     func pointerInteraction(_ interaction: UIPointerInteraction, regionFor request: UIPointerRegionRequest, defaultRegion: UIPointerRegion) -> UIPointerRegion? {
-        let inside = !controller.isToolbarVisible && view.imageRect.contains(request.location)
+        let inside = view.imageRect.contains(request.location)
         let identifier = !inside ? "letterbox" : controller.isZoomModeOn ? "zoom" : "screen"
         return UIPointerRegion(rect: inside ? view.imageRect : view.bounds, identifier: identifier as NSString)
     }
@@ -799,7 +791,7 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
             pointerInteraction.invalidate()
         }
         return pointerCursor != nil && systemPointerOverPicture && !isPointerLocked && controller.isControlling
-            && !controller.isToolbarVisible && !controller.isZoomModeOn
+            && !controller.isZoomModeOn
     }
 
     func localPointer(for shape: CursorShape?, scale: CGFloat) -> CursorShape? {

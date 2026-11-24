@@ -131,7 +131,6 @@ class ScreenInput(
     private val pointerTouches = HashSet<Int>()
     private var lockedButtons = PointerButtons.None
     private var handleTouch: Int? = null
-    private val toolbarTouches = HashSet<Int>()
     private var systemPointerLocation: Offset? = null
     private var suppressedHoverLocation: Offset? = null
     private var systemPointerOverPicture = false
@@ -299,7 +298,6 @@ class ScreenInput(
         val mouse = event.isFromSource(InputDevice.SOURCE_MOUSE)
         when {
             mouse && isPointerLocked -> Unit
-            controller.isToolbarVisible -> toolbarTouches.add(id)
             controller.isZoomModeOn -> zoomTouchBegan(id, location, event.eventTime)
             mouse && event.buttonState == 0 && event.getToolType(index) == MotionEvent.TOOL_TYPE_FINGER -> padBegan(event, index)
             mouse -> pointerBegan(event, index)
@@ -344,10 +342,6 @@ class ScreenInput(
         val native = nativeTouches.remove(id)
         if (native != null) {
             controller.sendTouches(listOf(RemoteTouch(native, if (cancelled) TouchPhase.Cancelled else TouchPhase.Ended, view.surface.imagePoint(location))))
-            return
-        }
-        if (toolbarTouches.remove(id)) {
-            if (!cancelled && controller.isToolbarVisible) controller.toggleToolbar()
             return
         }
         if (cancelled && drag.takenTouch == ScreenDrag.TouchKey(event.downTime, id)) {
@@ -501,7 +495,7 @@ class ScreenInput(
     }
 
     private fun allows(gesture: TouchGesture): Boolean {
-        if (controller.isToolbarVisible || drag.isDragging || controller.isZoomModeOn) return false
+        if (drag.isDragging || controller.isZoomModeOn) return false
         if (controller.touchesNatively || nativeTouches.isNotEmpty()) return false
         val transforms = gesture == TouchGesture.Pinch || gesture == TouchGesture.Rotation
         if (transforms && !AppSettings.pinchZooms) return controller.sendsGesturesToMac
@@ -767,7 +761,7 @@ class ScreenInput(
         if (action == MotionEvent.ACTION_DOWN) {
             swipeTracker?.recycle()
             swipeTracker = VelocityTracker.obtain()
-            swipeStart = if (controller.isToolbarVisible || drag.isDragging) null else location
+            swipeStart = if (drag.isDragging) null else location
             swipeScrolls = false
         }
         swipeTracker?.addMovement(event)
@@ -806,7 +800,7 @@ class ScreenInput(
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 touchpadPinchScale = 1f
-                touchpadPinchState = if (controller.isToolbarVisible || drag.isDragging) false else null
+                touchpadPinchState = if (drag.isDragging) false else null
             }
             MotionEvent.ACTION_POINTER_DOWN, MotionEvent.ACTION_MOVE -> {
                 if (touchpadPinchState == false) return
@@ -913,7 +907,7 @@ class ScreenInput(
     }
 
     private fun handleWheel(event: MotionEvent, location: Offset) {
-        if (controller.isToolbarVisible || drag.isDragging) return
+        if (drag.isDragging) return
         val delta = Offset(
             -event.getAxisValue(MotionEvent.AXIS_HSCROLL) * ViewConfigurationCompat.getScaledHorizontalScrollFactor(configuration, view.context),
             event.getAxisValue(MotionEvent.AXIS_VSCROLL) * ViewConfigurationCompat.getScaledVerticalScrollFactor(configuration, view.context),
@@ -938,7 +932,7 @@ class ScreenInput(
         if (isPointerLocked || controller.isZoomModeOn) return true
         when (action) {
             MotionEvent.ACTION_HOVER_ENTER, MotionEvent.ACTION_HOVER_MOVE -> {
-                if (!controller.isToolbarVisible && view.surface.imageRect.inflate(HOVER_MARGIN * density).contains(location)) {
+                if (!overToolbar(windowPoint(location)) && view.surface.imageRect.inflate(HOVER_MARGIN * density).contains(location)) {
                     controller.movePointer(view.surface.imagePoint(location))
                 }
             }
@@ -1138,12 +1132,15 @@ class ScreenInput(
         return false
     }
 
+    private fun overToolbar(windowLocation: Offset): Boolean = controller.toolbarHandleFrame?.contains(windowLocation) == true ||
+        (controller.isToolbarVisible && controller.toolbarBarFrame?.contains(windowLocation) == true)
+
     private fun trackSystemPointer(location: Offset, fromPointer: Boolean) {
         if (isPointerLocked) return
         val window = windowPoint(location)
         systemPointerLocation = window
         controller.lastSystemPointerLocation = window
-        val overPicture = view.surface.imageRect.contains(location)
+        val overPicture = !overToolbar(window) && view.surface.imageRect.contains(location)
         controller.isSystemPointerOverPicture = overPicture
         systemPointerOverPicture = overPicture && fromPointer
     }
@@ -1170,7 +1167,8 @@ class ScreenInput(
     }
 
     fun onResolvePointerIcon(event: MotionEvent, pointerIndex: Int): PointerIcon? {
-        val inside = !controller.isToolbarVisible && view.surface.imageRect.contains(point(event, pointerIndex))
+        val point = point(event, pointerIndex)
+        val inside = !overToolbar(windowPoint(point)) && view.surface.imageRect.contains(point)
         if (!inside || controller.isZoomModeOn || !controller.isControlling) return null
         if (isStylus(event, pointerIndex)) return nullIcon
         return pointerIcon ?: nullIcon
@@ -1196,7 +1194,7 @@ class ScreenInput(
             pointerIcon = cursor?.let { PointerShape.icon(view.context, it, iconScale, standard) }
             view.pointerIcon = pointerIcon ?: nullIcon
         }
-        return pointerIcon != null && !isPointerLocked && controller.isControlling && !controller.isToolbarVisible
+        return pointerIcon != null && !isPointerLocked && controller.isControlling
     }
 
     fun localPointer(shape: CursorShape?, scale: Float): CursorShape? {

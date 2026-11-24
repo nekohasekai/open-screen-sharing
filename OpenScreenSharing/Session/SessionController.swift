@@ -142,6 +142,7 @@ final class SessionController: Identifiable {
     var isToolbarDocked = false
     var letterbox: Letterbox?
     var debugInfoInset: CGFloat?
+    var screenObstructions = ScreenObstructions()
     private(set) var isPointerLockOn = false
     private(set) var isNativeTouchOn = SessionMemory.defaultUsesNativeTouch
     private(set) var isZoomModeOn = false
@@ -1804,7 +1805,6 @@ final class SessionController: Identifiable {
     func setZoomMode(_ on: Bool) {
         guard on != isZoomModeOn else { return }
         isZoomModeOn = on
-        if on, isToolbarVisible { toggleToolbar() }
     }
 
     var pointerLockCanResume: Bool {

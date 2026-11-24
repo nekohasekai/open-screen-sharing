@@ -99,6 +99,7 @@ class RemoteScreenView(context: Context, val controller: SessionController) : Fr
             override fun geometryDidChange() {
                 inputDelegate.geometryDidChange()
                 controller.letterbox = measureLetterbox()
+                controller.screenObstructions = windowTracker.obstructions
                 controller.debugInfoObstructions = windowTracker.obstructions.takeIf { windowTracker.fillsScreen }
             }
         }

@@ -16,6 +16,7 @@ final class AppSettings {
         static let pinchZooms = "pinchZooms"
         static let pictureFillsScreen = "pictureFillsScreen"
         static let usesTabBar = "usesTabBar"
+        static let floatingToolbarAnchor = "floatingToolbarAnchor"
         static let computerLayout = "computerLayout"
         static let computerOrder = "computerOrder"
         static let seenTutorials = "seenTutorials"
@@ -47,6 +48,10 @@ final class AppSettings {
 
     var usesTabBar: Bool {
         didSet { store.set(usesTabBar, for: Key.usesTabBar) }
+    }
+
+    var floatingToolbarAnchor: FloatingToolbarAnchor {
+        didSet { store.set(floatingToolbarAnchor, for: Key.floatingToolbarAnchor) }
     }
 
     static var offersFullScreen: Bool {
@@ -89,6 +94,7 @@ final class AppSettings {
         #if os(iOS)
         pinchZooms = store.value(Bool.self, for: Key.pinchZooms) ?? (UIDevice.current.userInterfaceIdiom == .phone)
         usesTabBar = store.value(Bool.self, for: Key.usesTabBar) ?? false
+        floatingToolbarAnchor = store.value(FloatingToolbarAnchor.self, for: Key.floatingToolbarAnchor) ?? FloatingToolbarAnchor()
         #else
         hasCameraHousing = FullScreenCameraHousing.isAvailable
         #endif
