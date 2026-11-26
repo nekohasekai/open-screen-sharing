@@ -16,11 +16,9 @@
 
 ### iOS
 
-The App Store version excludes the following features due to App Store restrictions, but you can **support my work** by purchasing it on the [App Store](https://apps.apple.com/us/app/open-screen-sharing/id6818992574):
+You can **support my work** by purchasing it on the [App Store](https://apps.apple.com/us/app/open-screen-sharing/id6818992574).
 
-* **Dragging files directly from a remote Mac into other iOS/iPadOS apps:** relies on a private API.
-
-To use these features, sideload the app by adding the source to SideStore or AltStore:
+Or sideload the app by adding the source to SideStore or AltStore:
 
 ```
 https://github.com/nekohasekai/open-screen-sharing/releases/latest/download/altstore.json

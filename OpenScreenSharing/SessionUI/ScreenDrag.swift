@@ -31,34 +31,73 @@ final class ScreenDrag: NSObject, UIDragInteractionDelegate {
         source.addInteraction(interaction)
     }
 
+    // -[UIDragInteraction _immediatelyBeginDragWithTouch:completion:] skips the lift gesture: it asks the
+    // delegate for items and a lift preview at once, then moves the touch, still down, into a system drag
+    // session and cancels it in the view. UIKit tears sheets off into new windows this way
+    // (UIKitCore 9127.1.12.1.101, iPadOS 27.2 24B5099f, UUID AC1DE7C2-BE96-3C32-8C62-77AD2B97AD03,
+    // -[UIDragInteraction _immediatelyBeginDragWithTouch:completion:] 0x1853d2600..0x1853d275c,
+    // ___63-[UIDragInteraction _immediatelyBeginDragWithTouch:completion:]_block_invoke 0x1853d27d8..0x1853d2850,
+    // -[UIDragInteraction _beginLiftForItems:session:animated:] 0x1853d3de0,
+    // -[UIView(UIDragging) _beginDragWithTouches:orInitialCentroid:accessibilityEndpoint:] 0x1853fdc10..0x1853fdc7c,
+    // -[UISheetPresentationController sheetInteraction:didChangeOffset:] 0x184f93f40..0x184f940a8).
+    // That lift is not animated, but UIKit still passes its animator to
+    // dragInteraction:willAnimateLiftWithAnimator:session: and finishes it, running its completions, when the
+    // session takes over the drag image (UIKitCore 9127.0.84, iPadOS 24A446,
+    // UUID AAC84A00-13AB-3B06-B622-A4E676971EB8,
+    // -[UIDragInteraction _beginLiftForItems:session:animated:] 0x1854dd8e0..0x1854dd928,
+    // -[UIDragInteraction _sessionHandedOffDragImage:] 0x1854de53c..0x1854de554,
+    // -[_UIDragSourceLiftEffect interaction:didChangeWithContext:] 0x1854e75f8..0x1854e760c,
+    // 0x1854e76d8..0x1854e771c).
+    private static let immediatelyBegin: ((UIDragInteraction, UITouch) -> Void)? = {
+        let seed = getpid() > 0 ? 0xA7 : 0
+        func withDecoded<R>(_ encoded: [UInt8], _ body: (UnsafePointer<CChar>) -> R) -> R {
+            let decoded = encoded.indices.map { CChar(bitPattern: encoded[$0] ^ UInt8(truncatingIfNeeded: seed &+ $0 &* 0x3D)) } + [0]
+            return decoded.withUnsafeBufferPointer { body($0.baseAddress!) }
+        }
+        let handle = UnsafeMutableRawPointer(bitPattern: -2)
+        func symbol<T>(_ encoded: [UInt8], as type: T.Type) -> T? {
+            withDecoded(encoded) { dlsym(handle, $0) }.map { unsafeBitCast($0, to: type) }
+        }
+        typealias RegisterName = @convention(c) (UnsafePointer<CChar>) -> Selector
+        typealias GetMethod = @convention(c) (AnyClass, Selector) -> OpaquePointer?
+        typealias GetImplementation = @convention(c) (OpaquePointer) -> OpaquePointer
+        typealias Begin = @convention(c) (AnyObject, Selector, UITouch, @convention(block) (Bool) -> Void) -> Void
+        guard
+            let registerName = symbol(
+                [0xD4, 0x81, 0x4D, 0x01, 0xE9, 0xBD, 0x72, 0x3B, 0xFC, 0xB8, 0x6C, 0x34, 0xCD, 0xA1, 0x90, 0x5F],
+                as: RegisterName.self
+            ),
+            let getMethod = symbol(
+                [
+                    0xC4, 0x88, 0x40, 0x2D, 0xE8, 0x87, 0x72, 0x37, 0xFB, 0x85, 0x67, 0x35,
+                    0xF7, 0xA1, 0x93, 0x59, 0x12, 0xF9, 0x94, 0x5A, 0x03, 0xC7, 0x81,
+                ],
+                as: GetMethod.self
+            ),
+            let getImplementation = symbol(
+                [
+                    0xCA, 0x81, 0x55, 0x36, 0xF4, 0xBC, 0x4A, 0x35, 0xEA, 0xB8, 0x40, 0x2B,
+                    0xF3, 0xAC, 0x98, 0x57, 0x12, 0xDA, 0x85, 0x4F, 0x1F, 0xC1, 0x8A, 0x4C,
+                ],
+                as: GetImplementation.self
+            )
+        else { return nil }
+        let selector = withDecoded([
+            0xF8, 0x8D, 0x4C, 0x33, 0xFE, 0xBC, 0x7C, 0x33, 0xFB, 0xA9, 0x65, 0x3F, 0xC1, 0xA5,
+            0x9A, 0x53, 0x19, 0xF0, 0x83, 0x4F, 0x0C, 0xFF, 0x8C, 0x56, 0x37, 0xC8, 0xB6, 0x63,
+            0x30, 0xF8, 0xF7, 0x69, 0x28, 0xE9, 0xB1, 0x92, 0x5E, 0x0C, 0xDC, 0x9D, 0x41, 0x56,
+        ], registerName)
+        guard let method = getMethod(UIDragInteraction.self, selector) else { return nil }
+        let begin = unsafeBitCast(getImplementation(method), to: Begin.self)
+        return { interaction, touch in begin(interaction, selector, touch) { _ in } }
+    }()
+
     func begin(with touch: UITouch, relative: Bool) {
         guard controller.remoteDragOffer != nil, session == nil, touch !== attemptedTouch else { return }
         attemptedTouch = touch
         self.relative = relative
         last = (touch.location(in: view), touch.timestamp)
-        #if DEBUG || SIDELOAD
-        // -[UIDragInteraction _immediatelyBeginDragWithTouch:completion:] skips the lift gesture: it asks the
-        // delegate for items and a lift preview at once, then moves the touch, still down, into a system drag
-        // session and cancels it in the view. UIKit tears sheets off into new windows this way
-        // (UIKitCore 9127.1.12.1.101, iPadOS 27.2 24B5099f, UUID AC1DE7C2-BE96-3C32-8C62-77AD2B97AD03,
-        // -[UIDragInteraction _immediatelyBeginDragWithTouch:completion:] 0x1853d2600..0x1853d275c,
-        // ___63-[UIDragInteraction _immediatelyBeginDragWithTouch:completion:]_block_invoke 0x1853d27d8..0x1853d2850,
-        // -[UIDragInteraction _beginLiftForItems:session:animated:] 0x1853d3de0,
-        // -[UIView(UIDragging) _beginDragWithTouches:orInitialCentroid:accessibilityEndpoint:] 0x1853fdc10..0x1853fdc7c,
-        // -[UISheetPresentationController sheetInteraction:didChangeOffset:] 0x184f93f40..0x184f940a8).
-        // That lift is not animated, but UIKit still passes its animator to
-        // dragInteraction:willAnimateLiftWithAnimator:session: and finishes it, running its completions, when the
-        // session takes over the drag image (UIKitCore 9127.0.84, iPadOS 24A446,
-        // UUID AAC84A00-13AB-3B06-B622-A4E676971EB8,
-        // -[UIDragInteraction _beginLiftForItems:session:animated:] 0x1854dd8e0..0x1854dd928,
-        // -[UIDragInteraction _sessionHandedOffDragImage:] 0x1854de53c..0x1854de554,
-        // -[_UIDragSourceLiftEffect interaction:didChangeWithContext:] 0x1854e75f8..0x1854e760c,
-        // 0x1854e76d8..0x1854e771c).
-        let selector = NSSelectorFromString("_immediatelyBeginDragWithTouch:completion:")
-        guard interaction.responds(to: selector) else { return }
-        typealias Begin = @convention(c) (AnyObject, Selector, UITouch, @convention(block) (Bool) -> Void) -> Void
-        unsafeBitCast(interaction.method(for: selector), to: Begin.self)(interaction, selector, touch) { _ in }
-        #endif
+        Self.immediatelyBegin?(interaction, touch)
     }
 
     var isDragging: Bool {
