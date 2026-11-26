@@ -150,6 +150,9 @@ class ToolbarLayout private constructor(
         }
 
         val itemSize = 48.dp
+        val stashVisibleThickness = 22.dp
+        val stashCornerRadius = 11.dp
+        val stashHitThickness = 30.dp
         val capsuleGroupSpacing = 8.dp
         val capsuleGroupPadding = 4.dp
         val capsuleMargin = 16.dp
@@ -207,6 +210,61 @@ data class FloatingToolbarAnchor(
             FloatingToolbarEdge.Left, FloatingToolbarEdge.Right -> Offset(geometry.cross, along)
             FloatingToolbarEdge.Top, FloatingToolbarEdge.Bottom -> Offset(along, geometry.cross)
         }
+    }
+
+    fun stashedAlong(
+        ballCenter: Offset,
+        width: Float,
+        height: Float,
+        length: Float,
+        thickness: Float,
+        margin: Float,
+        clearance: Float,
+        obstructions: ScreenObstructions,
+    ): Float? {
+        val half = length / 2f
+        val rawStart: Float
+        val rawEnd: Float
+        val input: Float
+        when (edge) {
+            FloatingToolbarEdge.Left -> {
+                rawStart = max(margin + half, if (obstructions.topLeft > 0f) obstructions.topLeft + half else 0f)
+                rawEnd = height - max(margin + half, if (obstructions.bottomLeft > 0f) obstructions.bottomLeft + half else 0f)
+                input = ballCenter.y
+            }
+            FloatingToolbarEdge.Right -> {
+                rawStart = max(margin + half, if (obstructions.topRight > 0f) obstructions.topRight + half else 0f)
+                rawEnd = height - max(margin + half, if (obstructions.bottomRight > 0f) obstructions.bottomRight + half else 0f)
+                input = ballCenter.y
+            }
+            FloatingToolbarEdge.Top -> {
+                rawStart = max(margin + half, if (obstructions.topLeft > 0f) obstructions.topLeft + half else 0f)
+                rawEnd = width - max(margin + half, if (obstructions.topRight > 0f) obstructions.topRight + half else 0f)
+                input = ballCenter.x
+            }
+            FloatingToolbarEdge.Bottom -> {
+                rawStart = max(margin + half, if (obstructions.bottomLeft > 0f) obstructions.bottomLeft + half else 0f)
+                rawEnd = width - max(margin + half, if (obstructions.bottomRight > 0f) obstructions.bottomRight + half else 0f)
+                input = ballCenter.x
+            }
+        }
+        if (rawStart > rawEnd) return null
+        var segments = listOf(rawStart to rawEnd)
+        val reach = thickness + clearance
+        for (occlusion in obstructions.occlusions) {
+            when {
+                edge == FloatingToolbarEdge.Left && occlusion.left < reach ->
+                    segments = subtractInterval(occlusion.top - clearance - half, occlusion.bottom + clearance + half, segments)
+                edge == FloatingToolbarEdge.Right && occlusion.right > width - reach ->
+                    segments = subtractInterval(occlusion.top - clearance - half, occlusion.bottom + clearance + half, segments)
+                edge == FloatingToolbarEdge.Top && occlusion.top < reach ->
+                    segments = subtractInterval(occlusion.left - clearance - half, occlusion.right + clearance + half, segments)
+                edge == FloatingToolbarEdge.Bottom && occlusion.bottom > height - reach ->
+                    segments = subtractInterval(occlusion.left - clearance - half, occlusion.right + clearance + half, segments)
+            }
+        }
+        if (segments.isEmpty()) return null
+        return clampToSegments(input, segments, (rawStart + rawEnd) / 2f)
     }
 
     companion object {

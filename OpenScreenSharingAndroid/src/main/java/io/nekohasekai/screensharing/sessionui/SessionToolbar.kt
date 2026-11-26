@@ -69,10 +69,15 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -80,6 +85,7 @@ import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -96,6 +102,7 @@ import io.nekohasekai.screensharing.R
 import io.nekohasekai.screensharing.model.AppSettings
 import io.nekohasekai.screensharing.model.FloatingToolbarAnchor
 import io.nekohasekai.screensharing.model.FloatingToolbarDirection
+import io.nekohasekai.screensharing.model.FloatingToolbarEdge
 import io.nekohasekai.screensharing.model.FloatingToolbarPlacement
 import io.nekohasekai.screensharing.model.ToolbarLayout
 import io.nekohasekai.screensharing.model.ToolbarPlan
@@ -208,37 +215,47 @@ private fun Floating(
     val snapAnimatable = remember { Animatable(Offset.Zero, Offset.VectorConverter) }
     var snapJob by remember { mutableStateOf<Job?>(null) }
     val isSnapping = snapJob != null
-    var isIdle by remember { mutableStateOf(false) }
     val anchor = AppSettings.floatingToolbarAnchor
 
     DisposableEffect(controller) {
-        onDispose { controller.toolbarHandleFrame = null }
+        onDispose {
+            controller.toolbarHandleFrame = null
+            controller.isToolbarStashed = false
+        }
     }
-    LaunchedEffect(visible, dragPoint != null, anchor) {
-        if (visible || dragPoint != null) {
-            isIdle = false
+    val nearHandle = controller.isPointerNearToolbarHandle
+    LaunchedEffect(visible, dragPoint != null, isSnapping, nearHandle, controller.isToolbarStashed, anchor) {
+        if (visible || dragPoint != null || isSnapping || nearHandle) {
+            if (controller.isToolbarStashed) controller.isToolbarStashed = false
             return@LaunchedEffect
         }
-        isIdle = false
-        delay(2500)
-        isIdle = true
+        if (controller.isToolbarStashed) return@LaunchedEffect
+        delay(2200)
+        controller.isToolbarStashed = true
     }
-    val ballAlpha by animateFloatAsState(
-        targetValue = if (visible || dragPoint != null || !isIdle) 1f else 0.45f,
-        animationSpec = tween(durationMillis = 250),
-    )
 
     val layoutDirection = LocalLayoutDirection.current
     val floatingInsets = WindowInsets.systemBars.union(WindowInsets.captionBar).union(WindowInsets.ime)
     val extraBottomPx = if (controller.isKeyboardVisible) with(density) { 64.dp.roundToPx() } else 0
+    val insetLeftPx = floatingInsets.getLeft(density, layoutDirection)
+    val insetTopPx = floatingInsets.getTop(density)
+    val insetRightPx = floatingInsets.getRight(density, layoutDirection)
+    val insetBottomPx = floatingInsets.getBottom(density) + extraBottomPx
+    val touchesEdge =
+        when (anchor.edge) {
+            FloatingToolbarEdge.Left -> insetLeftPx == 0
+            FloatingToolbarEdge.Right -> insetRightPx == 0
+            FloatingToolbarEdge.Top -> insetTopPx == 0
+            FloatingToolbarEdge.Bottom -> insetBottomPx == 0
+        }
     val localDpObstructions =
         FloatingToolbarAnchor.localObstructions(
             obstructions = controller.screenObstructions,
             density = density.density,
-            insetLeftPx = floatingInsets.getLeft(density, layoutDirection),
-            insetTopPx = floatingInsets.getTop(density),
-            insetRightPx = floatingInsets.getRight(density, layoutDirection),
-            insetBottomPx = floatingInsets.getBottom(density) + extraBottomPx,
+            insetLeftPx = insetLeftPx,
+            insetTopPx = insetTopPx,
+            insetRightPx = insetRightPx,
+            insetBottomPx = insetBottomPx,
         )
     val localPxObstructions =
         ScreenObstructions(
@@ -277,6 +294,10 @@ private fun Floating(
         val widthPx = with(density) { maxWidth.toPx() }
         val heightPx = with(density) { maxHeight.toPx() }
         val ballSizePx = with(density) { ToolbarLayout.itemSize.toPx() }
+        val stashVisibleThicknessPx = with(density) { ToolbarLayout.stashVisibleThickness.toPx() }
+        val stashCornerRadiusPx = with(density) { ToolbarLayout.stashCornerRadius.toPx() }
+        val stashOverhangPx = stashCornerRadiusPx
+        val stashHitThicknessPx = with(density) { ToolbarLayout.stashHitThickness.toPx() }
         val edgeMarginPx = with(density) { ToolbarLayout.floatingMargin.toPx() }
         val ballMarginPx = with(density) { (ToolbarLayout.floatingMargin + ToolbarLayout.capsuleGroupPadding).toPx() }
         val clearancePx = with(density) { ToolbarLayout.dockClearance.toPx() }
@@ -291,11 +312,109 @@ private fun Floating(
                 isSnapping -> snapAnimatable.value
                 else -> snappedCenterPx
             }
+        val stashedAlongPx =
+            if (touchesEdge) {
+                anchor.stashedAlong(
+                    snappedCenterPx,
+                    widthPx,
+                    heightPx,
+                    ballSizePx,
+                    stashVisibleThicknessPx,
+                    edgeMarginPx,
+                    clearancePx,
+                    localPxObstructions,
+                )
+            } else {
+                null
+            }
+        val stashed = controller.isToolbarStashed && !visible && dragPoint == null && !isSnapping
+        val stashedAsTab = stashed && stashedAlongPx != null
+        val dimmedAsBall = stashed && stashedAlongPx == null
+        val stashProgress by animateFloatAsState(
+            targetValue = if (stashedAsTab) 1f else 0f,
+            animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow),
+        )
+        val ballAlpha by animateFloatAsState(
+            targetValue = if (dimmedAsBall) 0.45f else 1f,
+            animationSpec = tween(durationMillis = 250),
+        )
+
+        val halfBallPx = ballSizePx / 2f
+        val effectiveAlongPx =
+            stashedAlongPx
+                ?: if (anchor.edge == FloatingToolbarEdge.Left || anchor.edge == FloatingToolbarEdge.Right) {
+                    displayedCenter.y
+                } else {
+                    displayedCenter.x
+                }
+        val stashTotalThicknessPx = stashVisibleThicknessPx + stashOverhangPx
+        val hitLeft0 = displayedCenter.x - halfBallPx
+        val hitTop0 = displayedCenter.y - halfBallPx
+        val hitLeft1: Float
+        val hitTop1: Float
+        val hitW1: Float
+        val hitH1: Float
+        val glassW1: Float
+        val glassH1: Float
+        val glassOffsetX1: Float
+        val glassOffsetY1: Float
+        when (anchor.edge) {
+            FloatingToolbarEdge.Left -> {
+                hitLeft1 = 0f
+                hitTop1 = effectiveAlongPx - halfBallPx
+                hitW1 = stashHitThicknessPx
+                hitH1 = ballSizePx
+                glassW1 = stashTotalThicknessPx
+                glassH1 = ballSizePx
+                glassOffsetX1 = -stashOverhangPx
+                glassOffsetY1 = 0f
+            }
+            FloatingToolbarEdge.Right -> {
+                hitLeft1 = widthPx - stashHitThicknessPx
+                hitTop1 = effectiveAlongPx - halfBallPx
+                hitW1 = stashHitThicknessPx
+                hitH1 = ballSizePx
+                glassW1 = stashTotalThicknessPx
+                glassH1 = ballSizePx
+                glassOffsetX1 = stashHitThicknessPx - stashVisibleThicknessPx
+                glassOffsetY1 = 0f
+            }
+            FloatingToolbarEdge.Top -> {
+                hitLeft1 = effectiveAlongPx - halfBallPx
+                hitTop1 = 0f
+                hitW1 = ballSizePx
+                hitH1 = stashHitThicknessPx
+                glassW1 = ballSizePx
+                glassH1 = stashTotalThicknessPx
+                glassOffsetX1 = 0f
+                glassOffsetY1 = -stashOverhangPx
+            }
+            FloatingToolbarEdge.Bottom -> {
+                hitLeft1 = effectiveAlongPx - halfBallPx
+                hitTop1 = heightPx - stashHitThicknessPx
+                hitW1 = ballSizePx
+                hitH1 = stashHitThicknessPx
+                glassW1 = ballSizePx
+                glassH1 = stashTotalThicknessPx
+                glassOffsetX1 = 0f
+                glassOffsetY1 = stashHitThicknessPx - stashVisibleThicknessPx
+            }
+        }
+        val hitLeft = hitLeft0 + (hitLeft1 - hitLeft0) * stashProgress
+        val hitTop = hitTop0 + (hitTop1 - hitTop0) * stashProgress
+        val hitW = ballSizePx + (hitW1 - ballSizePx) * stashProgress
+        val hitH = ballSizePx + (hitH1 - ballSizePx) * stashProgress
+        val glassW = ballSizePx + (glassW1 - ballSizePx) * stashProgress
+        val glassH = ballSizePx + (glassH1 - ballSizePx) * stashProgress
+        val glassOffsetX = glassOffsetX1 * stashProgress
+        val glassOffsetY = glassOffsetY1 * stashProgress
+        val cornerRadiusPx = halfBallPx + (stashCornerRadiusPx - halfBallPx) * stashProgress
+        val handleCenter = Offset(hitLeft + hitW / 2f, hitTop + hitH / 2f)
 
         val currentWidthPx by rememberUpdatedState(widthPx)
         val currentHeightPx by rememberUpdatedState(heightPx)
         val currentSnappedCenter by rememberUpdatedState(snappedCenterPx)
-        val currentDisplayedCenter by rememberUpdatedState(displayedCenter)
+        val currentHandleCenter by rememberUpdatedState(handleCenter)
         val currentPxObstructions by rememberUpdatedState(localPxObstructions)
 
         val transformOrigin =
@@ -339,7 +458,7 @@ private fun Floating(
                                 clearancePx,
                                 currentPxObstructions,
                             )
-                        val start = dragPoint ?: currentDisplayedCenter
+                        val start = dragPoint ?: currentHandleCenter
                         AppSettings.floatingToolbarAnchor = nextAnchor
                         dragPoint = null
                         snapJob?.cancel()
@@ -369,12 +488,21 @@ private fun Floating(
                             velocityTracker.resetTracking()
                             val rootFinger = ballCoords?.localToRoot(startOffset) ?: return@detectDragGestures
                             val rootContainer = containerCoords?.localToRoot(Offset.Zero) ?: Offset.Zero
-                            val startCenter = currentDisplayedCenter
+                            val startCenter = currentHandleCenter
                             snapJob?.cancel()
                             snapJob = null
                             grabOffset = (rootFinger - rootContainer) - startCenter
-                            isIdle = false
-                            dragPoint = startCenter
+                            controller.isToolbarStashed = false
+                            dragPoint =
+                                FloatingToolbarAnchor.clampBall(
+                                    startCenter,
+                                    currentWidthPx,
+                                    currentHeightPx,
+                                    ballSizePx,
+                                    ballMarginPx,
+                                    clearancePx,
+                                    currentPxObstructions,
+                                )
                         },
                         onDrag = { change, _ ->
                             change.consume()
@@ -410,11 +538,12 @@ private fun Floating(
             modifier =
             Modifier
                 .fillMaxSize()
+                .clipToBounds()
                 .onGloballyPositioned { containerCoords = it },
             content = {
                 Box(
+                    modifier =
                     Modifier
-                        .size(ToolbarLayout.itemSize)
                         .systemGestureExclusion()
                         .onGloballyPositioned {
                             ballCoords = it
@@ -427,13 +556,28 @@ private fun Floating(
                             enabled = !controller.isPointerLocked,
                             onClickLabel = label,
                             role = Role.Button,
-                            onClick = controller::toggleToolbar,
+                            onClick = controller::tapToolbarHandle,
                         ),
+                    contentAlignment = AbsoluteAlignment.TopLeft,
                 ) {
                     AssistiveBall(
                         label = label,
+                        edge = anchor.edge,
+                        stashProgress = stashProgress,
+                        stashOverhangPx = stashOverhangPx,
+                        ballSizePx = ballSizePx,
+                        cornerRadiusPx = cornerRadiusPx,
                         interactionSource = interactionSource,
                         alpha = ballAlpha,
+                        modifier =
+                        Modifier.layout { measurable, _ ->
+                            val w = glassW.roundToInt().coerceAtLeast(1)
+                            val h = glassH.roundToInt().coerceAtLeast(1)
+                            val placeable = measurable.measure(Constraints.fixed(w, h))
+                            layout(w, h) {
+                                placeable.place(glassOffsetX.roundToInt(), glassOffsetY.roundToInt())
+                            }
+                        },
                     )
                 }
                 AnimatedVisibility(
@@ -453,14 +597,15 @@ private fun Floating(
                 }
             },
         ) { measurables, constraints ->
-            val fixedBall = ballSizePx.roundToInt()
-            val ballPlaceable = measurables[0].measure(Constraints.fixed(fixedBall, fixedBall))
+            val fixedHitW = hitW.roundToInt().coerceAtLeast(1)
+            val fixedHitH = hitH.roundToInt().coerceAtLeast(1)
+            val ballPlaceable = measurables[0].measure(Constraints.fixed(fixedHitW, fixedHitH))
             val barPlaceable =
                 measurables.getOrNull(1)?.measure(
                     Constraints(maxWidth = constraints.maxWidth, maxHeight = constraints.maxHeight),
                 )
-            val ballX = (displayedCenter.x - fixedBall / 2f).roundToInt()
-            val ballY = (displayedCenter.y - fixedBall / 2f).roundToInt()
+            val ballX = hitLeft.roundToInt()
+            val ballY = hitTop.roundToInt()
             layout(constraints.maxWidth, constraints.maxHeight) {
                 if (barPlaceable != null && barPlaceable.width > 0 && barPlaceable.height > 0) {
                     val anchorCenter = snappedCenterPx
@@ -498,24 +643,81 @@ private fun Floating(
 @Composable
 private fun AssistiveBall(
     label: String,
+    edge: FloatingToolbarEdge,
+    stashProgress: Float,
+    stashOverhangPx: Float,
+    ballSizePx: Float,
+    cornerRadiusPx: Float,
     interactionSource: MutableInteractionSource,
     alpha: Float,
+    modifier: Modifier = Modifier,
 ) {
+    val density = LocalDensity.current
     Surface(
-        Modifier
-            .fillMaxSize()
+        modifier
             .graphicsLayer { this.alpha = alpha }
             .indication(interactionSource, ripple()),
-        shape = CircleShape,
+        shape = RoundedCornerShape(with(density) { cornerRadiusPx.toDp() }),
         color = MaterialTheme.colorScheme.surfaceContainer,
         shadowElevation = 3.dp,
     ) {
         val contentColor = LocalContentColor.current
         Canvas(Modifier.fillMaxSize(), contentDescription = label) {
-            val unit = size.minDimension / 44f
-            drawCircle(contentColor.copy(alpha = 0.20f), radius = 14f * unit)
-            drawCircle(contentColor.copy(alpha = 0.38f), radius = 10.5f * unit)
-            drawCircle(contentColor.copy(alpha = 0.85f), radius = 7f * unit)
+            val unit = ballSizePx / 44f
+            val ballVisibility = 1f - stashProgress
+            if (ballVisibility > 0f) {
+                val scale = 0.6f + 0.4f * ballVisibility
+                drawCircle(contentColor.copy(alpha = 0.20f * ballVisibility), radius = 14f * unit * scale)
+                drawCircle(contentColor.copy(alpha = 0.38f * ballVisibility), radius = 10.5f * unit * scale)
+                drawCircle(contentColor.copy(alpha = 0.85f * ballVisibility), radius = 7f * unit * scale)
+            }
+            if (stashProgress > 0f) {
+                val shift = stashOverhangPx / 2f * stashProgress
+                val cx =
+                    when (edge) {
+                        FloatingToolbarEdge.Left -> center.x + shift
+                        FloatingToolbarEdge.Right -> center.x - shift
+                        FloatingToolbarEdge.Top, FloatingToolbarEdge.Bottom -> center.x
+                    }
+                val cy =
+                    when (edge) {
+                        FloatingToolbarEdge.Top -> center.y + shift
+                        FloatingToolbarEdge.Bottom -> center.y - shift
+                        FloatingToolbarEdge.Left, FloatingToolbarEdge.Right -> center.y
+                    }
+                val halfSpan = 6.5f * unit
+                val halfDepth = 2.5f * unit
+                val path =
+                    Path().apply {
+                        when (edge) {
+                            FloatingToolbarEdge.Left -> {
+                                moveTo(cx - halfDepth, cy - halfSpan)
+                                lineTo(cx + halfDepth, cy)
+                                lineTo(cx - halfDepth, cy + halfSpan)
+                            }
+                            FloatingToolbarEdge.Right -> {
+                                moveTo(cx + halfDepth, cy - halfSpan)
+                                lineTo(cx - halfDepth, cy)
+                                lineTo(cx + halfDepth, cy + halfSpan)
+                            }
+                            FloatingToolbarEdge.Top -> {
+                                moveTo(cx - halfSpan, cy - halfDepth)
+                                lineTo(cx, cy + halfDepth)
+                                lineTo(cx + halfSpan, cy - halfDepth)
+                            }
+                            FloatingToolbarEdge.Bottom -> {
+                                moveTo(cx - halfSpan, cy + halfDepth)
+                                lineTo(cx, cy - halfDepth)
+                                lineTo(cx + halfSpan, cy + halfDepth)
+                            }
+                        }
+                    }
+                drawPath(
+                    path = path,
+                    color = contentColor.copy(alpha = 0.85f * stashProgress),
+                    style = Stroke(width = 2.4f * unit, cap = StrokeCap.Round, join = StrokeJoin.Round),
+                )
+            }
         }
     }
 }

@@ -9,6 +9,7 @@ import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.KeyboardShortcutGroup
 import android.view.Menu
@@ -21,6 +22,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.geometry.Offset
 import androidx.core.content.IntentCompat
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
@@ -60,6 +62,7 @@ class SessionActivity : ComponentActivity() {
     private var screenView: RemoteScreenView? = null
     private var handledKeyCode: Int? = null
     private var mouseBackReleasedAt: Long? = null
+    private var suppressedHoverLocation: Offset? = null
 
     private val localNetworkAccess = LocalNetworkAccess.permission.requester(this)
     private val microphonePermission = MicrophoneSender.permission.requester(this)
@@ -197,8 +200,32 @@ class SessionActivity : ComponentActivity() {
         if (hasFocus) controller.sceneDidBecomeActive()
     }
 
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        if (event.actionMasked == MotionEvent.ACTION_DOWN && !event.isFromSource(InputDevice.SOURCE_MOUSE)) {
+            suppressedHoverLocation = Offset(event.x, event.y)
+            controller?.updateSystemPointerHover(null)
+        }
+        return super.dispatchTouchEvent(event)
+    }
+
     override fun dispatchGenericMotionEvent(event: MotionEvent): Boolean {
         noteMouseBack(event)
+        when (event.actionMasked) {
+            MotionEvent.ACTION_HOVER_ENTER, MotionEvent.ACTION_HOVER_MOVE -> {
+                val tool = event.getToolType(0)
+                val fromPointer = tool != MotionEvent.TOOL_TYPE_STYLUS && tool != MotionEvent.TOOL_TYPE_ERASER
+                val location = Offset(event.x, event.y)
+                val suppressed = suppressedHoverLocation
+                if (!fromPointer) {
+                    suppressedHoverLocation = null
+                    controller?.updateSystemPointerHover(null)
+                } else if (suppressed == null || (location - suppressed).getDistance() >= resources.displayMetrics.density) {
+                    suppressedHoverLocation = null
+                    controller?.updateSystemPointerHover(location)
+                }
+            }
+            MotionEvent.ACTION_HOVER_EXIT -> controller?.updateSystemPointerHover(null)
+        }
         return super.dispatchGenericMotionEvent(event)
     }
 

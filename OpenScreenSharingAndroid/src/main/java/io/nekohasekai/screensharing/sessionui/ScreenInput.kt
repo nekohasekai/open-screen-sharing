@@ -361,7 +361,7 @@ class ScreenInput(
             event.isFromSource(InputDevice.SOURCE_MOUSE) -> Unit
             id == handleTouch -> {
                 handleTouch = null
-                if (!cancelled && controller.toolbarHandleFrame?.contains(windowPoint(location)) == true) controller.toggleToolbar()
+                if (!cancelled && controller.toolbarHandleFrame?.contains(windowPoint(location)) == true) controller.tapToolbarHandle()
             }
             id in claimedTouches -> Unit
             else -> fingerEnded(id, location, time, cancelled)
@@ -1111,9 +1111,12 @@ class ScreenInput(
         val location = systemPointerLocation
         if (hasCapture && location != null) {
             systemPointerLocation = null
+            controller.updateSystemPointerHover(null)
             view.getLocationInWindow(windowLocation)
             controller.movePointer(view.surface.imagePoint(Offset(location.x - windowLocation[0], location.y - windowLocation[1])))
             view.surface.keepPointerVisible()
+        } else if (hasCapture) {
+            controller.updateSystemPointerHover(null)
         }
         view.pointerIcon = pointerIcon ?: nullIcon
     }

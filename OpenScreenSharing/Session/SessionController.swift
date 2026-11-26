@@ -139,6 +139,8 @@ final class SessionController: Identifiable {
     var scaleMode: ScaleMode = .fit
     var isFullScreen = false
     var isToolbarVisible = false
+    var isToolbarStashed = false
+    var isPointerNearToolbarHandle = false
     var isToolbarDocked = false
     var letterbox: Letterbox?
     var debugInfoInset: CGFloat?
@@ -182,9 +184,17 @@ final class SessionController: Identifiable {
     #else
     @PerceptionIgnored weak var screen: RemoteScreenNSView?
     #endif
-    var toolbarHandleFrame: CGRect?
+    var toolbarHandleFrame: CGRect? {
+        didSet {
+            if toolbarHandleFrame == nil || activeSystemPointerLocation != nil {
+                refreshPointerNearToolbarHandle()
+            }
+        }
+    }
     var toolbarBarFrame: CGRect?
     var lastSystemPointerLocation: CGPoint?
+    @PerceptionIgnored private var activeSystemPointerLocation: CGPoint?
+    @PerceptionIgnored private var wokenToolbarHandleFrame: CGRect?
     private var pointerLockHasLocked = false
     private let store = ComputerStore.shared
     @PerceptionIgnored var onClose: () -> Void = {}
@@ -1763,7 +1773,41 @@ final class SessionController: Identifiable {
     }
 
     func toggleToolbar() {
-        withAnimation(.smoothCompat(duration: 0.25)) { isToolbarVisible.toggle() }
+        withAnimation(.smoothCompat(duration: 0.25)) {
+            isToolbarVisible.toggle()
+            if isToolbarVisible { isToolbarStashed = false }
+        }
+    }
+
+    func tapToolbarHandle() {
+        if isToolbarStashed {
+            withAnimation(.smoothCompat(duration: 0.25)) { isToolbarStashed = false }
+        } else {
+            toggleToolbar()
+        }
+    }
+
+    func updateSystemPointerHover(_ location: CGPoint?) {
+        activeSystemPointerLocation = location
+        refreshPointerNearToolbarHandle()
+    }
+
+    private func refreshPointerNearToolbarHandle() {
+        guard !isPointerLocked, let location = activeSystemPointerLocation, let handle = toolbarHandleFrame else {
+            wokenToolbarHandleFrame = nil
+            if isPointerNearToolbarHandle { isPointerNearToolbarHandle = false }
+            return
+        }
+        let margin: CGFloat = isPointerNearToolbarHandle ? 16 : 12
+        let near = [handle, wokenToolbarHandleFrame].contains { $0?.insetBy(dx: -margin, dy: -margin).contains(location) == true }
+        if near != isPointerNearToolbarHandle {
+            isPointerNearToolbarHandle = near
+            if !near { wokenToolbarHandleFrame = nil }
+        }
+        if near, isToolbarStashed {
+            wokenToolbarHandleFrame = handle
+            withAnimation(.smoothCompat(duration: 0.25)) { isToolbarStashed = false }
+        }
     }
 
     var canLockPointer: Bool {

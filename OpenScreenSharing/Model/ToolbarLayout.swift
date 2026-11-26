@@ -112,6 +112,9 @@ final class ToolbarLayout {
     }
 
     static let itemSize: CGFloat = 44
+    static let stashVisibleThickness: CGFloat = 20
+    static let stashCornerRadius: CGFloat = 10
+    static let stashHitThickness: CGFloat = 28
     static let capsuleGroupSpacing: CGFloat = 8
     static let capsuleGroupPadding: CGFloat = 4
     static let capsuleMargin: CGFloat = 16
@@ -131,6 +134,15 @@ enum FloatingToolbarEdge: String, Codable, Sendable {
     case right
     case top
     case bottom
+
+    var stashChevronSymbol: String {
+        switch self {
+        case .left: "chevron.compact.right"
+        case .right: "chevron.compact.left"
+        case .top: "chevron.compact.down"
+        case .bottom: "chevron.compact.up"
+        }
+    }
 }
 
 struct FloatingToolbarAnchor: Codable, Equatable, Sendable {
@@ -146,6 +158,55 @@ struct FloatingToolbarAnchor: Codable, Equatable, Sendable {
         case .left, .right: CGPoint(x: geometry.cross, y: along)
         case .top, .bottom: CGPoint(x: along, y: geometry.cross)
         }
+    }
+
+    func stashedAlong(
+        from ballCenter: CGPoint, in size: CGSize, length: CGFloat, thickness: CGFloat, obstructions: ScreenObstructions
+    ) -> CGFloat? {
+        let half = length / 2
+        let clearance = ToolbarLayout.dockClearance
+        let margin = ToolbarLayout.floatingMargin
+        let corners = Self.effectiveCorners(in: size, obstructions: obstructions)
+        let rawStart: CGFloat
+        let rawEnd: CGFloat
+        let input: CGFloat
+        switch edge {
+        case .left:
+            rawStart = max(margin + half, corners.topLeft > 0 ? corners.topLeft + half : 0)
+            rawEnd = size.height - max(margin + half, corners.bottomLeft > 0 ? corners.bottomLeft + half : 0)
+            input = ballCenter.y
+        case .right:
+            rawStart = max(margin + half, corners.topRight > 0 ? corners.topRight + half : 0)
+            rawEnd = size.height - max(margin + half, corners.bottomRight > 0 ? corners.bottomRight + half : 0)
+            input = ballCenter.y
+        case .top:
+            rawStart = max(margin + half, corners.topLeft > 0 ? corners.topLeft + half : 0)
+            rawEnd = size.width - max(margin + half, corners.topRight > 0 ? corners.topRight + half : 0)
+            input = ballCenter.x
+        case .bottom:
+            rawStart = max(margin + half, corners.bottomLeft > 0 ? corners.bottomLeft + half : 0)
+            rawEnd = size.width - max(margin + half, corners.bottomRight > 0 ? corners.bottomRight + half : 0)
+            input = ballCenter.x
+        }
+        guard rawStart <= rawEnd else { return nil }
+        var segments: [(CGFloat, CGFloat)] = [(rawStart, rawEnd)]
+        let reach = thickness + clearance
+        for occlusion in obstructions.occlusions {
+            switch edge {
+            case .left where occlusion.minX < reach:
+                segments = Self.subtractInterval(occlusion.minY - clearance - half, occlusion.maxY + clearance + half, from: segments)
+            case .right where occlusion.maxX > size.width - reach:
+                segments = Self.subtractInterval(occlusion.minY - clearance - half, occlusion.maxY + clearance + half, from: segments)
+            case .top where occlusion.minY < reach:
+                segments = Self.subtractInterval(occlusion.minX - clearance - half, occlusion.maxX + clearance + half, from: segments)
+            case .bottom where occlusion.maxY > size.height - reach:
+                segments = Self.subtractInterval(occlusion.minX - clearance - half, occlusion.maxX + clearance + half, from: segments)
+            default:
+                break
+            }
+        }
+        guard !segments.isEmpty else { return nil }
+        return Self.clampToSegments(input, segments, fallback: (rawStart + rawEnd) / 2)
     }
 
     static func clamp(_ value: CGFloat, _ low: CGFloat, _ high: CGFloat) -> CGFloat {

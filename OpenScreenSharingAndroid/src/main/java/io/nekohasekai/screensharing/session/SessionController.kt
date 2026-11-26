@@ -292,9 +292,21 @@ class SessionController(
 
     final override val pipeline = DisplayPipeline()
     override var screen: RemoteScreenSurface? = null
-    var toolbarHandleFrame: Rect? by mutableStateOf(null)
+    var isToolbarStashed: Boolean by mutableStateOf(false)
+    var isPointerNearToolbarHandle: Boolean by mutableStateOf(false)
+    private val toolbarHandleFrameState = mutableStateOf<Rect?>(null)
+    var toolbarHandleFrame: Rect?
+        get() = toolbarHandleFrameState.value
+        set(value) {
+            toolbarHandleFrameState.value = value
+            if (value == null || activeSystemPointerLocation != null) {
+                refreshPointerNearToolbarHandle()
+            }
+        }
     var toolbarBarFrame: Rect? by mutableStateOf(null)
     var lastSystemPointerLocation: Offset? by mutableStateOf(null)
+    private var activeSystemPointerLocation: Offset? = null
+    private var wokenToolbarHandleFrame: Rect? = null
     private var pointerLockHasLocked: Boolean by mutableStateOf(false)
     var onClose: () -> Unit = {}
 
@@ -2034,6 +2046,41 @@ class SessionController(
 
     fun toggleToolbar() {
         isToolbarVisible = !isToolbarVisible
+        if (isToolbarVisible) isToolbarStashed = false
+    }
+
+    fun tapToolbarHandle() {
+        if (isToolbarStashed) {
+            isToolbarStashed = false
+        } else {
+            toggleToolbar()
+        }
+    }
+
+    fun updateSystemPointerHover(location: Offset?) {
+        activeSystemPointerLocation = location
+        refreshPointerNearToolbarHandle()
+    }
+
+    private fun refreshPointerNearToolbarHandle() {
+        val location = activeSystemPointerLocation
+        val handle = toolbarHandleFrame
+        if (isPointerLocked || location == null || handle == null) {
+            wokenToolbarHandleFrame = null
+            if (isPointerNearToolbarHandle) isPointerNearToolbarHandle = false
+            return
+        }
+        val density = App.instance.resources.displayMetrics.density
+        val margin = (if (isPointerNearToolbarHandle) 16f else 12f) * density
+        val near = listOf(handle, wokenToolbarHandleFrame).any { it?.inflate(margin)?.contains(location) == true }
+        if (near != isPointerNearToolbarHandle) {
+            isPointerNearToolbarHandle = near
+            if (!near) wokenToolbarHandleFrame = null
+        }
+        if (near && isToolbarStashed) {
+            wokenToolbarHandleFrame = handle
+            isToolbarStashed = false
+        }
     }
 
     val canLockPointer: Boolean get() = mode.controls

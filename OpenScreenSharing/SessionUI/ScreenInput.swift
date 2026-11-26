@@ -223,7 +223,7 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
             case .direct, .pencil:
                 if touch === handleTouch {
                     handleTouch = nil
-                    if controller.toolbarHandleFrame?.contains(touch.location(in: nil)) == true { controller.toggleToolbar() }
+                    if controller.toolbarHandleFrame?.contains(touch.location(in: nil)) == true { controller.tapToolbarHandle() }
                 } else {
                     fingerEnded(touch, cancelled: false)
                 }
@@ -718,8 +718,11 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
         }
         if isPointerLocked, let systemPointerLocation {
             self.systemPointerLocation = nil
+            controller.updateSystemPointerHover(nil)
             controller.movePointer(to: view.imagePoint(for: view.convert(systemPointerLocation, from: nil)))
             view.keepPointerVisible()
+        } else if isPointerLocked {
+            controller.updateSystemPointerHover(nil)
         }
         pointerInteraction.invalidate()
     }
@@ -740,15 +743,25 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
     }
 
     @objc private func trackSystemPointer(_ gesture: UIHoverGestureRecognizer) {
-        guard !isPointerLocked, gesture.state == .began || gesture.state == .changed else { return }
-        guard !isSuppressedHover(gesture) else { return }
-        systemPointerLocation = gesture.location(in: nil)
-        controller.lastSystemPointerLocation = systemPointerLocation
-        let overPicture = view.imageRect.contains(gesture.location(in: view))
-        controller.isSystemPointerOverPicture = overPicture
-        var fromPointer = true
-        if #available(iOS 16.1, *) { fromPointer = gesture.zOffset == 0 }
-        systemPointerOverPicture = overPicture && fromPointer
+        guard !isPointerLocked else {
+            controller.updateSystemPointerHover(nil)
+            return
+        }
+        switch gesture.state {
+        case .began, .changed:
+            guard !isSuppressedHover(gesture) else { return }
+            let location = gesture.location(in: nil)
+            systemPointerLocation = location
+            controller.lastSystemPointerLocation = location
+            let overPicture = view.imageRect.contains(gesture.location(in: view))
+            controller.isSystemPointerOverPicture = overPicture
+            var fromPointer = true
+            if #available(iOS 16.1, *) { fromPointer = gesture.zOffset == 0 }
+            systemPointerOverPicture = overPicture && fromPointer
+            controller.updateSystemPointerHover(fromPointer ? location : nil)
+        default:
+            controller.updateSystemPointerHover(nil)
+        }
     }
 
     private func windowTouchBegan(_ touch: UITouch) {
@@ -761,6 +774,7 @@ final class ScreenInput: NSObject, UIGestureRecognizerDelegate, UIPointerInterac
             }
             systemPointerLocation = nil
             systemPointerOverPicture = false
+            controller.updateSystemPointerHover(nil)
         } else {
             suppressedHoverLocation = nil
             if !isPointerLocked {
